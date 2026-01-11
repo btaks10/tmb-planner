@@ -3,7 +3,8 @@ import { segmentData } from './segmentData';
 import {
   Eye, Waves, Mountain, Landmark, Church, Bird, Camera,
   ChevronDown, ChevronRight, Utensils, Home, MapPin,
-  Zap, Bus, CableCar, Route, Check, AlertTriangle
+  Zap, Bus, CableCar, Route, Check, AlertTriangle,
+  Plus, Minus
 } from 'lucide-react';
 
 const WAYPOINTS = [
@@ -581,14 +582,66 @@ export default function App() {
     }));
   };
 
-  const addDay = () => {
+  const splitLongestDay = () => {
     setScenarios(scenarios.map(s => {
       if (s.id !== activeScenarioId) return s;
-      const lastEnd = s.days[s.days.length - 1] || 0;
-      if (lastEnd < WAYPOINTS.length - 1) {
-        return { ...s, days: [...s.days, Math.min(lastEnd + 3, WAYPOINTS.length - 1)] };
-      }
-      return s;
+
+      // Find the longest day by number of waypoints (segments)
+      let longestDayIdx = 0;
+      let maxWaypoints = 0;
+      let prevEnd = 0;
+
+      s.days.forEach((endIdx, i) => {
+        const waypointCount = endIdx - prevEnd;
+        if (waypointCount > maxWaypoints) {
+          maxWaypoints = waypointCount;
+          longestDayIdx = i;
+        }
+        prevEnd = endIdx;
+      });
+
+      // Need at least 2 waypoints to split
+      if (maxWaypoints < 2) return s;
+
+      // Calculate the midpoint of the longest day
+      const dayStart = longestDayIdx === 0 ? 0 : s.days[longestDayIdx - 1];
+      const dayEnd = s.days[longestDayIdx];
+      const midpoint = Math.floor((dayStart + dayEnd) / 2);
+
+      // Don't split if midpoint equals start
+      if (midpoint <= dayStart) return s;
+
+      // Insert the new day break
+      const newDays = [...s.days];
+      newDays.splice(longestDayIdx, 0, midpoint);
+
+      return { ...s, days: newDays };
+    }));
+  };
+
+  const mergeShortestDay = () => {
+    setScenarios(scenarios.map(s => {
+      if (s.id !== activeScenarioId) return s;
+      if (s.days.length <= 1) return s;
+
+      // Find the shortest day by number of waypoints
+      let shortestDayIdx = 0;
+      let minWaypoints = Infinity;
+      let prevEnd = 0;
+
+      s.days.forEach((endIdx, i) => {
+        const waypointCount = endIdx - prevEnd;
+        if (waypointCount < minWaypoints) {
+          minWaypoints = waypointCount;
+          shortestDayIdx = i;
+        }
+        prevEnd = endIdx;
+      });
+
+      // Remove the shortest day (merge with next day, or previous if it's the last)
+      const newDays = s.days.filter((_, i) => i !== shortestDayIdx);
+
+      return { ...s, days: newDays };
     }));
   };
 
@@ -736,17 +789,47 @@ export default function App() {
                     />
                   </div>
                 </div>
-                <div className="flex gap-4">
-                  {[
-                    { value: dayData.length, label: 'Days' },
-                    { value: `${totals.distance.toFixed(0)}km`, label: 'Distance' },
-                    { value: formatTime(totals.time - totalTimeSaved), label: totalTimeSaved > 0 ? `Hiking (-${formatTime(totalTimeSaved)})` : 'Hiking' },
-                  ].map((stat, i) => (
-                    <div key={i} className="text-center">
-                      <div className={`text-2xl font-bold ${i === 2 && totalTimeSaved > 0 ? 'text-cyan-400' : ''}`}>{stat.value}</div>
-                      <div className="text-xs text-slate-500 uppercase tracking-wider">{stat.label}</div>
+                <div className="flex gap-4 items-center">
+                  {/* Days with +/- buttons */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={mergeShortestDay}
+                      disabled={dayData.length <= 1}
+                      className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 text-slate-400 hover:bg-rose-500/20 hover:border-rose-500/30 hover:text-rose-400 disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+                      title="Remove day (merge shortest)"
+                    >
+                      <Minus className="w-4 h-4" />
+                    </button>
+                    <div className="text-center min-w-[3rem]">
+                      <div className="text-2xl font-bold">{dayData.length}</div>
+                      <div className="text-xs text-slate-500 uppercase tracking-wider">Days</div>
                     </div>
-                  ))}
+                    <button
+                      onClick={splitLongestDay}
+                      className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 text-slate-400 hover:bg-emerald-500/20 hover:border-emerald-500/30 hover:text-emerald-400 transition-all flex items-center justify-center"
+                      title="Add day (split longest)"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div className="w-px h-10 bg-white/10" />
+
+                  {/* Distance */}
+                  <div className="text-center">
+                    <div className="text-2xl font-bold">{totals.distance.toFixed(0)}km</div>
+                    <div className="text-xs text-slate-500 uppercase tracking-wider">Distance</div>
+                  </div>
+
+                  {/* Hiking time */}
+                  <div className="text-center">
+                    <div className={`text-2xl font-bold ${totalTimeSaved > 0 ? 'text-cyan-400' : ''}`}>
+                      {formatTime(totals.time - totalTimeSaved)}
+                    </div>
+                    <div className="text-xs text-slate-500 uppercase tracking-wider">
+                      {totalTimeSaved > 0 ? `Hiking (-${formatTime(totalTimeSaved)})` : 'Hiking'}
+                    </div>
+                  </div>
                 </div>
               </div>
             </GlassCard>
@@ -766,15 +849,6 @@ export default function App() {
                 />
               ))}
             </div>
-
-            {activeScenario.days[activeScenario.days.length - 1] < WAYPOINTS.length - 1 && (
-              <button
-                onClick={addDay}
-                className="w-full py-4 rounded-2xl border-2 border-dashed border-white/10 hover:border-emerald-500/50 hover:bg-emerald-500/5 text-slate-500 hover:text-emerald-400 transition-all duration-300 mb-6"
-              >
-                + Add another day
-              </button>
-            )}
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
