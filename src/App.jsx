@@ -1,4 +1,10 @@
 import { useState, useMemo } from 'react';
+import { segmentData } from './segmentData';
+import {
+  Eye, Waves, Mountain, Landmark, Church, Bird, Camera,
+  ChevronDown, ChevronRight, Utensils, Home, MapPin,
+  Zap, Bus, CableCar, Route, Check, AlertTriangle
+} from 'lucide-react';
 
 const WAYPOINTS = [
   { id: 0, name: "Les Houches", altitude: 1007, cumDist: 0, cumTime: 0, ascent: 0, descent: 0, stage: 1 },
@@ -65,14 +71,456 @@ const GlassCard = ({ children, className = "", hover = false }) => (
   </div>
 );
 
+const SightIcon = ({ type, className = "w-4 h-4" }) => {
+  const icons = {
+    viewpoint: Eye,
+    lake: Waves,
+    glacier: Mountain,
+    historical: Landmark,
+    chapel: Church,
+    wildlife: Bird,
+    photo: Camera,
+  };
+  const Icon = icons[type] || MapPin;
+  return <Icon className={className} />;
+};
+
+const ShortcutIcon = ({ type, className = "w-4 h-4" }) => {
+  const icons = {
+    cable_car: CableCar,
+    bus: Bus,
+    alternate_route: Route,
+  };
+  const Icon = icons[type] || Zap;
+  return <Icon className={className} />;
+};
+
+const getPositionLabel = (position) => {
+  if (position <= 0.33) return 'Early';
+  if (position <= 0.66) return 'Midway';
+  return 'Late';
+};
+
+const groupByPosition = (items) => {
+  const groups = { Early: [], Midway: [], Late: [] };
+  items.forEach(item => {
+    const label = getPositionLabel(item.position);
+    groups[label].push(item);
+  });
+  return groups;
+};
+
+const SubSegment = ({ fromWp, toWp, segmentKey, selectedShortcuts, onShortcutToggle }) => {
+  const [expanded, setExpanded] = useState(false);
+  const [expandedSection, setExpandedSection] = useState(null);
+  const [expandedSight, setExpandedSight] = useState(null);
+
+  const segment = segmentData[segmentKey];
+  if (!segment) return null;
+
+  const distance = (toWp.cumDist - fromWp.cumDist).toFixed(1);
+  const time = toWp.cumTime - fromWp.cumTime;
+  const ascent = toWp.ascent - fromWp.ascent;
+  const descent = toWp.descent - fromWp.descent;
+
+  const sightGroups = groupByPosition(segment.sights || []);
+  const foodGroups = groupByPosition(segment.foodStops || []);
+  const shortcutGroups = groupByPosition(segment.shortcuts || []);
+
+  const hasSights = segment.sights?.length > 0;
+  const hasFood = segment.foodStops?.length > 0;
+  const hasShortcuts = segment.shortcuts?.length > 0;
+
+  return (
+    <div className="border-l-2 border-white/10 ml-4 pl-4 py-2">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full flex items-center gap-3 text-left group"
+      >
+        <div className="text-slate-500 group-hover:text-slate-300 transition-colors">
+          {expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-slate-400">{fromWp.name}</span>
+            <span className="text-slate-600">→</span>
+            <span className="text-slate-200">{toWp.name}</span>
+          </div>
+          <div className="flex gap-4 text-xs text-slate-500 mt-1">
+            <span>{distance} km</span>
+            <span className="text-emerald-500/70">↑{ascent}m</span>
+            <span className="text-rose-500/70">↓{descent}m</span>
+            <span>{formatTime(time)}</span>
+          </div>
+        </div>
+      </button>
+
+      {expanded && (
+        <div className="mt-3 space-y-2">
+          {/* Sights Section */}
+          {hasSights && (
+            <div className="rounded-xl bg-white/5 overflow-hidden">
+              <button
+                onClick={() => setExpandedSection(expandedSection === 'sights' ? null : 'sights')}
+                className="w-full px-4 py-3 flex items-center justify-between text-sm hover:bg-white/5 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <Eye className="w-4 h-4 text-amber-400" />
+                  <span className="text-slate-300">Sights</span>
+                  <span className="text-slate-500 text-xs">({segment.sights.length})</span>
+                </div>
+                {expandedSection === 'sights' ? <ChevronDown className="w-4 h-4 text-slate-500" /> : <ChevronRight className="w-4 h-4 text-slate-500" />}
+              </button>
+
+              {expandedSection === 'sights' && (
+                <div className="px-4 pb-3 space-y-3">
+                  {Object.entries(sightGroups).map(([label, sights]) =>
+                    sights.length > 0 && (
+                      <div key={label}>
+                        <div className="text-xs text-slate-500 uppercase tracking-wider mb-2">{label}</div>
+                        {sights.map((sight, idx) => (
+                          <div key={idx} className="mb-2">
+                            <button
+                              onClick={() => setExpandedSight(expandedSight === `${segmentKey}-${idx}` ? null : `${segmentKey}-${idx}`)}
+                              className="w-full text-left flex items-start gap-2 p-2 rounded-lg hover:bg-white/5 transition-colors"
+                            >
+                              <SightIcon type={sight.type} className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <div className="text-sm text-slate-200">{sight.name}</div>
+                                <div className="text-xs text-slate-500">{sight.description}</div>
+                              </div>
+                              {sight.photoRating >= 4 && (
+                                <div className="text-xs text-amber-400">★{sight.photoRating}</div>
+                              )}
+                            </button>
+                            {expandedSight === `${segmentKey}-${idx}` && (
+                              <div className="ml-6 mt-2 p-3 rounded-lg bg-white/5 text-xs text-slate-400">
+                                {sight.detailedDescription}
+                                {sight.timeToVisit > 0 && (
+                                  <div className="mt-2 text-slate-500">
+                                    Time to visit: ~{sight.timeToVisit} min
+                                    {sight.distanceOffTrail > 0 && ` • ${sight.distanceOffTrail}km off trail`}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Food & Refuges Section */}
+          {hasFood && (
+            <div className="rounded-xl bg-white/5 overflow-hidden">
+              <button
+                onClick={() => setExpandedSection(expandedSection === 'food' ? null : 'food')}
+                className="w-full px-4 py-3 flex items-center justify-between text-sm hover:bg-white/5 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <Utensils className="w-4 h-4 text-orange-400" />
+                  <span className="text-slate-300">Food & Refuges</span>
+                  <span className="text-slate-500 text-xs">({segment.foodStops.length})</span>
+                </div>
+                {expandedSection === 'food' ? <ChevronDown className="w-4 h-4 text-slate-500" /> : <ChevronRight className="w-4 h-4 text-slate-500" />}
+              </button>
+
+              {expandedSection === 'food' && (
+                <div className="px-4 pb-3 space-y-3">
+                  {Object.entries(foodGroups).map(([label, foods]) =>
+                    foods.length > 0 && (
+                      <div key={label}>
+                        <div className="text-xs text-slate-500 uppercase tracking-wider mb-2">{label}</div>
+                        {foods.map((food, idx) => (
+                          <div key={idx} className="flex items-start gap-2 p-2 rounded-lg hover:bg-white/5 transition-colors">
+                            {food.type === 'refuge' ? (
+                              <Home className="w-4 h-4 text-orange-400 mt-0.5 shrink-0" />
+                            ) : (
+                              <Utensils className="w-4 h-4 text-orange-400 mt-0.5 shrink-0" />
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm text-slate-200">{food.name}</span>
+                                <span className="text-xs text-slate-500">{food.priceRange}</span>
+                              </div>
+                              <div className="text-xs text-slate-500">{food.description}</div>
+                              {food.specialty && (
+                                <div className="text-xs text-orange-400/70 mt-1">★ {food.specialty}</div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Shortcuts Section */}
+          {hasShortcuts && (
+            <div className="rounded-xl bg-white/5 overflow-hidden">
+              <button
+                onClick={() => setExpandedSection(expandedSection === 'shortcuts' ? null : 'shortcuts')}
+                className="w-full px-4 py-3 flex items-center justify-between text-sm hover:bg-white/5 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-cyan-400" />
+                  <span className="text-slate-300">Shortcuts</span>
+                  <span className="text-slate-500 text-xs">({segment.shortcuts.length})</span>
+                </div>
+                {expandedSection === 'shortcuts' ? <ChevronDown className="w-4 h-4 text-slate-500" /> : <ChevronRight className="w-4 h-4 text-slate-500" />}
+              </button>
+
+              {expandedSection === 'shortcuts' && (
+                <div className="px-4 pb-3 space-y-3">
+                  {Object.entries(shortcutGroups).map(([label, shortcuts]) =>
+                    shortcuts.length > 0 && (
+                      <div key={label}>
+                        <div className="text-xs text-slate-500 uppercase tracking-wider mb-2">{label}</div>
+                        {shortcuts.map((shortcut, idx) => {
+                          const shortcutId = `${segmentKey}-${shortcut.name}`;
+                          const isSelected = selectedShortcuts[shortcutId];
+
+                          return (
+                            <div key={idx} className={`p-3 rounded-lg transition-colors ${isSelected ? 'bg-cyan-500/20 border border-cyan-500/30' : 'bg-white/5'}`}>
+                              <div className="flex items-start gap-3">
+                                <button
+                                  onClick={() => onShortcutToggle(shortcutId, shortcut.timeSaved)}
+                                  className={`mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                                    isSelected
+                                      ? 'bg-cyan-500 border-cyan-500'
+                                      : 'border-slate-500 hover:border-cyan-400'
+                                  }`}
+                                >
+                                  {isSelected && <Check className="w-3 h-3 text-white" />}
+                                </button>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <ShortcutIcon type={shortcut.type} className="w-4 h-4 text-cyan-400" />
+                                    <span className="text-sm text-slate-200">{shortcut.name}</span>
+                                  </div>
+                                  <div className="text-xs text-slate-500 mt-1">{shortcut.description}</div>
+                                  <div className="flex flex-wrap gap-3 mt-2 text-xs">
+                                    {shortcut.timeSaved > 0 && (
+                                      <span className="text-cyan-400">Saves {formatTime(shortcut.timeSaved)}</span>
+                                    )}
+                                    {shortcut.cost > 0 && (
+                                      <span className="text-slate-400">€{shortcut.cost}</span>
+                                    )}
+                                  </div>
+                                  {shortcut.skipsToWaypoint && (
+                                    <div className="flex items-center gap-1 mt-2 text-xs text-amber-400">
+                                      <AlertTriangle className="w-3 h-3" />
+                                      <span>Skips to {WAYPOINTS[shortcut.skipsToWaypoint]?.name}</span>
+                                    </div>
+                                  )}
+                                  {shortcut.considerations && (
+                                    <div className="text-xs text-slate-500 mt-2 italic">{shortcut.considerations}</div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, removeDay, selectedShortcuts, onShortcutToggle }) => {
+  const [expanded, setExpanded] = useState(false);
+
+  const prevEnd = dayIndex === 0 ? 0 : activeScenario.days[dayIndex - 1];
+  const availableWaypoints = WAYPOINTS.filter((w, i) => i > prevEnd);
+
+  // Calculate time saved from shortcuts for this day's segments
+  const timeSaved = useMemo(() => {
+    let saved = 0;
+    for (let wpIdx = prevEnd; wpIdx < activeScenario.days[dayIndex]; wpIdx++) {
+      const segmentKey = `${wpIdx}-${wpIdx + 1}`;
+      const segment = segmentData[segmentKey];
+      if (segment?.shortcuts) {
+        segment.shortcuts.forEach(shortcut => {
+          const shortcutId = `${segmentKey}-${shortcut.name}`;
+          if (selectedShortcuts[shortcutId]) {
+            saved += shortcut.timeSaved;
+          }
+        });
+      }
+    }
+    return saved;
+  }, [selectedShortcuts, prevEnd, activeScenario.days, dayIndex]);
+
+  const adjustedTime = day.time - timeSaved;
+
+  // Get all sub-segments for this day
+  const subSegments = [];
+  for (let wpIdx = prevEnd; wpIdx < activeScenario.days[dayIndex]; wpIdx++) {
+    subSegments.push({
+      fromWp: WAYPOINTS[wpIdx],
+      toWp: WAYPOINTS[wpIdx + 1],
+      segmentKey: `${wpIdx}-${wpIdx + 1}`
+    });
+  }
+
+  return (
+    <GlassCard className="p-4 group" hover>
+      <div
+        className="flex items-center gap-4 cursor-pointer"
+        onClick={() => setExpanded(!expanded)}
+      >
+        <div
+          className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center shrink-0 bg-gradient-to-br ${color.gradient} shadow-lg`}
+          style={{ boxShadow: `0 8px 24px -8px ${color.main}50` }}
+        >
+          <span className="text-[10px] uppercase tracking-wider opacity-80">Day</span>
+          <span className="text-xl font-bold -mt-0.5">{day.day}</span>
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="text-xs text-slate-500 mb-1">{formatDate(day.date)}</div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-medium text-slate-200">{day.startWp.name}</span>
+            <svg className="w-4 h-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+            <span className="font-medium text-slate-200">{day.endWp.name}</span>
+          </div>
+        </div>
+
+        <div className="hidden sm:flex items-center gap-6 text-sm">
+          <div className="text-center">
+            <div className="font-semibold text-slate-200">{day.distance}</div>
+            <div className="text-xs text-slate-500">km</div>
+          </div>
+          <div className="text-center">
+            <div className="font-semibold text-emerald-400">↑{day.ascent}</div>
+            <div className="text-xs text-slate-500">m up</div>
+          </div>
+          <div className="text-center">
+            <div className="font-semibold text-rose-400">↓{day.descent}</div>
+            <div className="text-xs text-slate-500">m down</div>
+          </div>
+          <div className="text-center">
+            <div className={`font-semibold ${timeSaved > 0 ? 'text-cyan-400' : 'text-slate-200'}`}>
+              {formatTime(adjustedTime)}
+            </div>
+            <div className="text-xs text-slate-500">
+              {timeSaved > 0 ? (
+                <span className="text-cyan-400/70">-{formatTime(timeSaved)}</span>
+              ) : 'hike'}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <div className="text-slate-500">
+            {expanded ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+          </div>
+          <button
+            onClick={(e) => { e.stopPropagation(); removeDay(dayIndex); }}
+            className="w-8 h-8 rounded-full text-slate-600 hover:text-rose-400 hover:bg-rose-500/10 transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center"
+          >
+            ×
+          </button>
+        </div>
+      </div>
+
+      {expanded && (
+        <div className="mt-4 pt-4 border-t border-white/10">
+          {/* Destination selector */}
+          <div className="mb-4">
+            <label className="text-xs text-slate-500 uppercase tracking-wider block mb-2">End Point</label>
+            <select
+              value={activeScenario.days[dayIndex]}
+              onChange={(e) => { e.stopPropagation(); updateDay(dayIndex, parseInt(e.target.value)); }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full bg-white/5 border border-white/10 px-4 py-2.5 rounded-xl text-sm focus:border-emerald-500 outline-none cursor-pointer hover:bg-white/10 transition-colors"
+            >
+              {availableWaypoints.map(wp => {
+                const delta = wp.cumTime - WAYPOINTS[prevEnd].cumTime;
+                const dist = (wp.cumDist - WAYPOINTS[prevEnd].cumDist).toFixed(1);
+                return (
+                  <option key={wp.id} value={wp.id}>
+                    {wp.name} — {dist}km, {formatTime(delta)}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+
+          {/* Sub-segments */}
+          <div className="space-y-1">
+            <div className="text-xs text-slate-500 uppercase tracking-wider mb-2">Segments</div>
+            {subSegments.map((seg, idx) => (
+              <SubSegment
+                key={idx}
+                fromWp={seg.fromWp}
+                toWp={seg.toWp}
+                segmentKey={seg.segmentKey}
+                selectedShortcuts={selectedShortcuts}
+                onShortcutToggle={onShortcutToggle}
+              />
+            ))}
+          </div>
+
+          {/* Mobile stats */}
+          <div className="sm:hidden grid grid-cols-4 gap-2 mt-4 pt-4 border-t border-white/10">
+            <div className="text-center">
+              <div className="font-semibold text-slate-200">{day.distance}</div>
+              <div className="text-xs text-slate-500">km</div>
+            </div>
+            <div className="text-center">
+              <div className="font-semibold text-emerald-400">↑{day.ascent}</div>
+              <div className="text-xs text-slate-500">m</div>
+            </div>
+            <div className="text-center">
+              <div className="font-semibold text-rose-400">↓{day.descent}</div>
+              <div className="text-xs text-slate-500">m</div>
+            </div>
+            <div className="text-center">
+              <div className={`font-semibold ${timeSaved > 0 ? 'text-cyan-400' : 'text-slate-200'}`}>
+                {formatTime(adjustedTime)}
+              </div>
+              <div className="text-xs text-slate-500">hike</div>
+            </div>
+          </div>
+        </div>
+      )}
+    </GlassCard>
+  );
+};
+
 export default function App() {
   const [scenarios, setScenarios] = useState([
     { id: 1, name: "7-Day Classic", startDate: "2026-08-01", days: [6, 8, 12, 15, 21, 28, 33] }
   ]);
   const [activeScenarioId, setActiveScenarioId] = useState(1);
   const [view, setView] = useState('plan');
+  const [selectedShortcuts, setSelectedShortcuts] = useState({});
 
   const activeScenario = scenarios.find(s => s.id === activeScenarioId);
+
+  const handleShortcutToggle = (shortcutId, timeSaved) => {
+    setSelectedShortcuts(prev => ({
+      ...prev,
+      [shortcutId]: !prev[shortcutId]
+    }));
+  };
 
   const getDayData = (scenario) => {
     if (!scenario) return [];
@@ -95,6 +543,27 @@ export default function App() {
   };
 
   const dayData = getDayData(activeScenario);
+
+  // Calculate total time saved from selected shortcuts
+  const totalTimeSaved = useMemo(() => {
+    let saved = 0;
+    Object.entries(selectedShortcuts).forEach(([shortcutId, isSelected]) => {
+      if (isSelected) {
+        const [segmentKey] = shortcutId.split('-').slice(0, 2);
+        const fullSegmentKey = shortcutId.substring(0, shortcutId.lastIndexOf('-'));
+        const segment = segmentData[fullSegmentKey.split('-').slice(0, 2).join('-')];
+        if (segment?.shortcuts) {
+          const shortcutName = shortcutId.split('-').slice(2).join('-');
+          const shortcut = segment.shortcuts.find(s => s.name === shortcutName);
+          if (shortcut) {
+            saved += shortcut.timeSaved;
+          }
+        }
+      }
+    });
+    return saved;
+  }, [selectedShortcuts]);
+
   const totals = dayData.reduce((acc, d) => ({
     distance: acc.distance + parseFloat(d.distance),
     time: acc.time + d.time,
@@ -150,7 +619,7 @@ export default function App() {
         <div className="absolute top-1/2 -left-40 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
         <div className="absolute -bottom-40 right-1/3 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
       </div>
-      
+
       <div className="max-w-5xl mx-auto relative">
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
@@ -159,23 +628,23 @@ export default function App() {
           </div>
           <p className="text-slate-400 text-sm ml-13">Plan your journey around the roof of Europe</p>
         </div>
-        
+
         <div className="flex gap-2 mb-6 flex-wrap items-center">
           {scenarios.map(s => (
             <button
               key={s.id}
               onClick={() => setActiveScenarioId(s.id)}
               className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
-                activeScenarioId === s.id 
-                  ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-lg shadow-emerald-500/25' 
+                activeScenarioId === s.id
+                  ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-lg shadow-emerald-500/25'
                   : 'bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10'
               }`}
             >
               {s.name}
             </button>
           ))}
-          <button 
-            onClick={createScenario} 
+          <button
+            onClick={createScenario}
             className="w-10 h-10 rounded-full bg-white/5 border border-dashed border-white/20 text-slate-400 hover:bg-white/10 hover:border-white/30 transition-all duration-300 flex items-center justify-center"
           >
             +
@@ -260,7 +729,7 @@ export default function App() {
                     <input
                       type="date"
                       value={activeScenario.startDate}
-                      onChange={(e) => setScenarios(scenarios.map(s => 
+                      onChange={(e) => setScenarios(scenarios.map(s =>
                         s.id === activeScenarioId ? { ...s, startDate: e.target.value } : s
                       ))}
                       className="bg-white/5 border border-white/10 px-4 py-2 rounded-xl text-sm focus:border-emerald-500 outline-none transition-colors"
@@ -271,10 +740,10 @@ export default function App() {
                   {[
                     { value: dayData.length, label: 'Days' },
                     { value: `${totals.distance.toFixed(0)}km`, label: 'Distance' },
-                    { value: formatTime(totals.time), label: 'Hiking' },
+                    { value: formatTime(totals.time - totalTimeSaved), label: totalTimeSaved > 0 ? `Hiking (-${formatTime(totalTimeSaved)})` : 'Hiking' },
                   ].map((stat, i) => (
                     <div key={i} className="text-center">
-                      <div className="text-2xl font-bold">{stat.value}</div>
+                      <div className={`text-2xl font-bold ${i === 2 && totalTimeSaved > 0 ? 'text-cyan-400' : ''}`}>{stat.value}</div>
                       <div className="text-xs text-slate-500 uppercase tracking-wider">{stat.label}</div>
                     </div>
                   ))}
@@ -283,81 +752,24 @@ export default function App() {
             </GlassCard>
 
             <div className="space-y-3 mb-6">
-              {dayData.map((day, idx) => {
-                const prevEnd = idx === 0 ? 0 : activeScenario.days[idx - 1];
-                const availableWaypoints = WAYPOINTS.filter((w, i) => i > prevEnd);
-                const color = DAY_COLORS[idx % DAY_COLORS.length];
-                
-                return (
-                  <GlassCard key={idx} className="p-4 group" hover>
-                    <div className="flex items-center gap-4">
-                      <div 
-                        className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center shrink-0 bg-gradient-to-br ${color.gradient} shadow-lg`}
-                        style={{ boxShadow: `0 8px 24px -8px ${color.main}50` }}
-                      >
-                        <span className="text-[10px] uppercase tracking-wider opacity-80">Day</span>
-                        <span className="text-xl font-bold -mt-0.5">{day.day}</span>
-                      </div>
-                      
-                      <div className="flex-1 min-w-0">
-                        <div className="text-xs text-slate-500 mb-1">{formatDate(day.date)}</div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-medium text-slate-200">{day.startWp.name}</span>
-                          <svg className="w-4 h-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                          </svg>
-                          <select
-                            value={activeScenario.days[idx]}
-                            onChange={(e) => updateDay(idx, parseInt(e.target.value))}
-                            className="bg-white/5 border border-white/10 px-3 py-1.5 rounded-xl text-sm flex-1 min-w-48 focus:border-emerald-500 outline-none cursor-pointer hover:bg-white/10 transition-colors"
-                          >
-                            {availableWaypoints.map(wp => {
-                              const delta = wp.cumTime - WAYPOINTS[prevEnd].cumTime;
-                              const dist = (wp.cumDist - WAYPOINTS[prevEnd].cumDist).toFixed(1);
-                              return (
-                                <option key={wp.id} value={wp.id}>
-                                  {wp.name} — {dist}km, {formatTime(delta)}
-                                </option>
-                              );
-                            })}
-                          </select>
-                        </div>
-                      </div>
-
-                      <div className="hidden sm:flex items-center gap-6 text-sm">
-                        <div className="text-center">
-                          <div className="font-semibold text-slate-200">{day.distance}</div>
-                          <div className="text-xs text-slate-500">km</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="font-semibold text-emerald-400">↑{day.ascent}</div>
-                          <div className="text-xs text-slate-500">m up</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="font-semibold text-rose-400">↓{day.descent}</div>
-                          <div className="text-xs text-slate-500">m down</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="font-semibold text-slate-200">{formatTime(day.time)}</div>
-                          <div className="text-xs text-slate-500">hike</div>
-                        </div>
-                      </div>
-                      
-                      <button 
-                        onClick={() => removeDay(idx)}
-                        className="w-8 h-8 rounded-full text-slate-600 hover:text-rose-400 hover:bg-rose-500/10 transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  </GlassCard>
-                );
-              })}
+              {dayData.map((day, idx) => (
+                <ExpandableDayCard
+                  key={idx}
+                  day={day}
+                  dayIndex={idx}
+                  color={DAY_COLORS[idx % DAY_COLORS.length]}
+                  activeScenario={activeScenario}
+                  updateDay={updateDay}
+                  removeDay={removeDay}
+                  selectedShortcuts={selectedShortcuts}
+                  onShortcutToggle={handleShortcutToggle}
+                />
+              ))}
             </div>
 
             {activeScenario.days[activeScenario.days.length - 1] < WAYPOINTS.length - 1 && (
-              <button 
-                onClick={addDay} 
+              <button
+                onClick={addDay}
                 className="w-full py-4 rounded-2xl border-2 border-dashed border-white/10 hover:border-emerald-500/50 hover:bg-emerald-500/5 text-slate-500 hover:text-emerald-400 transition-all duration-300 mb-6"
               >
                 + Add another day
@@ -367,7 +779,7 @@ export default function App() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
                 { value: totals.distance.toFixed(1), unit: 'km', label: 'Total Distance', icon: '🥾', gradient: 'from-emerald-500 to-teal-500' },
-                { value: formatTime(totals.time), unit: '', label: 'Hiking Time', icon: '⏱️', gradient: 'from-blue-500 to-indigo-500' },
+                { value: formatTime(totals.time - totalTimeSaved), unit: '', label: totalTimeSaved > 0 ? 'Adj. Time' : 'Hiking Time', icon: '⏱️', gradient: 'from-blue-500 to-indigo-500' },
                 { value: totals.ascent.toLocaleString(), unit: 'm', label: 'Total Ascent', icon: '⬆️', gradient: 'from-amber-500 to-orange-500' },
                 { value: totals.descent.toLocaleString(), unit: 'm', label: 'Total Descent', icon: '⬇️', gradient: 'from-rose-500 to-pink-500' },
               ].map((stat, i) => (
@@ -396,24 +808,24 @@ export default function App() {
                   <stop offset="100%" stopColor="#10b981" stopOpacity="0"/>
                 </linearGradient>
               </defs>
-              
+
               {[1000, 1500, 2000, 2500].map(alt => (
                 <g key={alt}>
                   <line x1="60" y1={260 - ((alt - minAlt) / (maxAlt - minAlt)) * 200} x2="780" y2={260 - ((alt - minAlt) / (maxAlt - minAlt)) * 200} stroke="#334155" strokeWidth="1" strokeDasharray="4"/>
                   <text x="55" y={264 - ((alt - minAlt) / (maxAlt - minAlt)) * 200} fill="#64748b" fontSize="10" textAnchor="end">{alt}m</text>
                 </g>
               ))}
-              
+
               <path
                 d={`M 60 260 L ${WAYPOINTS.map(p => `${60 + (p.cumDist / maxDist) * 720} ${260 - ((p.altitude - minAlt) / (maxAlt - minAlt)) * 200}`).join(' L ')} L 780 260 Z`}
                 fill="url(#elevGrad)"
               />
-              
+
               <path
                 d={`M ${WAYPOINTS.map((p, i) => `${i === 0 ? 'M' : 'L'} ${60 + (p.cumDist / maxDist) * 720} ${260 - ((p.altitude - minAlt) / (maxAlt - minAlt)) * 200}`).join(' ')}`}
                 fill="none" stroke="#10b981" strokeWidth="2.5"
               />
-              
+
               {dayData.map((d, i) => {
                 const x = 60 + (d.endWp.cumDist / maxDist) * 720;
                 const y = 260 - ((d.endWp.altitude - minAlt) / (maxAlt - minAlt)) * 200;
@@ -426,12 +838,12 @@ export default function App() {
                   </g>
                 );
               })}
-              
+
               {[0, 40, 80, 120, 160].map(km => (
                 <text key={km} x={60 + (km / maxDist) * 720} y={285} fill="#64748b" fontSize="10" textAnchor="middle">{km}km</text>
               ))}
             </svg>
-            
+
             <div className="flex flex-wrap gap-3 mt-6 justify-center">
               {dayData.map((d, i) => (
                 <div key={i} className="flex items-center gap-2 text-sm bg-white/5 px-3 py-1.5 rounded-full">
@@ -460,9 +872,9 @@ export default function App() {
                   <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
                 </filter>
               </defs>
-              
+
               <circle cx="200" cy="200" r="135" fill="none" stroke="#1e293b" strokeWidth="16"/>
-              
+
               {dayData.map((d, i) => {
                 const prevEnd = i === 0 ? 0 : activeScenario.days[i - 1];
                 const startAngle = (WAYPOINTS[prevEnd].cumDist / maxDist) * 360 - 90;
@@ -473,7 +885,7 @@ export default function App() {
                 const x2 = 200 + r * Math.cos(endAngle * Math.PI / 180);
                 const y2 = 200 + r * Math.sin(endAngle * Math.PI / 180);
                 const largeArc = (endAngle - startAngle) > 180 ? 1 : 0;
-                
+
                 return (
                   <path
                     key={i}
@@ -486,11 +898,11 @@ export default function App() {
                   />
                 );
               })}
-              
+
               <circle cx="200" cy="200" r="55" fill="url(#mtGrad)" stroke="#334155" strokeWidth="1"/>
               <text x="200" y="195" fill="#94a3b8" fontSize="9" textAnchor="middle" fontWeight="500">MONT BLANC</text>
               <text x="200" y="210" fill="#64748b" fontSize="8" textAnchor="middle">4,808m</text>
-              
+
               {dayData.map((d, i) => {
                 const angle = (d.endWp.cumDist / maxDist) * 360 - 90;
                 const r = 135;
@@ -499,7 +911,7 @@ export default function App() {
                 const labelR = 175;
                 const lx = 200 + labelR * Math.cos(angle * Math.PI / 180);
                 const ly = 200 + labelR * Math.sin(angle * Math.PI / 180);
-                
+
                 return (
                   <g key={i}>
                     <circle cx={x} cy={y} r="14" fill={DAY_COLORS[i % DAY_COLORS.length].main} stroke="#0f172a" strokeWidth="3"/>
@@ -510,25 +922,25 @@ export default function App() {
                   </g>
                 );
               })}
-              
+
               <g>
                 <circle cx={200} cy={200 - 135} r="10" fill="#10b981" stroke="white" strokeWidth="2"/>
                 <text x={200} y={200 - 135 + 4} fill="white" fontSize="8" textAnchor="middle">▶</text>
               </g>
-              
+
               <text x="200" y="355" fill="#475569" fontSize="10" textAnchor="middle">🇫🇷 France</text>
               <text x="340" y="240" fill="#475569" fontSize="10" textAnchor="middle">🇨🇭</text>
               <text x="290" y="130" fill="#475569" fontSize="10" textAnchor="middle">🇮🇹</text>
             </svg>
-            
+
             <div className="flex flex-wrap gap-2 mt-6 justify-center">
               {dayData.map((d, i) => (
-                <div 
-                  key={i} 
+                <div
+                  key={i}
                   className="flex items-center gap-2 text-xs px-3 py-2 rounded-xl"
                   style={{ backgroundColor: `${DAY_COLORS[i % DAY_COLORS.length].main}15` }}
                 >
-                  <div 
+                  <div
                     className="w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold"
                     style={{ backgroundColor: DAY_COLORS[i % DAY_COLORS.length].main }}
                   >
