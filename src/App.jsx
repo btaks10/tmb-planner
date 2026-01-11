@@ -1,11 +1,20 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { segmentData } from './segmentData';
 import {
   Eye, Waves, Mountain, Landmark, Church, Bird, Camera,
   ChevronDown, ChevronRight, Utensils, Home, MapPin,
   Zap, Bus, CableCar, Route, Check, AlertTriangle,
-  Plus, Minus
+  Plus, Minus, Save
 } from 'lucide-react';
+
+const STORAGE_KEY = 'tmb-planner-data';
+
+const DEFAULT_DATA = {
+  scenarios: [{ id: 1, name: "7-Day Classic", startDate: "2026-08-01", days: [6, 8, 12, 15, 21, 28, 33] }],
+  activeScenarioId: 1,
+  selectedShortcuts: {}
+};
 
 const WAYPOINTS = [
   { id: 0, name: "Les Houches", altitude: 1007, cumDist: 0, cumTime: 0, ascent: 0, descent: 0, stage: 1 },
@@ -342,99 +351,283 @@ const SubSegment = ({ fromWp, toWp, segmentKey, selectedShortcuts, onShortcutTog
   );
 };
 
+const EndpointDropdown = ({ value, options, onChange, formatTime }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const buttonRef = useRef(null);
+  const menuRef = useRef(null);
+
+  // Calculate menu position and close on outside click
+  useEffect(() => {
+    if (isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setMenuPosition({
+        top: rect.bottom + 4,
+        left: rect.left
+      });
+    }
+
+    const handleClickOutside = (event) => {
+      if (
+        buttonRef.current && !buttonRef.current.contains(event.target) &&
+        menuRef.current && !menuRef.current.contains(event.target)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
+
+  const selectedOption = options.find(opt => opt.id === value);
+
+  return (
+    <div className="relative w-56">
+      {/* Closed state - shows only name */}
+      <button
+        ref={buttonRef}
+        onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); }}
+        className={`w-full bg-white/5 border px-3 py-1.5 rounded-lg text-sm font-medium text-slate-200 hover:bg-white/10 transition-colors flex items-center justify-between gap-2 ${
+          isOpen ? 'border-emerald-500/50' : 'border-white/10'
+        }`}
+      >
+        <span className="truncate">{selectedOption?.name || 'Select...'}</span>
+        <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+
+      {/* Open state - portal dropdown menu */}
+      {isOpen && createPortal(
+        <div
+          ref={menuRef}
+          className="fixed w-80 max-h-64 overflow-y-auto rounded-xl"
+          style={{
+            top: menuPosition.top,
+            left: menuPosition.left,
+            backgroundColor: 'rgb(15, 23, 42)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05)',
+            zIndex: 9999
+          }}
+        >
+          {options.map((opt, index) => (
+            <button
+              key={opt.id}
+              onClick={(e) => {
+                e.stopPropagation();
+                onChange(opt.id);
+                setIsOpen(false);
+              }}
+              className={`w-full px-4 py-2.5 text-left text-sm transition-colors flex items-center justify-between gap-3 ${
+                opt.id === value
+                  ? 'bg-emerald-500/20 text-emerald-400'
+                  : 'text-slate-200 hover:bg-white/10'
+              } ${index === 0 ? 'rounded-t-xl' : ''} ${index === options.length - 1 ? 'rounded-b-xl' : ''}`}
+            >
+              <span className="font-medium truncate">{opt.name}</span>
+              <span className="text-xs text-slate-400 shrink-0">
+                {opt.dist}km · {formatTime(opt.time)}
+              </span>
+            </button>
+          ))}
+        </div>,
+        document.body
+      )}
+    </div>
+  );
+};
+
 const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, removeDay, selectedShortcuts, onShortcutToggle }) => {
   const [expanded, setExpanded] = useState(false);
+  const [activeTab, setActiveTab] = useState('segments');
+  const [expandedSightId, setExpandedSightId] = useState(null);
 
   const prevEnd = dayIndex === 0 ? 0 : activeScenario.days[dayIndex - 1];
   const availableWaypoints = WAYPOINTS.filter((w, i) => i > prevEnd);
 
-  // Calculate time saved from shortcuts for this day's segments
-  const timeSaved = useMemo(() => {
-    let saved = 0;
+  // Get all sub-segments for this day
+  const subSegments = useMemo(() => {
+    const segments = [];
     for (let wpIdx = prevEnd; wpIdx < activeScenario.days[dayIndex]; wpIdx++) {
-      const segmentKey = `${wpIdx}-${wpIdx + 1}`;
-      const segment = segmentData[segmentKey];
-      if (segment?.shortcuts) {
-        segment.shortcuts.forEach(shortcut => {
-          const shortcutId = `${segmentKey}-${shortcut.name}`;
-          if (selectedShortcuts[shortcutId]) {
-            saved += shortcut.timeSaved;
-          }
+      segments.push({
+        fromWp: WAYPOINTS[wpIdx],
+        toWp: WAYPOINTS[wpIdx + 1],
+        segmentKey: `${wpIdx}-${wpIdx + 1}`
+      });
+    }
+    return segments;
+  }, [prevEnd, activeScenario.days, dayIndex]);
+
+  // Aggregate all data for the day
+  const dayData = useMemo(() => {
+    const totalSegments = subSegments.length;
+    let allSights = [];
+    let allFood = [];
+    let allShortcuts = [];
+
+    subSegments.forEach((seg, segIndex) => {
+      const segment = segmentData[seg.segmentKey];
+      if (!segment) return;
+
+      // Calculate day-wide position for each item
+      const segmentStartPosition = segIndex / totalSegments;
+      const segmentEndPosition = (segIndex + 1) / totalSegments;
+
+      if (segment.sights) {
+        segment.sights.forEach(sight => {
+          const dayPosition = segmentStartPosition + (sight.position * (segmentEndPosition - segmentStartPosition));
+          allSights.push({
+            ...sight,
+            dayPosition,
+            segmentKey: seg.segmentKey,
+            segmentLabel: `${seg.fromWp.name} → ${seg.toWp.name}`
+          });
         });
       }
-    }
-    return saved;
-  }, [selectedShortcuts, prevEnd, activeScenario.days, dayIndex]);
+
+      if (segment.foodStops) {
+        segment.foodStops.forEach(food => {
+          const dayPosition = segmentStartPosition + (food.position * (segmentEndPosition - segmentStartPosition));
+          allFood.push({
+            ...food,
+            dayPosition,
+            segmentKey: seg.segmentKey,
+            segmentLabel: `${seg.fromWp.name} → ${seg.toWp.name}`
+          });
+        });
+      }
+
+      if (segment.shortcuts) {
+        segment.shortcuts.forEach(shortcut => {
+          const shortcutId = `${seg.segmentKey}-${shortcut.name}`;
+          allShortcuts.push({
+            ...shortcut,
+            shortcutId,
+            segmentKey: seg.segmentKey,
+            segmentLabel: `${seg.fromWp.name} → ${seg.toWp.name}`,
+            isSelected: !!selectedShortcuts[shortcutId]
+          });
+        });
+      }
+    });
+
+    // Sort by day position
+    allSights.sort((a, b) => a.dayPosition - b.dayPosition);
+    allFood.sort((a, b) => a.dayPosition - b.dayPosition);
+
+    return { allSights, allFood, allShortcuts };
+  }, [subSegments, selectedShortcuts]);
+
+  // Calculate time saved from shortcuts for this day's segments
+  const timeSaved = useMemo(() => {
+    return dayData.allShortcuts
+      .filter(s => s.isSelected)
+      .reduce((sum, s) => sum + s.timeSaved, 0);
+  }, [dayData.allShortcuts]);
 
   const adjustedTime = day.time - timeSaved;
 
-  // Get all sub-segments for this day
-  const subSegments = [];
-  for (let wpIdx = prevEnd; wpIdx < activeScenario.days[dayIndex]; wpIdx++) {
-    subSegments.push({
-      fromWp: WAYPOINTS[wpIdx],
-      toWp: WAYPOINTS[wpIdx + 1],
-      segmentKey: `${wpIdx}-${wpIdx + 1}`
+  // Group items by day position
+  const getDayPositionLabel = (pos) => {
+    if (pos <= 0.33) return 'Early in day';
+    if (pos <= 0.66) return 'Midway';
+    return 'Late in day';
+  };
+
+  const groupByDayPosition = (items) => {
+    const groups = { 'Early in day': [], 'Midway': [], 'Late in day': [] };
+    items.forEach(item => {
+      const label = getDayPositionLabel(item.dayPosition);
+      groups[label].push(item);
     });
-  }
+    return groups;
+  };
 
   return (
     <GlassCard className="p-4 group" hover>
+      {/* Main row with CSS grid for consistent column alignment */}
       <div
-        className="flex items-center gap-4 cursor-pointer"
+        className="grid items-center gap-3 cursor-pointer"
+        style={{ gridTemplateColumns: '3rem 5.5rem 9rem 1.5rem 14rem 3.5rem 4rem 4rem 4.5rem auto' }}
         onClick={() => setExpanded(!expanded)}
       >
+        {/* Column 1: Day badge */}
         <div
-          className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center shrink-0 bg-gradient-to-br ${color.gradient} shadow-lg`}
+          className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center shrink-0 bg-gradient-to-br ${color.gradient} shadow-lg`}
           style={{ boxShadow: `0 8px 24px -8px ${color.main}50` }}
         >
-          <span className="text-[10px] uppercase tracking-wider opacity-80">Day</span>
-          <span className="text-xl font-bold -mt-0.5">{day.day}</span>
+          <span className="text-[9px] uppercase tracking-wider opacity-80">Day</span>
+          <span className="text-lg font-bold -mt-0.5">{day.day}</span>
         </div>
 
-        <div className="flex-1 min-w-0">
-          <div className="text-xs text-slate-500 mb-1">{formatDate(day.date)}</div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-medium text-slate-200">{day.startWp.name}</span>
-            <svg className="w-4 h-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-            <span className="font-medium text-slate-200">{day.endWp.name}</span>
+        {/* Column 2: Date */}
+        <div className="text-xs text-slate-500">{formatDate(day.date)}</div>
+
+        {/* Column 3: Start location (fixed width) */}
+        <div className="flex items-center">
+          <span className="font-medium text-slate-200 truncate">{day.startWp.name}</span>
+        </div>
+
+        {/* Arrow between start and end */}
+        <div className="flex items-center justify-center">
+          <svg className="w-4 h-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </div>
+
+        {/* Column 4: End dropdown (fixed width) */}
+        <EndpointDropdown
+          value={activeScenario.days[dayIndex]}
+          options={availableWaypoints.map(wp => ({
+            id: wp.id,
+            name: wp.name,
+            dist: (wp.cumDist - WAYPOINTS[prevEnd].cumDist).toFixed(1),
+            time: wp.cumTime - WAYPOINTS[prevEnd].cumTime
+          }))}
+          onChange={(newValue) => updateDay(dayIndex, newValue)}
+          formatTime={formatTime}
+        />
+
+        {/* Column 5: Distance */}
+        <div className="text-center hidden sm:block">
+          <div className="font-semibold text-slate-200 text-sm">{day.distance}</div>
+          <div className="text-[10px] text-slate-500">km</div>
+        </div>
+
+        {/* Column 6: Elevation up */}
+        <div className="text-center hidden sm:block">
+          <div className="font-semibold text-emerald-400 text-sm">↑{day.ascent}</div>
+          <div className="text-[10px] text-slate-500">m</div>
+        </div>
+
+        {/* Column 7: Elevation down */}
+        <div className="text-center hidden sm:block">
+          <div className="font-semibold text-rose-400 text-sm">↓{day.descent}</div>
+          <div className="text-[10px] text-slate-500">m</div>
+        </div>
+
+        {/* Column 8: Time */}
+        <div className="text-center hidden sm:block">
+          <div className={`font-semibold text-sm ${timeSaved > 0 ? 'text-cyan-400' : 'text-slate-200'}`}>
+            {formatTime(adjustedTime)}
+          </div>
+          <div className="text-[10px] text-slate-500">
+            {timeSaved > 0 ? (
+              <span className="text-cyan-400/70">-{formatTime(timeSaved)}</span>
+            ) : 'hike'}
           </div>
         </div>
 
-        <div className="hidden sm:flex items-center gap-6 text-sm">
-          <div className="text-center">
-            <div className="font-semibold text-slate-200">{day.distance}</div>
-            <div className="text-xs text-slate-500">km</div>
-          </div>
-          <div className="text-center">
-            <div className="font-semibold text-emerald-400">↑{day.ascent}</div>
-            <div className="text-xs text-slate-500">m up</div>
-          </div>
-          <div className="text-center">
-            <div className="font-semibold text-rose-400">↓{day.descent}</div>
-            <div className="text-xs text-slate-500">m down</div>
-          </div>
-          <div className="text-center">
-            <div className={`font-semibold ${timeSaved > 0 ? 'text-cyan-400' : 'text-slate-200'}`}>
-              {formatTime(adjustedTime)}
-            </div>
-            <div className="text-xs text-slate-500">
-              {timeSaved > 0 ? (
-                <span className="text-cyan-400/70">-{formatTime(timeSaved)}</span>
-              ) : 'hike'}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
+        {/* Column 9: Expand arrow + delete */}
+        <div className="flex items-center gap-1 justify-end">
           <div className="text-slate-500">
             {expanded ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
           </div>
           <button
             onClick={(e) => { e.stopPropagation(); removeDay(dayIndex); }}
-            className="w-8 h-8 rounded-full text-slate-600 hover:text-rose-400 hover:bg-rose-500/10 transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center"
+            className="w-7 h-7 rounded-full text-slate-600 hover:text-rose-400 hover:bg-rose-500/10 transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center"
           >
             ×
           </button>
@@ -443,41 +636,198 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
 
       {expanded && (
         <div className="mt-4 pt-4 border-t border-white/10">
-          {/* Destination selector */}
-          <div className="mb-4">
-            <label className="text-xs text-slate-500 uppercase tracking-wider block mb-2">End Point</label>
-            <select
-              value={activeScenario.days[dayIndex]}
-              onChange={(e) => { e.stopPropagation(); updateDay(dayIndex, parseInt(e.target.value)); }}
-              onClick={(e) => e.stopPropagation()}
-              className="w-full bg-white/5 border border-white/10 px-4 py-2.5 rounded-xl text-sm focus:border-emerald-500 outline-none cursor-pointer hover:bg-white/10 transition-colors"
-            >
-              {availableWaypoints.map(wp => {
-                const delta = wp.cumTime - WAYPOINTS[prevEnd].cumTime;
-                const dist = (wp.cumDist - WAYPOINTS[prevEnd].cumDist).toFixed(1);
-                return (
-                  <option key={wp.id} value={wp.id}>
-                    {wp.name} — {dist}km, {formatTime(delta)}
-                  </option>
-                );
-              })}
-            </select>
-          </div>
-
-          {/* Sub-segments */}
-          <div className="space-y-1">
-            <div className="text-xs text-slate-500 uppercase tracking-wider mb-2">Segments</div>
-            {subSegments.map((seg, idx) => (
-              <SubSegment
-                key={idx}
-                fromWp={seg.fromWp}
-                toWp={seg.toWp}
-                segmentKey={seg.segmentKey}
-                selectedShortcuts={selectedShortcuts}
-                onShortcutToggle={onShortcutToggle}
-              />
+          {/* Tab bar */}
+          <div className="flex gap-1 mb-4 pb-3 border-b border-white/5">
+            {[
+              { id: 'segments', label: 'By Segment' },
+              { id: 'sights', label: 'All Sights', count: dayData.allSights.length },
+              { id: 'food', label: 'Food & Refuges', count: dayData.allFood.length },
+              { id: 'shortcuts', label: 'Shortcuts', count: dayData.allShortcuts.length }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={(e) => { e.stopPropagation(); setActiveTab(tab.id); }}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  activeTab === tab.id
+                    ? 'bg-white/15 text-white'
+                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                {tab.label}
+                {tab.count !== undefined && tab.count > 0 && (
+                  <span className="ml-1.5 text-slate-500">({tab.count})</span>
+                )}
+              </button>
             ))}
           </div>
+
+          {/* Tab content */}
+          {activeTab === 'segments' && (
+            <div className="space-y-1">
+              {subSegments.map((seg, idx) => (
+                <SubSegment
+                  key={idx}
+                  fromWp={seg.fromWp}
+                  toWp={seg.toWp}
+                  segmentKey={seg.segmentKey}
+                  selectedShortcuts={selectedShortcuts}
+                  onShortcutToggle={onShortcutToggle}
+                />
+              ))}
+            </div>
+          )}
+
+          {activeTab === 'sights' && (
+            <div className="space-y-4">
+              {dayData.allSights.length === 0 ? (
+                <div className="text-sm text-slate-500 text-center py-4">No sights on this day</div>
+              ) : (
+                Object.entries(groupByDayPosition(dayData.allSights)).map(([label, sights]) =>
+                  sights.length > 0 && (
+                    <div key={label}>
+                      <div className="text-xs text-slate-500 uppercase tracking-wider mb-2">{label}</div>
+                      <div className="space-y-2">
+                        {sights.map((sight, idx) => {
+                          const sightId = `${sight.segmentKey}-${sight.name}`;
+                          const isExpanded = expandedSightId === sightId;
+                          return (
+                            <div key={idx} className="rounded-xl bg-white/5 overflow-hidden">
+                              <button
+                                onClick={(e) => { e.stopPropagation(); setExpandedSightId(isExpanded ? null : sightId); }}
+                                className="w-full p-3 flex items-start gap-3 text-left hover:bg-white/5 transition-colors"
+                              >
+                                <SightIcon type={sight.type} className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-sm font-medium text-slate-200">{sight.name}</span>
+                                    {sight.photoRating >= 4 && (
+                                      <span className="text-xs text-amber-400">★{sight.photoRating}</span>
+                                    )}
+                                  </div>
+                                  <div className="text-xs text-slate-500 mt-0.5">{sight.description}</div>
+                                  <div className="text-[10px] text-slate-600 mt-1">{sight.segmentLabel}</div>
+                                </div>
+                                <ChevronDown className={`w-4 h-4 text-slate-500 shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                              </button>
+                              {isExpanded && (
+                                <div className="px-3 pb-3 pt-0">
+                                  <div className="p-3 rounded-lg bg-white/5 text-xs text-slate-400">
+                                    {sight.detailedDescription}
+                                    {sight.timeToVisit > 0 && (
+                                      <div className="mt-2 text-slate-500">
+                                        Time to visit: ~{sight.timeToVisit} min
+                                        {sight.distanceOffTrail > 0 && ` • ${sight.distanceOffTrail}km off trail`}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )
+                )
+              )}
+            </div>
+          )}
+
+          {activeTab === 'food' && (
+            <div className="space-y-2">
+              {dayData.allFood.length === 0 ? (
+                <div className="text-sm text-slate-500 text-center py-4">No food stops on this day</div>
+              ) : (
+                dayData.allFood.map((food, idx) => (
+                  <div key={idx} className="flex items-start gap-3 p-3 rounded-xl bg-white/5">
+                    {food.type === 'refuge' ? (
+                      <Home className="w-4 h-4 text-orange-400 mt-0.5 shrink-0" />
+                    ) : (
+                      <Utensils className="w-4 h-4 text-orange-400 mt-0.5 shrink-0" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-medium text-slate-200">{food.name}</span>
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                          food.type === 'refuge' ? 'bg-orange-500/20 text-orange-400' :
+                          food.type === 'restaurant' ? 'bg-emerald-500/20 text-emerald-400' :
+                          'bg-blue-500/20 text-blue-400'
+                        }`}>
+                          {food.type}
+                        </span>
+                        <span className="text-xs text-slate-500">{food.priceRange}</span>
+                      </div>
+                      <div className="text-xs text-slate-500 mt-0.5">{food.description}</div>
+                      {food.specialty && (
+                        <div className="text-xs text-orange-400/70 mt-1">★ {food.specialty}</div>
+                      )}
+                      <div className="text-[10px] text-slate-600 mt-1">{food.segmentLabel}</div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+
+          {activeTab === 'shortcuts' && (
+            <div className="space-y-3">
+              {dayData.allShortcuts.length === 0 ? (
+                <div className="text-sm text-slate-500 text-center py-4">No shortcuts available on this day</div>
+              ) : (
+                <>
+                  {timeSaved > 0 && (
+                    <div className="flex items-center justify-between p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+                      <span className="text-sm text-cyan-400">Time saved with selected shortcuts</span>
+                      <span className="text-sm font-semibold text-cyan-400">{formatTime(timeSaved)}</span>
+                    </div>
+                  )}
+                  {dayData.allShortcuts.map((shortcut, idx) => (
+                    <div
+                      key={idx}
+                      className={`p-3 rounded-xl transition-colors ${
+                        shortcut.isSelected ? 'bg-cyan-500/20 border border-cyan-500/30' : 'bg-white/5'
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onShortcutToggle(shortcut.shortcutId, shortcut.timeSaved); }}
+                          className={`mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                            shortcut.isSelected
+                              ? 'bg-cyan-500 border-cyan-500'
+                              : 'border-slate-500 hover:border-cyan-400'
+                          }`}
+                        >
+                          {shortcut.isSelected && <Check className="w-3 h-3 text-white" />}
+                        </button>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <ShortcutIcon type={shortcut.type} className="w-4 h-4 text-cyan-400" />
+                            <span className="text-sm font-medium text-slate-200">{shortcut.name}</span>
+                          </div>
+                          <div className="text-xs text-slate-500 mt-1">{shortcut.description}</div>
+                          <div className="flex flex-wrap gap-3 mt-2 text-xs">
+                            {shortcut.timeSaved > 0 && (
+                              <span className="text-cyan-400">Saves {formatTime(shortcut.timeSaved)}</span>
+                            )}
+                            {shortcut.cost > 0 && (
+                              <span className="text-slate-400">€{shortcut.cost}</span>
+                            )}
+                          </div>
+                          {shortcut.skipsToWaypoint && (
+                            <div className="flex items-center gap-1 mt-2 text-xs text-amber-400">
+                              <AlertTriangle className="w-3 h-3" />
+                              <span>Skips to {WAYPOINTS[shortcut.skipsToWaypoint]?.name}</span>
+                            </div>
+                          )}
+                          <div className="text-[10px] text-slate-600 mt-1">{shortcut.segmentLabel}</div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+          )}
 
           {/* Mobile stats */}
           <div className="sm:hidden grid grid-cols-4 gap-2 mt-4 pt-4 border-t border-white/10">
@@ -506,13 +856,95 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
   );
 };
 
+const DeleteConfirmModal = ({ isOpen, dayNumber, startName, endName, onCancel, onConfirm }) => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      // Small delay to trigger CSS transition
+      requestAnimationFrame(() => setIsVisible(true));
+    } else {
+      setIsVisible(false);
+    }
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  return createPortal(
+    <div
+      className={`fixed inset-0 flex items-center justify-center z-50 p-4 transition-opacity duration-200 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+      onClick={onCancel}
+    >
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+
+      {/* Modal */}
+      <div
+        className={`relative max-w-md w-full p-6 rounded-2xl border border-white/10 shadow-2xl transition-all duration-200 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+        style={{ backgroundColor: 'rgba(30, 41, 59, 0.95)', backdropFilter: 'blur(24px)' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3 className="text-lg font-semibold text-white mb-2">
+          Delete Day {dayNumber}?
+        </h3>
+        <p className="text-slate-400 text-sm mb-6">
+          This will remove <span className="text-slate-200">{startName}</span> → <span className="text-slate-200">{endName}</span> from your itinerary. The segments will be merged with the next day.
+        </p>
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={onCancel}
+            className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/15 text-white text-sm font-medium transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+};
+
 export default function App() {
-  const [scenarios, setScenarios] = useState([
-    { id: 1, name: "7-Day Classic", startDate: "2026-08-01", days: [6, 8, 12, 15, 21, 28, 33] }
-  ]);
-  const [activeScenarioId, setActiveScenarioId] = useState(1);
+  const [scenarios, setScenarios] = useState(DEFAULT_DATA.scenarios);
+  const [activeScenarioId, setActiveScenarioId] = useState(DEFAULT_DATA.activeScenarioId);
   const [view, setView] = useState('plan');
-  const [selectedShortcuts, setSelectedShortcuts] = useState({});
+  const [selectedShortcuts, setSelectedShortcuts] = useState(DEFAULT_DATA.selectedShortcuts);
+  const [isDirty, setIsDirty] = useState(false);
+  const [showSaved, setShowSaved] = useState(false);
+  const [deleteConfirmDay, setDeleteConfirmDay] = useState(null);
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const data = JSON.parse(saved);
+        if (data.scenarios) setScenarios(data.scenarios);
+        if (data.activeScenarioId) setActiveScenarioId(data.activeScenarioId);
+        if (data.selectedShortcuts) setSelectedShortcuts(data.selectedShortcuts);
+      }
+    } catch (e) {
+      console.error('Failed to load saved data:', e);
+    }
+  }, []);
+
+  const saveToLocalStorage = () => {
+    try {
+      const data = { scenarios, activeScenarioId, selectedShortcuts };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      setIsDirty(false);
+      setShowSaved(true);
+      setTimeout(() => setShowSaved(false), 2000);
+    } catch (e) {
+      console.error('Failed to save data:', e);
+    }
+  };
 
   const activeScenario = scenarios.find(s => s.id === activeScenarioId);
 
@@ -521,6 +953,7 @@ export default function App() {
       ...prev,
       [shortcutId]: !prev[shortcutId]
     }));
+    setIsDirty(true);
   };
 
   const getDayData = (scenario) => {
@@ -580,6 +1013,7 @@ export default function App() {
       const validDays = newDays.filter((d, i) => i === 0 || d > newDays[i-1]);
       return { ...s, days: validDays };
     }));
+    setIsDirty(true);
   };
 
   const splitLongestDay = () => {
@@ -617,6 +1051,7 @@ export default function App() {
 
       return { ...s, days: newDays };
     }));
+    setIsDirty(true);
   };
 
   const mergeShortestDay = () => {
@@ -643,6 +1078,7 @@ export default function App() {
 
       return { ...s, days: newDays };
     }));
+    setIsDirty(true);
   };
 
   const removeDay = (dayIndex) => {
@@ -651,15 +1087,20 @@ export default function App() {
       if (s.days.length > 1) return { ...s, days: s.days.filter((_, i) => i !== dayIndex) };
       return s;
     }));
+    setIsDirty(true);
   };
 
   const createScenario = () => {
     const newId = Math.max(...scenarios.map(s => s.id)) + 1;
     setScenarios([...scenarios, { id: newId, name: `Scenario ${newId}`, startDate: "2026-08-01", days: [6, 8, 12, 15, 21, 28, 33] }]);
     setActiveScenarioId(newId);
+    setIsDirty(true);
   };
 
-  const renameScenario = (id, newName) => setScenarios(scenarios.map(s => s.id === id ? { ...s, name: newName } : s));
+  const renameScenario = (id, newName) => {
+    setScenarios(scenarios.map(s => s.id === id ? { ...s, name: newName } : s));
+    setIsDirty(true);
+  };
 
   const maxAlt = Math.max(...WAYPOINTS.map(w => w.altitude));
   const minAlt = Math.min(...WAYPOINTS.map(w => w.altitude));
@@ -702,6 +1143,24 @@ export default function App() {
           >
             +
           </button>
+
+          <div className="ml-auto flex items-center gap-2">
+            {showSaved && (
+              <span className="text-emerald-400 text-sm animate-pulse">Saved!</span>
+            )}
+            <button
+              onClick={saveToLocalStorage}
+              className={`px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
+                isDirty
+                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25'
+                  : 'bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10'
+              }`}
+            >
+              <Save className="w-4 h-4" />
+              <span>Save</span>
+              {isDirty && <span className="w-2 h-2 rounded-full bg-white animate-pulse" />}
+            </button>
+          </div>
         </div>
 
         <GlassCard className="p-1.5 mb-6 inline-flex gap-1">
@@ -782,9 +1241,12 @@ export default function App() {
                     <input
                       type="date"
                       value={activeScenario.startDate}
-                      onChange={(e) => setScenarios(scenarios.map(s =>
-                        s.id === activeScenarioId ? { ...s, startDate: e.target.value } : s
-                      ))}
+                      onChange={(e) => {
+                        setScenarios(scenarios.map(s =>
+                          s.id === activeScenarioId ? { ...s, startDate: e.target.value } : s
+                        ));
+                        setIsDirty(true);
+                      }}
                       className="bg-white/5 border border-white/10 px-4 py-2 rounded-xl text-sm focus:border-emerald-500 outline-none transition-colors"
                     />
                   </div>
@@ -843,7 +1305,7 @@ export default function App() {
                   color={DAY_COLORS[idx % DAY_COLORS.length]}
                   activeScenario={activeScenario}
                   updateDay={updateDay}
-                  removeDay={removeDay}
+                  removeDay={(dayIndex) => setDeleteConfirmDay(dayIndex)}
                   selectedShortcuts={selectedShortcuts}
                   onShortcutToggle={handleShortcutToggle}
                 />
@@ -1029,6 +1491,21 @@ export default function App() {
           </GlassCard>
         )}
       </div>
+
+      {/* Delete confirmation modal */}
+      <DeleteConfirmModal
+        isOpen={deleteConfirmDay !== null}
+        dayNumber={deleteConfirmDay !== null ? deleteConfirmDay + 1 : 0}
+        startName={deleteConfirmDay !== null && dayData[deleteConfirmDay] ? dayData[deleteConfirmDay].startWp.name : ''}
+        endName={deleteConfirmDay !== null && dayData[deleteConfirmDay] ? dayData[deleteConfirmDay].endWp.name : ''}
+        onCancel={() => setDeleteConfirmDay(null)}
+        onConfirm={() => {
+          if (deleteConfirmDay !== null) {
+            removeDay(deleteConfirmDay);
+            setDeleteConfirmDay(null);
+          }
+        }}
+      />
     </div>
   );
 }
