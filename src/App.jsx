@@ -1228,23 +1228,65 @@ const Toast = ({ message, type = 'info', isVisible, icon }) => {
 };
 
 // Map controls component for reset view
-const MapControls = ({ onReset }) => {
+// Calculate bounds from all waypoints
+const getRouteBounds = () => {
+  const lats = WAYPOINTS.map(wp => wp.lat);
+  const lngs = WAYPOINTS.map(wp => wp.lng);
+  return [
+    [Math.min(...lats), Math.min(...lngs)],
+    [Math.max(...lats), Math.max(...lngs)]
+  ];
+};
+
+const ROUTE_BOUNDS = getRouteBounds();
+
+// Component to fit map to route bounds on load
+const FitBoundsOnLoad = () => {
   const map = useMap();
 
-  const handleReset = () => {
-    map.setView(MAP_CENTER, MAP_ZOOM);
-    if (onReset) onReset();
+  useEffect(() => {
+    map.fitBounds(ROUTE_BOUNDS, { padding: [40, 40] });
+  }, [map]);
+
+  return null;
+};
+
+// Component to track zoom level for dynamic styling
+const ZoomTracker = ({ onZoomChange }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    const handleZoom = () => {
+      onZoomChange(map.getZoom());
+    };
+
+    // Set initial zoom
+    handleZoom();
+
+    map.on('zoomend', handleZoom);
+    return () => map.off('zoomend', handleZoom);
+  }, [map, onZoomChange]);
+
+  return null;
+};
+
+const MapControls = ({ onFitRoute }) => {
+  const map = useMap();
+
+  const handleFitRoute = () => {
+    map.fitBounds(ROUTE_BOUNDS, { padding: [40, 40] });
+    if (onFitRoute) onFitRoute();
   };
 
   return (
     <div className="leaflet-top leaflet-right" style={{ marginTop: '10px', marginRight: '10px' }}>
       <div className="leaflet-control">
         <button
-          onClick={handleReset}
+          onClick={handleFitRoute}
           className="w-8 h-8 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg flex items-center justify-center text-slate-600 hover:bg-white hover:text-slate-900 transition-colors"
-          title="Reset view"
+          title="Fit entire route"
         >
-          <RotateCcw className="w-4 h-4" />
+          <Maximize2 className="w-4 h-4" />
         </button>
       </div>
     </div>
@@ -1481,6 +1523,23 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
   const [hoveredDay, setHoveredDay] = useState(null);
   const [selectedDay, setSelectedDay] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [currentZoom, setCurrentZoom] = useState(11);
+
+  // Dynamic line weight based on zoom level
+  const getLineWeight = (isSelected, isHovered) => {
+    if (isSelected) return currentZoom < 11 ? 5 : 7;
+    if (isHovered) return currentZoom < 11 ? 4 : 6;
+    // Thinner lines when zoomed out to prevent "red blob"
+    if (currentZoom < 10) return 2;
+    if (currentZoom < 11) return 3;
+    return 4;
+  };
+
+  // Dynamic opacity based on zoom level
+  const getBaseOpacity = () => {
+    if (currentZoom < 10) return 0.7;
+    return 0.85;
+  };
 
   // Build route segments for each day
   const daySegments = useMemo(() => {
@@ -1599,12 +1658,20 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
           className="h-full w-full"
           style={{ background: '#1e293b' }}
           zoomControl={true}
+          minZoom={9}
+          maxZoom={15}
         >
+          {/* Fit to route bounds on load */}
+          <FitBoundsOnLoad />
+
+          {/* Track zoom level for dynamic styling */}
+          <ZoomTracker onZoomChange={setCurrentZoom} />
+
           {/* Topographic tile layer */}
           <TileLayer
             attribution='&copy; <a href="https://opentopomap.org">OpenTopoMap</a>'
             url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
-            maxZoom={17}
+            maxZoom={15}
           />
 
           {/* Route segments by day */}
@@ -1612,9 +1679,10 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
             const isSelected = selectedDay === i;
             const isHovered = hoveredDay === i;
             const hasSelection = selectedDay !== null;
+            const baseOpacity = getBaseOpacity();
             const opacity = hasSelection
-              ? (isSelected ? 1 : 0.25)
-              : (hoveredDay === null || isHovered ? 0.9 : 0.4);
+              ? (isSelected ? 1 : 0.2)
+              : (hoveredDay === null || isHovered ? baseOpacity : 0.35);
 
             return (
               <Polyline
@@ -1622,7 +1690,7 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
                 positions={segment.positions}
                 pathOptions={{
                   color: isSelected ? '#fff' : segment.color,
-                  weight: isSelected ? 7 : isHovered ? 6 : 4,
+                  weight: getLineWeight(isSelected, isHovered),
                   opacity,
                   lineCap: 'round',
                   lineJoin: 'round'
@@ -1659,8 +1727,8 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
               positions={line.positions}
               pathOptions={{
                 color: line.color,
-                weight: 4,
-                opacity: selectedDay !== null ? 0.5 : 0.9,
+                weight: currentZoom < 10 ? 2 : currentZoom < 11 ? 3 : 4,
+                opacity: selectedDay !== null ? 0.4 : 0.8,
                 dashArray: line.dashArray,
                 lineCap: 'round'
               }}
