@@ -156,19 +156,19 @@ const DaySummaryTable = ({
   const elevUnit = getElevationUnit(useImperial);
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
+    <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+      <table className="w-full text-sm min-w-[640px]">
         <thead>
           <tr className="text-slate-500 text-xs uppercase tracking-wider">
-            <th className="text-left py-2 px-3 font-medium">Day</th>
-            <th className="text-left py-2 px-3 font-medium">Date</th>
-            <th className="text-left py-2 px-3 font-medium">Route</th>
-            <th className="text-right py-2 px-3 font-medium">Dist</th>
-            <th className="text-right py-2 px-3 font-medium">Ascent</th>
-            <th className="text-right py-2 px-3 font-medium">Descent</th>
-            <th className="text-right py-2 px-3 font-medium">Time</th>
-            {totalTimeSaved > 0 && <th className="text-right py-2 px-3 font-medium">Adj.</th>}
-            {showEndAltitude && <th className="text-right py-2 px-3 font-medium">End Alt</th>}
+            <th className="text-left py-2 px-3 font-medium whitespace-nowrap">Day</th>
+            <th className="text-left py-2 px-3 font-medium whitespace-nowrap">Date</th>
+            <th className="text-left py-2 px-3 font-medium whitespace-nowrap">Route</th>
+            <th className="text-right py-2 px-3 font-medium whitespace-nowrap">Dist</th>
+            <th className="text-right py-2 px-3 font-medium whitespace-nowrap">Ascent</th>
+            <th className="text-right py-2 px-3 font-medium whitespace-nowrap">Descent</th>
+            <th className="text-right py-2 px-3 font-medium whitespace-nowrap">Time</th>
+            {totalTimeSaved > 0 && <th className="text-right py-2 px-3 font-medium whitespace-nowrap">Adj.</th>}
+            {showEndAltitude && <th className="text-right py-2 px-3 font-medium whitespace-nowrap">End Alt</th>}
           </tr>
         </thead>
         <tbody>
@@ -194,22 +194,22 @@ const DaySummaryTable = ({
                 onMouseEnter={() => onRowHover?.(i)}
                 onMouseLeave={() => onRowHover?.(null)}
               >
-                <td className="py-3 px-3">
+                <td className="py-3 px-3 whitespace-nowrap">
                   <div className="flex items-center gap-2">
                     <div className="w-1 h-6 rounded-full" style={{ backgroundColor: DAY_COLORS[i % DAY_COLORS.length].main }} />
                     <span className="font-semibold text-white">{d.day}</span>
                   </div>
                 </td>
-                <td className="py-3 px-3 text-slate-400">{formatDate(d.date)}</td>
-                <td className="py-3 px-3">
+                <td className="py-3 px-3 text-slate-400 whitespace-nowrap">{formatDate(d.date)}</td>
+                <td className="py-3 px-3 whitespace-nowrap">
                   <span className="text-slate-300">{d.startWp.name}</span>
                   <span className="text-slate-600 mx-1.5">→</span>
                   <span className="text-slate-200">{d.endWp.name}</span>
                 </td>
-                <td className="py-3 px-3 text-right font-medium text-slate-200">{formatDistanceValue(d.distance, useImperial)} {distUnit}</td>
-                <td className="py-3 px-3 text-right font-medium text-emerald-400">↑{formatElevationValue(d.ascent, useImperial)}{elevUnit}</td>
-                <td className="py-3 px-3 text-right font-medium text-rose-400">↓{formatElevationValue(d.descent, useImperial)}{elevUnit}</td>
-                <td className={`py-3 px-3 text-right font-medium ${dayTimeSaved > 0 ? 'text-slate-500 line-through' : 'text-slate-200'}`}>
+                <td className="py-3 px-3 text-right font-medium text-slate-200 whitespace-nowrap">{formatDistanceValue(d.distance, useImperial)} {distUnit}</td>
+                <td className="py-3 px-3 text-right font-medium text-emerald-400 whitespace-nowrap">↑{formatElevationValue(d.ascent, useImperial)}{elevUnit}</td>
+                <td className="py-3 px-3 text-right font-medium text-rose-400 whitespace-nowrap">↓{formatElevationValue(d.descent, useImperial)}{elevUnit}</td>
+                <td className={`py-3 px-3 text-right font-medium whitespace-nowrap ${dayTimeSaved > 0 ? 'text-slate-500 line-through' : 'text-slate-200'}`}>
                   {formatTime(d.time)}
                 </td>
                 {totalTimeSaved > 0 && (
@@ -566,12 +566,12 @@ const EndpointDropdown = ({ value, options, onChange, formatTime }) => {
   const selectedOption = options.find(opt => opt.id === value);
 
   return (
-    <div className="relative w-56">
+    <div className="relative w-full sm:w-56">
       {/* Closed state - shows only name */}
       <button
         ref={buttonRef}
         onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); }}
-        className={`w-full bg-white/5 border px-3 py-1.5 rounded-lg text-sm font-medium text-slate-200 hover:bg-white/10 transition-colors flex items-center justify-between gap-2 ${
+        className={`w-full bg-white/5 border px-3 py-2.5 sm:py-1.5 min-h-[44px] sm:min-h-0 rounded-lg text-sm font-medium text-slate-200 hover:bg-white/10 transition-colors flex items-center justify-between gap-2 ${
           isOpen ? 'border-emerald-500/50' : 'border-white/10'
         }`}
       >
@@ -583,10 +583,10 @@ const EndpointDropdown = ({ value, options, onChange, formatTime }) => {
       {isOpen && createPortal(
         <div
           ref={menuRef}
-          className="fixed w-80 max-h-64 overflow-y-auto rounded-xl"
+          className="fixed w-[calc(100vw-2rem)] sm:w-80 max-h-64 overflow-y-auto rounded-xl"
           style={{
             top: menuPosition.top,
-            left: menuPosition.left,
+            left: window.innerWidth < 640 ? '1rem' : menuPosition.left,
             backgroundColor: 'rgb(15, 23, 42)',
             border: '1px solid rgba(255, 255, 255, 0.1)',
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05)',
@@ -601,7 +601,7 @@ const EndpointDropdown = ({ value, options, onChange, formatTime }) => {
                 onChange(opt.id);
                 setIsOpen(false);
               }}
-              className={`w-full px-4 py-2.5 text-left text-sm transition-colors flex items-center justify-between gap-3 ${
+              className={`w-full px-4 py-3 sm:py-2.5 min-h-[44px] sm:min-h-0 text-left text-sm transition-colors flex items-center justify-between gap-3 ${
                 opt.id === value
                   ? 'bg-emerald-500/20 text-emerald-400'
                   : 'text-slate-200 hover:bg-white/10'
@@ -727,10 +727,83 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
   };
 
   return (
-    <GlassCard className="p-4 group" hover>
-      {/* Main row with CSS grid for consistent column alignment */}
+    <GlassCard className="p-3 sm:p-4 group" hover>
+      {/* Mobile layout: stacked rows */}
+      <div className="md:hidden space-y-3" onClick={() => setExpanded(!expanded)}>
+        {/* Row 1: Day badge + Date + Expand/Delete */}
+        <div className="flex items-center gap-3">
+          <div
+            className={`w-11 h-11 rounded-xl flex flex-col items-center justify-center shrink-0 bg-gradient-to-br ${color.gradient} shadow-lg`}
+            style={{ boxShadow: `0 8px 24px -8px ${color.main}50` }}
+          >
+            <span className="text-[8px] uppercase tracking-wider opacity-80">Day</span>
+            <span className="text-base font-bold -mt-0.5">{day.day}</span>
+          </div>
+          <div className="flex-1">
+            <div className="text-xs text-slate-500">{formatDate(day.date)}</div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="text-slate-500">
+              {expanded ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+            </div>
+            <button
+              onClick={(e) => { e.stopPropagation(); removeDay(dayIndex); }}
+              className="w-10 h-10 min-h-[44px] min-w-[44px] rounded-full text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-all flex items-center justify-center text-xl"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+
+        {/* Row 2: Start → End */}
+        <div className="flex items-center gap-2 pl-1">
+          <span className="font-medium text-slate-200 text-sm truncate max-w-[120px]">{day.startWp.name}</span>
+          <svg className="w-4 h-4 text-slate-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+          <div className="flex-1" onClick={(e) => e.stopPropagation()}>
+            <EndpointDropdown
+              value={activeScenario.days[dayIndex]}
+              options={availableWaypoints.map(wp => ({
+                id: wp.id,
+                name: wp.name,
+                dist: (wp.cumDist - WAYPOINTS[prevEnd].cumDist).toFixed(1),
+                time: wp.cumTime - WAYPOINTS[prevEnd].cumTime
+              }))}
+              onChange={(newValue) => updateDay(dayIndex, newValue)}
+              formatTime={formatTime}
+            />
+          </div>
+        </div>
+
+        {/* Row 3: Stats */}
+        <div className="flex items-center justify-between px-1 py-2 bg-white/5 rounded-lg">
+          <div className="text-center flex-1">
+            <div className="font-semibold text-slate-200 text-sm">{formatDistanceValue(day.distance, useImperial)}</div>
+            <div className="text-[10px] text-slate-500">{getDistanceUnit(useImperial)}</div>
+          </div>
+          <div className="text-center flex-1 border-l border-white/10">
+            <div className="font-semibold text-emerald-400 text-sm">↑{formatElevationValue(day.ascent, useImperial)}</div>
+            <div className="text-[10px] text-slate-500">{getElevationUnit(useImperial)}</div>
+          </div>
+          <div className="text-center flex-1 border-l border-white/10">
+            <div className="font-semibold text-rose-400 text-sm">↓{formatElevationValue(day.descent, useImperial)}</div>
+            <div className="text-[10px] text-slate-500">{getElevationUnit(useImperial)}</div>
+          </div>
+          <div className="text-center flex-1 border-l border-white/10">
+            <div className={`font-semibold text-sm ${timeSaved > 0 ? 'text-cyan-400' : 'text-slate-200'}`}>
+              {formatTime(adjustedTime)}
+            </div>
+            <div className="text-[10px] text-slate-500">
+              {timeSaved > 0 ? <span className="text-cyan-400/70">-{formatTime(timeSaved)}</span> : 'hike'}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop layout: horizontal grid */}
       <div
-        className="grid items-center gap-3 cursor-pointer"
+        className="hidden md:grid items-center gap-3 cursor-pointer"
         style={{ gridTemplateColumns: '3rem 5.5rem 9rem 1.5rem 14rem 3.5rem 4rem 4rem 4.5rem auto' }}
         onClick={() => setExpanded(!expanded)}
       >
@@ -772,25 +845,25 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
         />
 
         {/* Column 5: Distance */}
-        <div className="text-center hidden sm:block">
+        <div className="text-center">
           <div className="font-semibold text-slate-200 text-sm">{formatDistanceValue(day.distance, useImperial)}</div>
           <div className="text-[10px] text-slate-500">{getDistanceUnit(useImperial)}</div>
         </div>
 
         {/* Column 6: Elevation up */}
-        <div className="text-center hidden sm:block">
+        <div className="text-center">
           <div className="font-semibold text-emerald-400 text-sm">↑{formatElevationValue(day.ascent, useImperial)}</div>
           <div className="text-[10px] text-slate-500">{getElevationUnit(useImperial)}</div>
         </div>
 
         {/* Column 7: Elevation down */}
-        <div className="text-center hidden sm:block">
+        <div className="text-center">
           <div className="font-semibold text-rose-400 text-sm">↓{formatElevationValue(day.descent, useImperial)}</div>
           <div className="text-[10px] text-slate-500">{getElevationUnit(useImperial)}</div>
         </div>
 
         {/* Column 8: Time */}
-        <div className="text-center hidden sm:block">
+        <div className="text-center">
           <div className={`font-semibold text-sm ${timeSaved > 0 ? 'text-cyan-400' : 'text-slate-200'}`}>
             {formatTime(adjustedTime)}
           </div>
@@ -808,7 +881,7 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
           </div>
           <button
             onClick={(e) => { e.stopPropagation(); removeDay(dayIndex); }}
-            className="w-7 h-7 rounded-full text-slate-600 hover:text-rose-400 hover:bg-rose-500/10 transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center"
+            className="w-8 h-8 min-h-[44px] min-w-[44px] rounded-full text-slate-600 hover:text-rose-400 hover:bg-rose-500/10 transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center"
           >
             ×
           </button>
@@ -816,25 +889,26 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
       </div>
 
       {expanded && (
-        <div className="mt-4 pt-4 border-t border-white/10">
-          {/* Tab bar */}
-          <div className="flex gap-1 mb-4 pb-3 border-b border-white/5">
+        <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-white/10">
+          {/* Tab bar - scrollable on mobile */}
+          <div className="flex gap-1 mb-3 sm:mb-4 pb-3 border-b border-white/5 overflow-x-auto">
             {[
-              { id: 'segments', label: 'By Segment' },
-              { id: 'sights', label: 'All Sights', count: dayData.allSights.length },
-              { id: 'food', label: 'Food & Refuges', count: dayData.allFood.length },
-              { id: 'shortcuts', label: 'Shortcuts', count: dayData.allShortcuts.length }
+              { id: 'segments', label: 'Segments', labelFull: 'By Segment' },
+              { id: 'sights', label: 'Sights', labelFull: 'All Sights', count: dayData.allSights.length },
+              { id: 'food', label: 'Food', labelFull: 'Food & Refuges', count: dayData.allFood.length },
+              { id: 'shortcuts', label: 'Shortcuts', labelFull: 'Shortcuts', count: dayData.allShortcuts.length }
             ].map(tab => (
               <button
                 key={tab.id}
                 onClick={(e) => { e.stopPropagation(); setActiveTab(tab.id); }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                className={`px-3 sm:px-4 py-2 sm:py-1.5 min-h-[44px] sm:min-h-0 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${
                   activeTab === tab.id
                     ? 'bg-white/15 text-white'
                     : 'text-slate-400 hover:text-white hover:bg-white/5'
                 }`}
               >
-                {tab.label}
+                <span className="sm:hidden">{tab.label}</span>
+                <span className="hidden sm:inline">{tab.labelFull}</span>
                 {tab.count !== undefined && tab.count > 0 && (
                   <span className="ml-1.5 text-slate-500">({tab.count})</span>
                 )}
@@ -1071,16 +1145,16 @@ const DeleteConfirmModal = ({ isOpen, dayNumber, startName, endName, onCancel, o
         <p className="text-slate-400 text-sm mb-6">
           This will remove <span className="text-slate-200">{startName}</span> → <span className="text-slate-200">{endName}</span> from your itinerary. The segments will be merged with the next day.
         </p>
-        <div className="flex justify-end gap-3">
+        <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
           <button
             onClick={onCancel}
-            className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/15 text-white text-sm font-medium transition-colors"
+            className="px-4 py-3 sm:py-2 min-h-[44px] rounded-lg bg-white/10 hover:bg-white/15 text-white text-sm font-medium transition-colors order-2 sm:order-1"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors"
+            className="px-4 py-3 sm:py-2 min-h-[44px] rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors order-1 sm:order-2"
           >
             Delete
           </button>
@@ -1142,13 +1216,13 @@ const ShareModal = ({ isOpen, shareUrl, onClose, onCopy }) => {
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors"
+          className="absolute top-3 right-3 w-10 h-10 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-white/10"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
+        <div className="flex items-center gap-3 mb-4 pr-8">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center shrink-0">
             <Share2 className="w-5 h-5 text-white" />
           </div>
           <div>
@@ -1159,7 +1233,7 @@ const ShareModal = ({ isOpen, shareUrl, onClose, onCopy }) => {
 
         <div className="mb-4">
           <label className="text-xs text-slate-500 uppercase tracking-wider block mb-2">Shareable Link</label>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <div className="flex-1 relative">
               <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
               <input
@@ -1167,13 +1241,13 @@ const ShareModal = ({ isOpen, shareUrl, onClose, onCopy }) => {
                 type="text"
                 value={shareUrl}
                 readOnly
-                className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-sm text-slate-300 focus:outline-none focus:border-cyan-500/50"
+                className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-3 sm:py-2.5 text-sm text-slate-300 focus:outline-none focus:border-cyan-500/50"
                 onClick={(e) => e.target.select()}
               />
             </div>
             <button
               onClick={handleCopy}
-              className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
+              className={`px-4 py-3 sm:py-2.5 min-h-[44px] rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
                 copied
                   ? 'bg-emerald-500 text-white'
                   : 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:shadow-lg hover:shadow-cyan-500/25'
@@ -1283,10 +1357,10 @@ const MapControls = ({ onFitRoute }) => {
       <div className="leaflet-control">
         <button
           onClick={handleFitRoute}
-          className="w-8 h-8 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg flex items-center justify-center text-slate-600 hover:bg-white hover:text-slate-900 transition-colors"
+          className="w-11 h-11 sm:w-8 sm:h-8 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg flex items-center justify-center text-slate-600 hover:bg-white hover:text-slate-900 transition-colors"
           title="Fit entire route"
         >
-          <Maximize2 className="w-4 h-4" />
+          <Maximize2 className="w-5 h-5 sm:w-4 sm:h-4" />
         </button>
       </div>
     </div>
@@ -1366,28 +1440,28 @@ const SegmentDetailModal = ({ isOpen, dayIndex, dayData, scenario, formatTime, f
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
 
       <div
-        className={`relative max-w-lg w-full max-h-[80vh] overflow-y-auto p-6 rounded-2xl border border-white/10 shadow-2xl transition-all duration-200 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+        className={`relative max-w-lg w-full max-h-[85vh] sm:max-h-[80vh] overflow-y-auto p-4 sm:p-6 rounded-2xl border border-white/10 shadow-2xl transition-all duration-200 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
         style={{ backgroundColor: 'rgba(30, 41, 59, 0.95)', backdropFilter: 'blur(24px)' }}
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors"
+          className="absolute top-3 right-3 w-10 h-10 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-white/10"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Header */}
-        <div className="flex items-center gap-3 mb-4">
+        <div className="flex items-center gap-3 mb-4 pr-8">
           <div
-            className="w-12 h-12 rounded-xl flex items-center justify-center text-white text-xl font-bold"
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-white text-lg sm:text-xl font-bold shrink-0"
             style={{ backgroundColor: color }}
           >
             {d.day}
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-white">Day {d.day}</h3>
-            <div className="flex items-center gap-2 text-sm text-slate-400">
+            <h3 className="text-base sm:text-lg font-semibold text-white">Day {d.day}</h3>
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-400">
               <span>{formatDate(d.date)}</span>
               <span>·</span>
               <span>{countries.join(' ')}</span>
@@ -1398,27 +1472,27 @@ const SegmentDetailModal = ({ isOpen, dayIndex, dayData, scenario, formatTime, f
         {/* Route */}
         <div className="mb-4 p-3 rounded-lg bg-white/5">
           <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">Route</div>
-          <div className="text-slate-200">
+          <div className="text-slate-200 text-sm sm:text-base">
             {d.startWp.name} <span className="text-slate-500">→</span> {d.endWp.name}
           </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-4 gap-3 mb-4">
+        {/* Stats Grid - 2x2 on mobile, 4 col on tablet+ */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4">
           <div className="p-3 rounded-lg bg-white/5 text-center">
-            <div className="text-lg font-semibold text-white">{d.distance}</div>
+            <div className="text-base sm:text-lg font-semibold text-white">{d.distance}</div>
             <div className="text-xs text-slate-500">km</div>
           </div>
           <div className="p-3 rounded-lg bg-white/5 text-center">
-            <div className="text-lg font-semibold text-emerald-400">↑{d.ascent}</div>
+            <div className="text-base sm:text-lg font-semibold text-emerald-400">↑{d.ascent}</div>
             <div className="text-xs text-slate-500">m gain</div>
           </div>
           <div className="p-3 rounded-lg bg-white/5 text-center">
-            <div className="text-lg font-semibold text-rose-400">↓{d.descent}</div>
+            <div className="text-base sm:text-lg font-semibold text-rose-400">↓{d.descent}</div>
             <div className="text-xs text-slate-500">m loss</div>
           </div>
           <div className="p-3 rounded-lg bg-white/5 text-center">
-            <div className="text-lg font-semibold text-white">{formatTime(d.time)}</div>
+            <div className="text-base sm:text-lg font-semibold text-white">{formatTime(d.time)}</div>
             <div className="text-xs text-slate-500">time</div>
           </div>
         </div>
@@ -1650,8 +1724,8 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
 
   return (
     <div>
-      {/* Map Container */}
-      <div className="relative rounded-2xl overflow-hidden" style={{ height: '500px' }}>
+      {/* Map Container - taller on mobile for better touch interaction */}
+      <div className="relative rounded-2xl overflow-hidden h-[70vh] sm:h-[500px]">
         <MapContainer
           center={MAP_CENTER}
           zoom={MAP_ZOOM}
@@ -2311,37 +2385,43 @@ export default function App() {
         <div className="absolute -bottom-40 right-1/3 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
       </div>
 
-      <div className="max-w-5xl mx-auto relative">
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center text-xl">⛰️</div>
-            <h1 className="text-3xl font-light tracking-tight">Tour du Mont Blanc</h1>
+      <div className="max-w-5xl mx-auto relative px-4 sm:px-0">
+        {/* Header */}
+        <div className="mb-6 sm:mb-8">
+          <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center text-lg sm:text-xl">⛰️</div>
+            <h1 className="text-xl sm:text-3xl font-light tracking-tight">Tour du Mont Blanc</h1>
           </div>
-          <p className="text-slate-400 text-sm ml-13">Plan your journey around the roof of Europe</p>
+          <p className="text-slate-400 text-xs sm:text-sm ml-10 sm:ml-13">Plan your journey around the roof of Europe</p>
         </div>
 
-        <div className="flex gap-2 mb-6 flex-wrap items-center">
-          {scenarios.map(s => (
+        {/* Scenario tabs and action buttons */}
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-2 mb-4 sm:mb-6">
+          {/* Scenario pills - horizontal scroll on mobile */}
+          <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide flex-wrap sm:flex-nowrap items-center">
+            {scenarios.map(s => (
+              <button
+                key={s.id}
+                onClick={() => setActiveScenarioId(s.id)}
+                className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-sm font-medium transition-all duration-300 whitespace-nowrap min-h-[44px] ${
+                  activeScenarioId === s.id
+                    ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-lg shadow-emerald-500/25'
+                    : 'bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10 active:bg-white/15'
+                }`}
+              >
+                {s.name}
+              </button>
+            ))}
             <button
-              key={s.id}
-              onClick={() => setActiveScenarioId(s.id)}
-              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
-                activeScenarioId === s.id
-                  ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-lg shadow-emerald-500/25'
-                  : 'bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10'
-              }`}
+              onClick={createScenario}
+              className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full bg-white/5 border border-dashed border-white/20 text-slate-400 hover:bg-white/10 hover:border-white/30 active:bg-white/15 transition-all duration-300 flex items-center justify-center shrink-0"
             >
-              {s.name}
+              +
             </button>
-          ))}
-          <button
-            onClick={createScenario}
-            className="w-10 h-10 rounded-full bg-white/5 border border-dashed border-white/20 text-slate-400 hover:bg-white/10 hover:border-white/30 transition-all duration-300 flex items-center justify-center"
-          >
-            +
-          </button>
+          </div>
 
-          <div className="ml-auto flex items-center gap-2">
+          {/* Action buttons */}
+          <div className="flex items-center gap-2 sm:ml-auto justify-end">
             {showSaved && (
               <span className="text-emerald-400 text-sm animate-pulse">Saved!</span>
             )}
@@ -2351,7 +2431,7 @@ export default function App() {
                 setUseImperial(!useImperial);
                 setIsDirty(true);
               }}
-              className="px-3 py-2 rounded-full text-xs font-medium transition-all duration-300 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 flex items-center gap-1.5"
+              className="px-3 py-2 min-h-[44px] rounded-full text-xs font-medium transition-all duration-300 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 active:bg-white/15 flex items-center gap-1.5"
               title={useImperial ? 'Switch to metric (km/m)' : 'Switch to imperial (mi/ft)'}
             >
               <span className={useImperial ? 'text-slate-500' : 'text-emerald-400'}>km</span>
@@ -2360,27 +2440,28 @@ export default function App() {
             </button>
             <button
               onClick={handleShare}
-              className="px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10 hover:border-cyan-500/30 hover:text-cyan-400"
+              className="px-3 sm:px-4 py-2 sm:py-2.5 min-h-[44px] rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 bg-white/5 text-slate-300 hover:bg-white/10 active:bg-white/15 border border-white/10 hover:border-cyan-500/30 hover:text-cyan-400"
             >
               <Share2 className="w-4 h-4" />
               <span className="hidden sm:inline">Share</span>
             </button>
             <button
               onClick={saveToLocalStorage}
-              className={`px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
+              className={`px-3 sm:px-4 py-2 sm:py-2.5 min-h-[44px] rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
                 isDirty
                   ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25'
-                  : 'bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10'
+                  : 'bg-white/5 text-slate-300 hover:bg-white/10 active:bg-white/15 border border-white/10'
               }`}
             >
               <Save className="w-4 h-4" />
-              <span>Save</span>
+              <span className="hidden sm:inline">Save</span>
               {isDirty && <span className="w-2 h-2 rounded-full bg-white animate-pulse" />}
             </button>
           </div>
         </div>
 
-        <GlassCard className="p-1.5 mb-6 inline-flex gap-1">
+        {/* View tabs - full width on mobile */}
+        <GlassCard className="p-1 sm:p-1.5 mb-4 sm:mb-6 flex sm:inline-flex gap-1 w-full sm:w-auto">
           {[
             { id: 'plan', label: 'Itinerary', icon: '📋' },
             { id: 'map', label: 'Route Map', icon: '🗺️' },
@@ -2390,8 +2471,8 @@ export default function App() {
             <button
               key={tab.id}
               onClick={() => setView(tab.id)}
-              className={`px-4 py-2 rounded-xl text-sm transition-all duration-300 flex items-center gap-2 ${
-                view === tab.id ? 'bg-white/15 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5'
+              className={`flex-1 sm:flex-initial px-3 sm:px-4 py-2.5 sm:py-2 min-h-[44px] rounded-xl text-sm transition-all duration-300 flex items-center justify-center sm:justify-start gap-2 ${
+                view === tab.id ? 'bg-white/15 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5 active:bg-white/10'
               }`}
             >
               <span>{tab.icon}</span>
@@ -2441,8 +2522,75 @@ export default function App() {
 
         {view === 'plan' && activeScenario && (
           <>
-            <GlassCard className="p-6 mb-6">
-              <div className="flex flex-wrap gap-6 items-center justify-between">
+            <GlassCard className="p-4 sm:p-6 mb-4 sm:mb-6">
+              {/* Mobile layout: stacked */}
+              <div className="md:hidden space-y-4">
+                {/* Row 1: Scenario name and date */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex-1">
+                    <label className="text-xs text-slate-500 uppercase tracking-wider block mb-2">Scenario</label>
+                    <input
+                      type="text"
+                      value={activeScenario.name}
+                      onChange={(e) => renameScenario(activeScenario.id, e.target.value)}
+                      className="bg-transparent text-lg font-light border-b border-white/20 focus:border-emerald-500 outline-none pb-1 w-full transition-colors"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-500 uppercase tracking-wider block mb-2">Start Date</label>
+                    <input
+                      type="date"
+                      value={activeScenario.startDate}
+                      onChange={(e) => {
+                        setScenarios(scenarios.map(s =>
+                          s.id === activeScenarioId ? { ...s, startDate: e.target.value } : s
+                        ));
+                        setIsDirty(true);
+                      }}
+                      className="bg-white/5 border border-white/10 px-4 py-3 min-h-[44px] rounded-xl text-sm focus:border-emerald-500 outline-none transition-colors w-full"
+                    />
+                  </div>
+                </div>
+                {/* Row 2: Stats */}
+                <div className="flex items-center justify-between px-2 py-3 bg-white/5 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={mergeShortestDay}
+                      disabled={dayData.length <= 1}
+                      className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-lg bg-white/5 border border-white/10 text-slate-400 hover:bg-rose-500/20 hover:border-rose-500/30 hover:text-rose-400 disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+                      title="Remove day (merge shortest)"
+                    >
+                      <Minus className="w-5 h-5" />
+                    </button>
+                    <div className="text-center min-w-[2.5rem]">
+                      <div className="text-xl font-bold">{dayData.length}</div>
+                      <div className="text-[10px] text-slate-500 uppercase tracking-wider">Days</div>
+                    </div>
+                    <button
+                      onClick={splitLongestDay}
+                      className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-lg bg-white/5 border border-white/10 text-slate-400 hover:bg-emerald-500/20 hover:border-emerald-500/30 hover:text-emerald-400 transition-all flex items-center justify-center"
+                      title="Add day (split longest)"
+                    >
+                      <Plus className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-lg font-bold">{formatDistanceValue(totals.distance, useImperial)}{getDistanceUnit(useImperial)}</div>
+                    <div className="text-[10px] text-slate-500 uppercase tracking-wider">Distance</div>
+                  </div>
+                  <div className="text-center">
+                    <div className={`text-lg font-bold ${totalTimeSaved > 0 ? 'text-cyan-400' : ''}`}>
+                      {formatTime(totals.time - totalTimeSaved)}
+                    </div>
+                    <div className="text-[10px] text-slate-500 uppercase tracking-wider">
+                      {totalTimeSaved > 0 ? `−${formatTime(totalTimeSaved)}` : 'Hiking'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Desktop layout: horizontal */}
+              <div className="hidden md:flex flex-wrap gap-6 items-center justify-between">
                 <div className="flex gap-6 items-center">
                   <div>
                     <label className="text-xs text-slate-500 uppercase tracking-wider block mb-2">Scenario</label>
@@ -2474,7 +2622,7 @@ export default function App() {
                     <button
                       onClick={mergeShortestDay}
                       disabled={dayData.length <= 1}
-                      className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 text-slate-400 hover:bg-rose-500/20 hover:border-rose-500/30 hover:text-rose-400 disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+                      className="w-10 h-10 min-h-[44px] min-w-[44px] rounded-lg bg-white/5 border border-white/10 text-slate-400 hover:bg-rose-500/20 hover:border-rose-500/30 hover:text-rose-400 disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center justify-center"
                       title="Remove day (merge shortest)"
                     >
                       <Minus className="w-4 h-4" />
@@ -2485,7 +2633,7 @@ export default function App() {
                     </div>
                     <button
                       onClick={splitLongestDay}
-                      className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 text-slate-400 hover:bg-emerald-500/20 hover:border-emerald-500/30 hover:text-emerald-400 transition-all flex items-center justify-center"
+                      className="w-10 h-10 min-h-[44px] min-w-[44px] rounded-lg bg-white/5 border border-white/10 text-slate-400 hover:bg-emerald-500/20 hover:border-emerald-500/30 hover:text-emerald-400 transition-all flex items-center justify-center"
                       title="Add day (split longest)"
                     >
                       <Plus className="w-4 h-4" />
