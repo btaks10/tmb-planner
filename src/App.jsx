@@ -5,8 +5,10 @@ import {
   Eye, Waves, Mountain, Landmark, Church, Bird, Camera,
   ChevronDown, ChevronRight, Utensils, Home, MapPin,
   Zap, Bus, CableCar, Route, Check, AlertTriangle,
-  Plus, Minus, Save
+  Plus, Minus, Save, Share2, Link2, Copy, X, Maximize2, RotateCcw
 } from 'lucide-react';
+import { MapContainer, TileLayer, Polyline, CircleMarker, Tooltip, useMap } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 
 const STORAGE_KEY = 'tmb-planner-data';
 
@@ -17,41 +19,46 @@ const DEFAULT_DATA = {
 };
 
 const WAYPOINTS = [
-  { id: 0, name: "Les Houches", altitude: 1007, cumDist: 0, cumTime: 0, ascent: 0, descent: 0, stage: 1 },
-  { id: 1, name: "Col de Voza", altitude: 1657, cumDist: 6.0, cumTime: 150, ascent: 660, descent: 20, stage: 1 },
-  { id: 2, name: "Hôtel du Prarion", altitude: 1860, cumDist: 6.8, cumTime: 165, ascent: 660, descent: 20, stage: 1 },
-  { id: 3, name: "Les Contamines", altitude: 1161, cumDist: 17.5, cumTime: 355, ascent: 1000, descent: 530, stage: 2 },
-  { id: 4, name: "Notre-Dame de la Gorge", altitude: 1210, cumDist: 18.5, cumTime: 395, ascent: 1060, descent: 540, stage: 2 },
-  { id: 5, name: "Nant Borrant", altitude: 1459, cumDist: 22.3, cumTime: 440, ascent: 1310, descent: 540, stage: 2 },
-  { id: 6, name: "Refuge de la Balme", altitude: 1706, cumDist: 27.3, cumTime: 525, ascent: 1560, descent: 610, stage: 2 },
-  { id: 7, name: "Refuge de la Croix du Bonhomme", altitude: 2433, cumDist: 32.3, cumTime: 615, ascent: 2350, descent: 680, stage: 3 },
-  { id: 8, name: "Les Chapieux", altitude: 1554, cumDist: 37.3, cumTime: 705, ascent: 2660, descent: 1560, stage: 3 },
-  { id: 9, name: "Refuge des Mottets", altitude: 1868, cumDist: 42.3, cumTime: 795, ascent: 2970, descent: 1570, stage: 4 },
-  { id: 10, name: "Rifugio Elisabetta", altitude: 2195, cumDist: 46.0, cumTime: 885, ascent: 3340, descent: 1790, stage: 4 },
-  { id: 11, name: "Lac Combal", altitude: 1968, cumDist: 49.6, cumTime: 935, ascent: 3340, descent: 2010, stage: 4 },
-  { id: 12, name: "Courmayeur", altitude: 1226, cumDist: 56.0, cumTime: 1050, ascent: 3380, descent: 2760, stage: 4 },
-  { id: 13, name: "Rifugio Bertone", altitude: 1989, cumDist: 60.3, cumTime: 1170, ascent: 4140, descent: 2780, stage: 5 },
-  { id: 14, name: "Rifugio Bonatti", altitude: 2025, cumDist: 68.0, cumTime: 1320, ascent: 4470, descent: 3070, stage: 5 },
-  { id: 15, name: "Rifugio Elena", altitude: 2062, cumDist: 75.9, cumTime: 1470, ascent: 4960, descent: 3460, stage: 6 },
-  { id: 16, name: "La Peule", altitude: 1705, cumDist: 79.8, cumTime: 1530, ascent: 4980, descent: 3840, stage: 6 },
-  { id: 17, name: "Ferret", altitude: 1700, cumDist: 82.6, cumTime: 1570, ascent: 5000, descent: 3860, stage: 6 },
-  { id: 18, name: "La Fouly", altitude: 1610, cumDist: 89.6, cumTime: 1680, ascent: 5020, descent: 4390, stage: 7 },
-  { id: 19, name: "Praz-de-Fort", altitude: 1151, cumDist: 97.9, cumTime: 1815, ascent: 5090, descent: 4920, stage: 7 },
-  { id: 20, name: "Issert", altitude: 1055, cumDist: 100.4, cumTime: 1845, ascent: 5090, descent: 5020, stage: 7 },
-  { id: 21, name: "Champex-Lac", altitude: 1467, cumDist: 105.6, cumTime: 1935, ascent: 5540, descent: 5060, stage: 7 },
-  { id: 22, name: "Plan de l'Au", altitude: 1330, cumDist: 110.3, cumTime: 2015, ascent: 5570, descent: 5200, stage: 8 },
-  { id: 23, name: "Bovine", altitude: 1987, cumDist: 114.5, cumTime: 2135, ascent: 5870, descent: 5340, stage: 8 },
-  { id: 24, name: "Col de la Forclaz", altitude: 1526, cumDist: 119.0, cumTime: 2235, ascent: 5920, descent: 5950, stage: 8 },
-  { id: 25, name: "Trient", altitude: 1279, cumDist: 121.1, cumTime: 2275, ascent: 5920, descent: 6200, stage: 8 },
-  { id: 26, name: "Col de Balme", altitude: 2191, cumDist: 127.1, cumTime: 2415, ascent: 6730, descent: 6200, stage: 9 },
-  { id: 27, name: "Le Tour", altitude: 1460, cumDist: 133.1, cumTime: 2515, ascent: 6730, descent: 6950, stage: 9 },
-  { id: 28, name: "Tré-le-Champ", altitude: 1417, cumDist: 141.1, cumTime: 2645, ascent: 6970, descent: 7960, stage: 9 },
-  { id: 29, name: "La Flégère", altitude: 1875, cumDist: 148.9, cumTime: 2855, ascent: 7770, descent: 8300, stage: 10 },
-  { id: 30, name: "Planpraz", altitude: 2000, cumDist: 151.7, cumTime: 2930, ascent: 8110, descent: 8340, stage: 10 },
-  { id: 31, name: "Brévent", altitude: 2525, cumDist: 154.5, cumTime: 3020, ascent: 8600, descent: 8380, stage: 11 },
-  { id: 32, name: "Bellachat", altitude: 2152, cumDist: 157.1, cumTime: 3065, ascent: 8620, descent: 8770, stage: 11 },
-  { id: 33, name: "Les Houches (End)", altitude: 1007, cumDist: 164.6, cumTime: 3205, ascent: 8660, descent: 9960, stage: 11 },
+  { id: 0, name: "Les Houches", altitude: 1007, cumDist: 0, cumTime: 0, ascent: 0, descent: 0, stage: 1, lat: 45.8906, lng: 6.7986 },
+  { id: 1, name: "Col de Voza", altitude: 1657, cumDist: 6.0, cumTime: 150, ascent: 660, descent: 20, stage: 1, lat: 45.8667, lng: 6.7667 },
+  { id: 2, name: "Hôtel du Prarion", altitude: 1860, cumDist: 6.8, cumTime: 165, ascent: 660, descent: 20, stage: 1, lat: 45.8580, lng: 6.7550 },
+  { id: 3, name: "Les Contamines", altitude: 1161, cumDist: 17.5, cumTime: 355, ascent: 1000, descent: 530, stage: 2, lat: 45.8206, lng: 6.7267 },
+  { id: 4, name: "Notre-Dame de la Gorge", altitude: 1210, cumDist: 18.5, cumTime: 395, ascent: 1060, descent: 540, stage: 2, lat: 45.7950, lng: 6.7150 },
+  { id: 5, name: "Nant Borrant", altitude: 1459, cumDist: 22.3, cumTime: 440, ascent: 1310, descent: 540, stage: 2, lat: 45.7750, lng: 6.7050 },
+  { id: 6, name: "Refuge de la Balme", altitude: 1706, cumDist: 27.3, cumTime: 525, ascent: 1560, descent: 610, stage: 2, lat: 45.7600, lng: 6.6833 },
+  { id: 7, name: "Refuge de la Croix du Bonhomme", altitude: 2433, cumDist: 32.3, cumTime: 615, ascent: 2350, descent: 680, stage: 3, lat: 45.7350, lng: 6.7100 },
+  { id: 8, name: "Les Chapieux", altitude: 1554, cumDist: 37.3, cumTime: 705, ascent: 2660, descent: 1560, stage: 3, lat: 45.7167, lng: 6.7333 },
+  { id: 9, name: "Refuge des Mottets", altitude: 1868, cumDist: 42.3, cumTime: 795, ascent: 2970, descent: 1570, stage: 4, lat: 45.7350, lng: 6.8050 },
+  { id: 10, name: "Rifugio Elisabetta", altitude: 2195, cumDist: 46.0, cumTime: 885, ascent: 3340, descent: 1790, stage: 4, lat: 45.7667, lng: 6.8500 },
+  { id: 11, name: "Lac Combal", altitude: 1968, cumDist: 49.6, cumTime: 935, ascent: 3340, descent: 2010, stage: 4, lat: 45.7750, lng: 6.8800 },
+  { id: 12, name: "Courmayeur", altitude: 1226, cumDist: 56.0, cumTime: 1050, ascent: 3380, descent: 2760, stage: 4, lat: 45.7967, lng: 6.9694 },
+  { id: 13, name: "Rifugio Bertone", altitude: 1989, cumDist: 60.3, cumTime: 1170, ascent: 4140, descent: 2780, stage: 5, lat: 45.8167, lng: 6.9667 },
+  { id: 14, name: "Rifugio Bonatti", altitude: 2025, cumDist: 68.0, cumTime: 1320, ascent: 4470, descent: 3070, stage: 5, lat: 45.8833, lng: 7.0167 },
+  { id: 15, name: "Rifugio Elena", altitude: 2062, cumDist: 75.9, cumTime: 1470, ascent: 4960, descent: 3460, stage: 6, lat: 45.8917, lng: 7.0500 },
+  { id: 16, name: "La Peule", altitude: 1705, cumDist: 79.8, cumTime: 1530, ascent: 4980, descent: 3840, stage: 6, lat: 45.9100, lng: 7.0700 },
+  { id: 17, name: "Ferret", altitude: 1700, cumDist: 82.6, cumTime: 1570, ascent: 5000, descent: 3860, stage: 6, lat: 45.9250, lng: 7.1050 },
+  { id: 18, name: "La Fouly", altitude: 1610, cumDist: 89.6, cumTime: 1680, ascent: 5020, descent: 4390, stage: 7, lat: 45.9433, lng: 7.0967 },
+  { id: 19, name: "Praz-de-Fort", altitude: 1151, cumDist: 97.9, cumTime: 1815, ascent: 5090, descent: 4920, stage: 7, lat: 45.9817, lng: 7.1100 },
+  { id: 20, name: "Issert", altitude: 1055, cumDist: 100.4, cumTime: 1845, ascent: 5090, descent: 5020, stage: 7, lat: 46.0017, lng: 7.1150 },
+  { id: 21, name: "Champex-Lac", altitude: 1467, cumDist: 105.6, cumTime: 1935, ascent: 5540, descent: 5060, stage: 7, lat: 46.0290, lng: 7.1210 },
+  { id: 22, name: "Plan de l'Au", altitude: 1330, cumDist: 110.3, cumTime: 2015, ascent: 5570, descent: 5200, stage: 8, lat: 46.0450, lng: 7.0800 },
+  { id: 23, name: "Bovine", altitude: 1987, cumDist: 114.5, cumTime: 2135, ascent: 5870, descent: 5340, stage: 8, lat: 46.0600, lng: 7.0500 },
+  { id: 24, name: "Col de la Forclaz", altitude: 1526, cumDist: 119.0, cumTime: 2235, ascent: 5920, descent: 5950, stage: 8, lat: 46.0600, lng: 7.0100 },
+  { id: 25, name: "Trient", altitude: 1279, cumDist: 121.1, cumTime: 2275, ascent: 5920, descent: 6200, stage: 8, lat: 46.0567, lng: 7.0233 },
+  { id: 26, name: "Col de Balme", altitude: 2191, cumDist: 127.1, cumTime: 2415, ascent: 6730, descent: 6200, stage: 9, lat: 46.0280, lng: 6.9710 },
+  { id: 27, name: "Le Tour", altitude: 1460, cumDist: 133.1, cumTime: 2515, ascent: 6730, descent: 6950, stage: 9, lat: 45.9983, lng: 6.9433 },
+  { id: 28, name: "Tré-le-Champ", altitude: 1417, cumDist: 141.1, cumTime: 2645, ascent: 6970, descent: 7960, stage: 9, lat: 45.9750, lng: 6.9200 },
+  { id: 29, name: "La Flégère", altitude: 1875, cumDist: 148.9, cumTime: 2855, ascent: 7770, descent: 8300, stage: 10, lat: 45.9583, lng: 6.8883 },
+  { id: 30, name: "Planpraz", altitude: 2000, cumDist: 151.7, cumTime: 2930, ascent: 8110, descent: 8340, stage: 10, lat: 45.9400, lng: 6.8650 },
+  { id: 31, name: "Brévent", altitude: 2525, cumDist: 154.5, cumTime: 3020, ascent: 8600, descent: 8380, stage: 11, lat: 45.9333, lng: 6.8375 },
+  { id: 32, name: "Bellachat", altitude: 2152, cumDist: 157.1, cumTime: 3065, ascent: 8620, descent: 8770, stage: 11, lat: 45.9150, lng: 6.8200 },
+  { id: 33, name: "Les Houches (End)", altitude: 1007, cumDist: 164.6, cumTime: 3205, ascent: 8660, descent: 9960, stage: 11, lat: 45.8906, lng: 6.7986 },
 ];
+
+// Mont Blanc summit location for map reference
+const MONT_BLANC = { lat: 45.8326, lng: 6.8652, altitude: 4808 };
+const MAP_CENTER = [45.88, 6.92];
+const MAP_ZOOM = 11;
 
 const DAY_COLORS = [
   { main: '#10b981', gradient: 'from-emerald-500 to-teal-600' },
@@ -80,6 +87,141 @@ const GlassCard = ({ children, className = "", hover = false }) => (
     {children}
   </div>
 );
+
+// Reusable Day Summary Table component
+const DaySummaryTable = ({
+  dayData,
+  totals,
+  totalTimeSaved,
+  activeShortcuts,
+  scenario,
+  formatTime,
+  formatDate,
+  showEndAltitude = false,
+  onRowClick,
+  onRowHover,
+  selectedDay,
+  hoveredDay
+}) => {
+  // Calculate time saved for a specific day from shortcuts
+  const getDayTimeSaved = (dayIndex) => {
+    const prevEnd = dayIndex === 0 ? 0 : scenario.days[dayIndex - 1];
+    const dayEnd = scenario.days[dayIndex];
+    let timeSaved = 0;
+    activeShortcuts.shortcuts.forEach(shortcut => {
+      if (shortcut.fromId >= prevEnd && shortcut.fromId < dayEnd) {
+        timeSaved += shortcut.timeSaved;
+      }
+    });
+    return timeSaved;
+  };
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="text-slate-500 text-xs uppercase tracking-wider">
+            <th className="text-left py-2 px-3 font-medium">Day</th>
+            <th className="text-left py-2 px-3 font-medium">Date</th>
+            <th className="text-left py-2 px-3 font-medium">Route</th>
+            <th className="text-right py-2 px-3 font-medium">Dist</th>
+            <th className="text-right py-2 px-3 font-medium">Ascent</th>
+            <th className="text-right py-2 px-3 font-medium">Descent</th>
+            <th className="text-right py-2 px-3 font-medium">Time</th>
+            {totalTimeSaved > 0 && <th className="text-right py-2 px-3 font-medium">Adj.</th>}
+            {showEndAltitude && <th className="text-right py-2 px-3 font-medium">End Alt</th>}
+          </tr>
+        </thead>
+        <tbody>
+          {dayData.map((d, i) => {
+            const dayTimeSaved = getDayTimeSaved(i);
+            const adjustedTime = d.time - dayTimeSaved;
+            const isSelected = selectedDay === i;
+            const isHovered = hoveredDay === i;
+
+            return (
+              <tr
+                key={i}
+                className={`border-t border-white/5 transition-colors ${
+                  onRowClick ? 'cursor-pointer' : ''
+                } ${
+                  isSelected
+                    ? 'bg-white/15 ring-1 ring-inset ring-white/20'
+                    : isHovered
+                      ? 'bg-white/10'
+                      : 'hover:bg-white/5'
+                }`}
+                onClick={() => onRowClick?.(i)}
+                onMouseEnter={() => onRowHover?.(i)}
+                onMouseLeave={() => onRowHover?.(null)}
+              >
+                <td className="py-3 px-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-1 h-6 rounded-full" style={{ backgroundColor: DAY_COLORS[i % DAY_COLORS.length].main }} />
+                    <span className="font-semibold text-white">{d.day}</span>
+                  </div>
+                </td>
+                <td className="py-3 px-3 text-slate-400">{formatDate(d.date)}</td>
+                <td className="py-3 px-3">
+                  <span className="text-slate-300">{d.startWp.name}</span>
+                  <span className="text-slate-600 mx-1.5">→</span>
+                  <span className="text-slate-200">{d.endWp.name}</span>
+                </td>
+                <td className="py-3 px-3 text-right font-medium text-slate-200">{d.distance} km</td>
+                <td className="py-3 px-3 text-right font-medium text-emerald-400">↑{d.ascent}m</td>
+                <td className="py-3 px-3 text-right font-medium text-rose-400">↓{d.descent}m</td>
+                <td className={`py-3 px-3 text-right font-medium ${dayTimeSaved > 0 ? 'text-slate-500 line-through' : 'text-slate-200'}`}>
+                  {formatTime(d.time)}
+                </td>
+                {totalTimeSaved > 0 && (
+                  <td className="py-3 px-3 text-right font-medium text-cyan-400">
+                    {dayTimeSaved > 0 ? formatTime(adjustedTime) : '—'}
+                  </td>
+                )}
+                {showEndAltitude && (
+                  <td className="py-3 px-3 text-right text-slate-400">{d.endWp.altitude}m</td>
+                )}
+              </tr>
+            );
+          })}
+        </tbody>
+        <tfoot>
+          <tr className="border-t border-white/10 bg-white/5">
+            <td className="py-3 px-3 font-semibold text-white" colSpan="3">Total</td>
+            <td className="py-3 px-3 text-right font-semibold text-white">{totals.distance.toFixed(1)} km</td>
+            <td className="py-3 px-3 text-right font-semibold text-emerald-400">↑{totals.ascent}m</td>
+            <td className="py-3 px-3 text-right font-semibold text-rose-400">↓{totals.descent}m</td>
+            <td className={`py-3 px-3 text-right font-semibold ${totalTimeSaved > 0 ? 'text-slate-500 line-through' : 'text-white'}`}>
+              {formatTime(totals.time)}
+            </td>
+            {totalTimeSaved > 0 && (
+              <td className="py-3 px-3 text-right font-semibold text-cyan-400">
+                {formatTime(totals.time - totalTimeSaved)}
+              </td>
+            )}
+            {showEndAltitude && <td className="py-3 px-3"></td>}
+          </tr>
+          {totalTimeSaved > 0 && (
+            <tr className="border-t border-cyan-500/20 bg-cyan-500/5">
+              <td className="py-3 px-3 text-cyan-400" colSpan="3">
+                <div className="flex items-center gap-2">
+                  <Zap className="w-4 h-4" />
+                  <span>Shortcuts Active</span>
+                </div>
+              </td>
+              <td colSpan="3"></td>
+              <td className="py-3 px-3 text-right text-cyan-400">-{formatTime(totalTimeSaved)}</td>
+              {totalTimeSaved > 0 && <td></td>}
+              <td className="py-3 px-3 text-right text-amber-400">
+                €{activeShortcuts.totalCost}
+              </td>
+            </tr>
+          )}
+        </tfoot>
+      </table>
+    </div>
+  );
+};
 
 const SightIcon = ({ type, className = "w-4 h-4" }) => {
   const icons = {
@@ -910,6 +1052,805 @@ const DeleteConfirmModal = ({ isOpen, dayNumber, startName, endName, onCancel, o
   );
 };
 
+const ShareModal = ({ isOpen, shareUrl, onClose, onCopy }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      requestAnimationFrame(() => setIsVisible(true));
+      setCopied(false);
+    } else {
+      setIsVisible(false);
+    }
+  }, [isOpen]);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      onCopy();
+      setTimeout(() => setCopied(false), 2000);
+    } catch (e) {
+      // Fallback for older browsers
+      if (inputRef.current) {
+        inputRef.current.select();
+        document.execCommand('copy');
+        setCopied(true);
+        onCopy();
+        setTimeout(() => setCopied(false), 2000);
+      }
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return createPortal(
+    <div
+      className={`fixed inset-0 flex items-center justify-center z-50 p-4 transition-opacity duration-200 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+      onClick={onClose}
+    >
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+
+      {/* Modal */}
+      <div
+        className={`relative max-w-lg w-full p-6 rounded-2xl border border-white/10 shadow-2xl transition-all duration-200 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+        style={{ backgroundColor: 'rgba(30, 41, 59, 0.95)', backdropFilter: 'blur(24px)' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
+            <Share2 className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-white">Share Itinerary</h3>
+            <p className="text-slate-400 text-xs">Anyone with this link can view this trip</p>
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <label className="text-xs text-slate-500 uppercase tracking-wider block mb-2">Shareable Link</label>
+          <div className="flex gap-2">
+            <div className="flex-1 relative">
+              <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <input
+                ref={inputRef}
+                type="text"
+                value={shareUrl}
+                readOnly
+                className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-sm text-slate-300 focus:outline-none focus:border-cyan-500/50"
+                onClick={(e) => e.target.select()}
+              />
+            </div>
+            <button
+              onClick={handleCopy}
+              className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
+                copied
+                  ? 'bg-emerald-500 text-white'
+                  : 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:shadow-lg hover:shadow-cyan-500/25'
+              }`}
+            >
+              {copied ? (
+                <>
+                  <Check className="w-4 h-4" />
+                  <span>Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4" />
+                  <span>Copy</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
+        <div className="p-3 rounded-lg bg-white/5 border border-white/5">
+          <p className="text-xs text-slate-400">
+            This link contains a snapshot of your current itinerary. Changes you make won't affect shared links, and changes others make won't affect your saved version.
+          </p>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+};
+
+const Toast = ({ message, type = 'info', isVisible, icon }) => {
+  if (!isVisible) return null;
+
+  const colors = {
+    success: 'from-emerald-500/20 to-emerald-500/5 border-emerald-500/30 text-emerald-400',
+    error: 'from-red-500/20 to-red-500/5 border-red-500/30 text-red-400',
+    info: 'from-cyan-500/20 to-cyan-500/5 border-cyan-500/30 text-cyan-400',
+  };
+
+  return createPortal(
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-slide-up">
+      <div
+        className={`px-4 py-3 rounded-xl border backdrop-blur-xl shadow-2xl flex items-center gap-3 bg-gradient-to-r ${colors[type]}`}
+      >
+        {icon}
+        <span className="text-sm font-medium">{message}</span>
+      </div>
+    </div>,
+    document.body
+  );
+};
+
+// Map controls component for reset view
+const MapControls = ({ onReset }) => {
+  const map = useMap();
+
+  const handleReset = () => {
+    map.setView(MAP_CENTER, MAP_ZOOM);
+    if (onReset) onReset();
+  };
+
+  return (
+    <div className="leaflet-top leaflet-right" style={{ marginTop: '10px', marginRight: '10px' }}>
+      <div className="leaflet-control">
+        <button
+          onClick={handleReset}
+          className="w-8 h-8 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg flex items-center justify-center text-slate-600 hover:bg-white hover:text-slate-900 transition-colors"
+          title="Reset view"
+        >
+          <RotateCcw className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// Get country for a waypoint based on latitude/longitude
+const getCountryForWaypoint = (wp) => {
+  // Approximate country boundaries for TMB
+  // France: west side, Italy: south/east, Switzerland: north/east
+  if (wp.lat < 45.75) return '🇫🇷'; // Southern part is France/Italy border
+  if (wp.lng > 7.0) return '🇨🇭'; // Eastern part is Switzerland
+  if (wp.lat > 45.9 && wp.lng < 6.95) return '🇫🇷'; // Northwest is France
+  if (wp.lat < 45.85 && wp.lng > 6.8) return '🇮🇹'; // Southeast is Italy
+  return '🇫🇷'; // Default to France
+};
+
+// Get countries passed through for a day
+const getCountriesForDay = (startIdx, endIdx) => {
+  const countries = new Set();
+  for (let i = startIdx; i <= endIdx; i++) {
+    countries.add(getCountryForWaypoint(WAYPOINTS[i]));
+  }
+  return Array.from(countries);
+};
+
+// Segment Detail Modal
+const SegmentDetailModal = ({ isOpen, dayIndex, dayData, scenario, formatTime, formatDate, onClose, onShortcutToggle, selectedShortcuts }) => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      requestAnimationFrame(() => setIsVisible(true));
+    } else {
+      setIsVisible(false);
+    }
+  }, [isOpen]);
+
+  if (!isOpen || dayIndex === null || !dayData[dayIndex]) return null;
+
+  const d = dayData[dayIndex];
+  const prevEnd = dayIndex === 0 ? 0 : scenario.days[dayIndex - 1];
+  const currentEnd = scenario.days[dayIndex];
+  const color = DAY_COLORS[dayIndex % DAY_COLORS.length].main;
+
+  // Get waypoints for this day
+  const waypoints = [];
+  for (let i = prevEnd; i <= currentEnd; i++) {
+    waypoints.push(WAYPOINTS[i]);
+  }
+
+  // Get segment data for sights, food, and shortcuts
+  const segmentDetails = [];
+  for (let i = prevEnd; i < currentEnd; i++) {
+    const seg = segmentData[i];
+    if (seg) segmentDetails.push({ ...seg, fromId: i });
+  }
+
+  // Aggregate sights
+  const allSights = segmentDetails.flatMap(seg => seg.sights || []).slice(0, 5);
+
+  // Aggregate food stops
+  const allFood = segmentDetails.flatMap(seg => seg.food || []).slice(0, 4);
+
+  // Aggregate shortcuts
+  const allShortcuts = segmentDetails.flatMap(seg =>
+    (seg.shortcuts || []).map(sc => ({ ...sc, segmentFromId: seg.fromId }))
+  );
+
+  const countries = getCountriesForDay(prevEnd, currentEnd);
+
+  return createPortal(
+    <div
+      className={`fixed inset-0 flex items-center justify-center z-50 p-4 transition-opacity duration-200 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+      onClick={onClose}
+    >
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+
+      <div
+        className={`relative max-w-lg w-full max-h-[80vh] overflow-y-auto p-6 rounded-2xl border border-white/10 shadow-2xl transition-all duration-200 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+        style={{ backgroundColor: 'rgba(30, 41, 59, 0.95)', backdropFilter: 'blur(24px)' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-4">
+          <div
+            className="w-12 h-12 rounded-xl flex items-center justify-center text-white text-xl font-bold"
+            style={{ backgroundColor: color }}
+          >
+            {d.day}
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-white">Day {d.day}</h3>
+            <div className="flex items-center gap-2 text-sm text-slate-400">
+              <span>{formatDate(d.date)}</span>
+              <span>·</span>
+              <span>{countries.join(' ')}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Route */}
+        <div className="mb-4 p-3 rounded-lg bg-white/5">
+          <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">Route</div>
+          <div className="text-slate-200">
+            {d.startWp.name} <span className="text-slate-500">→</span> {d.endWp.name}
+          </div>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-4 gap-3 mb-4">
+          <div className="p-3 rounded-lg bg-white/5 text-center">
+            <div className="text-lg font-semibold text-white">{d.distance}</div>
+            <div className="text-xs text-slate-500">km</div>
+          </div>
+          <div className="p-3 rounded-lg bg-white/5 text-center">
+            <div className="text-lg font-semibold text-emerald-400">↑{d.ascent}</div>
+            <div className="text-xs text-slate-500">m gain</div>
+          </div>
+          <div className="p-3 rounded-lg bg-white/5 text-center">
+            <div className="text-lg font-semibold text-rose-400">↓{d.descent}</div>
+            <div className="text-xs text-slate-500">m loss</div>
+          </div>
+          <div className="p-3 rounded-lg bg-white/5 text-center">
+            <div className="text-lg font-semibold text-white">{formatTime(d.time)}</div>
+            <div className="text-xs text-slate-500">time</div>
+          </div>
+        </div>
+
+        {/* Waypoints */}
+        <div className="mb-4">
+          <div className="text-xs text-slate-500 uppercase tracking-wider mb-2">Waypoints ({waypoints.length})</div>
+          <div className="flex flex-wrap gap-1.5">
+            {waypoints.map((wp, i) => (
+              <span key={i} className="text-xs px-2 py-1 rounded-full bg-white/5 text-slate-300">
+                {wp.name} ({wp.altitude}m)
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Sights */}
+        {allSights.length > 0 && (
+          <div className="mb-4">
+            <div className="text-xs text-slate-500 uppercase tracking-wider mb-2">Highlights</div>
+            <div className="space-y-2">
+              {allSights.map((sight, i) => (
+                <div key={i} className="flex items-center gap-2 text-sm">
+                  <span className="text-lg">{sight.icon}</span>
+                  <span className="text-slate-300">{sight.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Food Stops */}
+        {allFood.length > 0 && (
+          <div className="mb-4">
+            <div className="text-xs text-slate-500 uppercase tracking-wider mb-2">Food & Refuges</div>
+            <div className="space-y-2">
+              {allFood.map((food, i) => (
+                <div key={i} className="flex items-center gap-2 text-sm">
+                  <span className="text-lg">{food.type === 'refuge' ? '🏠' : '🍽️'}</span>
+                  <span className="text-slate-300">{food.name}</span>
+                  {food.altitude && <span className="text-xs text-slate-500">{food.altitude}m</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Shortcuts */}
+        {allShortcuts.length > 0 && (
+          <div>
+            <div className="text-xs text-slate-500 uppercase tracking-wider mb-2">Shortcuts Available</div>
+            <div className="space-y-2">
+              {allShortcuts.map((shortcut, i) => {
+                const shortcutId = `${shortcut.segmentFromId}-${shortcut.name}`;
+                const isSelected = selectedShortcuts[shortcutId];
+                const isCableCar = shortcut.type === 'cable_car';
+                const isBus = shortcut.type === 'bus';
+                const scColor = isCableCar ? '#22d3ee' : isBus ? '#fbbf24' : '#a78bfa';
+
+                return (
+                  <button
+                    key={i}
+                    onClick={() => onShortcutToggle(shortcutId, shortcut.timeSaved)}
+                    className={`w-full flex items-center justify-between p-3 rounded-lg border transition-all ${
+                      isSelected
+                        ? 'bg-white/10 border-white/20'
+                        : 'bg-white/5 border-transparent hover:bg-white/10'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{isCableCar ? '🚡' : isBus ? '🚌' : '↗️'}</span>
+                      <div className="text-left">
+                        <div className="text-sm text-slate-200">{shortcut.name}</div>
+                        <div className="text-xs text-slate-500">{shortcut.description}</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <div className="text-sm" style={{ color: scColor }}>-{formatTime(shortcut.timeSaved)}</div>
+                        {shortcut.cost > 0 && <div className="text-xs text-amber-400">€{shortcut.cost}</div>}
+                      </div>
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                        isSelected ? 'bg-emerald-500 border-emerald-500' : 'border-slate-500'
+                      }`}>
+                        {isSelected && <Check className="w-3 h-3 text-white" />}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>,
+    document.body
+  );
+};
+
+// Trail Map component using Leaflet
+const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, selectedShortcuts, onShortcutToggle, totals, totalTimeSaved }) => {
+  const [hoveredDay, setHoveredDay] = useState(null);
+  const [selectedDay, setSelectedDay] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+
+  // Build route segments for each day
+  const daySegments = useMemo(() => {
+    if (!scenario || !dayData.length) return [];
+
+    return dayData.map((d, i) => {
+      const prevEnd = i === 0 ? 0 : scenario.days[i - 1];
+      const currentEnd = scenario.days[i];
+
+      // Get all waypoints for this day's segment
+      const positions = [];
+      for (let j = prevEnd; j <= currentEnd; j++) {
+        const wp = WAYPOINTS[j];
+        if (wp && wp.lat && wp.lng) {
+          positions.push([wp.lat, wp.lng]);
+        }
+      }
+
+      return {
+        day: i + 1,
+        positions,
+        color: DAY_COLORS[i % DAY_COLORS.length].main,
+        startWp: WAYPOINTS[prevEnd],
+        endWp: WAYPOINTS[currentEnd],
+        distance: d.distance,
+        time: d.time
+      };
+    });
+  }, [dayData, scenario]);
+
+  // Build shortcut lines
+  const shortcutLines = useMemo(() => {
+    if (!activeShortcuts?.shortcuts) return [];
+
+    return activeShortcuts.shortcuts.map(shortcut => {
+      const startWp = WAYPOINTS[shortcut.fromId];
+      const endWp = WAYPOINTS.find(w => w.name.toLowerCase().includes(shortcut.skipsToWaypoint?.toLowerCase() || '')) ||
+                    WAYPOINTS[shortcut.fromId + 1];
+
+      if (!startWp || !endWp) return null;
+
+      const isCableCar = shortcut.type === 'cable_car';
+      const isBus = shortcut.type === 'bus';
+      const color = isCableCar ? '#22d3ee' : isBus ? '#fbbf24' : '#a78bfa';
+
+      return {
+        positions: [[startWp.lat, startWp.lng], [endWp.lat, endWp.lng]],
+        color,
+        name: shortcut.name,
+        type: shortcut.type,
+        dashArray: isCableCar ? '10, 6' : isBus ? '6, 6' : '4, 4'
+      };
+    }).filter(Boolean);
+  }, [activeShortcuts]);
+
+  // Day endpoint markers
+  const dayMarkers = useMemo(() => {
+    return dayData.map((d, i) => ({
+      position: [d.endWp.lat, d.endWp.lng],
+      day: i + 1,
+      color: DAY_COLORS[i % DAY_COLORS.length].main,
+      name: d.endWp.name,
+      altitude: d.endWp.altitude,
+      distance: d.distance,
+      time: d.time
+    }));
+  }, [dayData]);
+
+  // Handle segment click
+  const handleSegmentClick = (dayIndex) => {
+    setSelectedDay(dayIndex);
+    setShowDetailModal(true);
+  };
+
+  // Handle click outside to deselect
+  const handleMapClick = () => {
+    setSelectedDay(null);
+  };
+
+  // Get shortcut icon positions for map
+  const shortcutIcons = useMemo(() => {
+    const icons = [];
+    dayData.forEach((d, dayIdx) => {
+      const prevEnd = dayIdx === 0 ? 0 : scenario.days[dayIdx - 1];
+      const currentEnd = scenario.days[dayIdx];
+
+      for (let i = prevEnd; i < currentEnd; i++) {
+        const seg = segmentData[i];
+        if (seg?.shortcuts) {
+          seg.shortcuts.forEach(shortcut => {
+            const wp = WAYPOINTS[i];
+            const shortcutId = `${i}-${shortcut.name}`;
+            const isSelected = selectedShortcuts[shortcutId];
+            icons.push({
+              position: [wp.lat, wp.lng],
+              shortcut,
+              shortcutId,
+              isSelected,
+              dayIdx,
+              segmentFromId: i
+            });
+          });
+        }
+      }
+    });
+    return icons;
+  }, [dayData, scenario, selectedShortcuts]);
+
+  return (
+    <div>
+      {/* Map Container */}
+      <div className="relative rounded-2xl overflow-hidden" style={{ height: '500px' }}>
+        <MapContainer
+          center={MAP_CENTER}
+          zoom={MAP_ZOOM}
+          className="h-full w-full"
+          style={{ background: '#1e293b' }}
+          zoomControl={true}
+        >
+          {/* Topographic tile layer */}
+          <TileLayer
+            attribution='&copy; <a href="https://opentopomap.org">OpenTopoMap</a>'
+            url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
+            maxZoom={17}
+          />
+
+          {/* Route segments by day */}
+          {daySegments.map((segment, i) => {
+            const isSelected = selectedDay === i;
+            const isHovered = hoveredDay === i;
+            const hasSelection = selectedDay !== null;
+            const opacity = hasSelection
+              ? (isSelected ? 1 : 0.25)
+              : (hoveredDay === null || isHovered ? 0.9 : 0.4);
+
+            return (
+              <Polyline
+                key={`route-${i}`}
+                positions={segment.positions}
+                pathOptions={{
+                  color: isSelected ? '#fff' : segment.color,
+                  weight: isSelected ? 7 : isHovered ? 6 : 4,
+                  opacity,
+                  lineCap: 'round',
+                  lineJoin: 'round'
+                }}
+                eventHandlers={{
+                  mouseover: () => setHoveredDay(i),
+                  mouseout: () => setHoveredDay(null),
+                  click: (e) => {
+                    e.originalEvent.stopPropagation();
+                    handleSegmentClick(i);
+                  }
+                }}
+              >
+                <Tooltip sticky>
+                  <div className="font-sans">
+                    <div className="font-semibold">Day {segment.day}</div>
+                    <div className="text-xs text-gray-600">
+                      {segment.startWp.name} → {segment.endWp.name}
+                    </div>
+                    <div className="text-xs mt-1">
+                      {segment.distance} km · {formatTime(segment.time)}
+                    </div>
+                    <div className="text-xs text-blue-500 mt-1">Click for details</div>
+                  </div>
+                </Tooltip>
+              </Polyline>
+            );
+          })}
+
+          {/* Shortcut lines */}
+          {shortcutLines.map((line, i) => (
+            <Polyline
+              key={`shortcut-${i}`}
+              positions={line.positions}
+              pathOptions={{
+                color: line.color,
+                weight: 4,
+                opacity: selectedDay !== null ? 0.5 : 0.9,
+                dashArray: line.dashArray,
+                lineCap: 'round'
+              }}
+            >
+              <Tooltip>
+                <div className="font-sans">
+                  <div className="font-semibold flex items-center gap-1">
+                    {line.type === 'cable_car' ? '🚡' : line.type === 'bus' ? '🚌' : '↗️'}
+                    {line.name}
+                  </div>
+                  <div className="text-xs text-gray-600 capitalize">{line.type.replace('_', ' ')}</div>
+                </div>
+              </Tooltip>
+            </Polyline>
+          ))}
+
+          {/* Shortcut opportunity icons */}
+          {shortcutIcons.map((icon, i) => {
+            const isCableCar = icon.shortcut.type === 'cable_car';
+            const isBus = icon.shortcut.type === 'bus';
+            const color = isCableCar ? '#22d3ee' : isBus ? '#fbbf24' : '#a78bfa';
+
+            return (
+              <CircleMarker
+                key={`shortcut-icon-${i}`}
+                center={icon.position}
+                radius={icon.isSelected ? 10 : 7}
+                pathOptions={{
+                  color: '#0f172a',
+                  weight: 2,
+                  fillColor: icon.isSelected ? color : '#475569',
+                  fillOpacity: icon.isSelected ? 1 : 0.7
+                }}
+                eventHandlers={{
+                  click: (e) => {
+                    e.originalEvent.stopPropagation();
+                    handleSegmentClick(icon.dayIdx);
+                  }
+                }}
+              >
+                <Tooltip direction="top" offset={[0, -6]}>
+                  <div className="font-sans">
+                    <div className="font-semibold flex items-center gap-1">
+                      {isCableCar ? '🚡' : isBus ? '🚌' : '↗️'}
+                      {icon.shortcut.name}
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      Saves {formatTime(icon.shortcut.timeSaved)}
+                      {icon.shortcut.cost > 0 && ` · €${icon.shortcut.cost}`}
+                    </div>
+                    <div className="text-xs mt-1">
+                      {icon.isSelected ? '✓ Selected' : 'Click to view options'}
+                    </div>
+                  </div>
+                </Tooltip>
+              </CircleMarker>
+            );
+          })}
+
+          {/* Start marker */}
+          <CircleMarker
+            center={[WAYPOINTS[0].lat, WAYPOINTS[0].lng]}
+            radius={10}
+            pathOptions={{
+              color: '#0f172a',
+              weight: 3,
+              fillColor: '#10b981',
+              fillOpacity: 1
+            }}
+        >
+          <Tooltip permanent direction="top" offset={[0, -10]}>
+            <span className="font-semibold text-xs">START</span>
+          </Tooltip>
+        </CircleMarker>
+
+        {/* Day endpoint markers */}
+        {dayMarkers.map((marker, i) => (
+          <CircleMarker
+            key={`marker-${i}`}
+            center={marker.position}
+            radius={hoveredDay === i ? 10 : 8}
+            pathOptions={{
+              color: '#0f172a',
+              weight: 2,
+              fillColor: marker.color,
+              fillOpacity: 1
+            }}
+          >
+            <Tooltip direction="top" offset={[0, -8]}>
+              <div className="font-sans">
+                <div className="font-semibold">Day {marker.day}: {marker.name}</div>
+                <div className="text-xs text-gray-600">
+                  {marker.altitude}m · {marker.distance} km · {formatTime(marker.time)}
+                </div>
+              </div>
+            </Tooltip>
+          </CircleMarker>
+        ))}
+
+        {/* Mont Blanc marker */}
+        <CircleMarker
+          center={[MONT_BLANC.lat, MONT_BLANC.lng]}
+          radius={6}
+          pathOptions={{
+            color: '#64748b',
+            weight: 1,
+            fillColor: '#f8fafc',
+            fillOpacity: 0.9
+          }}
+        >
+          <Tooltip direction="top" offset={[0, -6]}>
+            <div className="font-sans text-center">
+              <div className="font-semibold">Mont Blanc</div>
+              <div className="text-xs text-gray-600">{MONT_BLANC.altitude}m</div>
+            </div>
+          </Tooltip>
+        </CircleMarker>
+
+        <MapControls />
+      </MapContainer>
+
+      {/* Map Legend Overlay */}
+      <div className="absolute bottom-4 left-4 z-[1000]">
+        <div
+          className="p-3 rounded-xl border border-white/10 shadow-xl"
+          style={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(12px)' }}
+        >
+          <div className="text-xs text-slate-400 uppercase tracking-wider mb-2">Legend</div>
+          <div className="space-y-1.5">
+            {dayData.slice(0, Math.min(dayData.length, 8)).map((d, i) => (
+              <div
+                key={i}
+                className={`flex items-center gap-2 text-xs transition-opacity ${hoveredDay !== null && hoveredDay !== i ? 'opacity-40' : ''}`}
+              >
+                <div
+                  className="w-4 h-1 rounded-full"
+                  style={{ backgroundColor: DAY_COLORS[i % DAY_COLORS.length].main }}
+                />
+                <span className="text-slate-300">Day {d.day}</span>
+              </div>
+            ))}
+            {dayData.length > 8 && (
+              <div className="text-xs text-slate-500">+{dayData.length - 8} more</div>
+            )}
+          </div>
+
+          {activeShortcuts?.shortcuts?.length > 0 && (
+            <div className="mt-3 pt-3 border-t border-white/10">
+              <div className="text-xs text-slate-400 uppercase tracking-wider mb-2">Shortcuts</div>
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2 text-xs">
+                  <div className="w-4 h-0.5 border-t-2 border-dashed border-cyan-400" />
+                  <span className="text-slate-300">Cable Car</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs">
+                  <div className="w-4 h-0.5 border-t-2 border-dashed border-amber-400" />
+                  <span className="text-slate-300">Bus</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Country labels overlay */}
+      <div className="absolute top-4 left-4 z-[1000]">
+        <div
+          className="px-3 py-2 rounded-xl text-xs font-medium"
+          style={{ backgroundColor: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(8px)' }}
+        >
+          <span className="text-slate-300">🇫🇷 France</span>
+          <span className="text-slate-500 mx-2">·</span>
+          <span className="text-slate-300">🇮🇹 Italy</span>
+          <span className="text-slate-500 mx-2">·</span>
+          <span className="text-slate-300">🇨🇭 Switzerland</span>
+        </div>
+      </div>
+
+      {/* Total stats overlay */}
+      <div className="absolute top-4 right-4 z-[1000]">
+        <div
+          className="px-3 py-2 rounded-xl"
+          style={{ backgroundColor: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(8px)' }}
+        >
+          <div className="text-xs text-slate-400">Tour du Mont Blanc</div>
+          <div className="text-sm font-semibold text-white">
+            {WAYPOINTS[WAYPOINTS.length - 1].cumDist.toFixed(0)} km Circuit
+          </div>
+        </div>
+      </div>
+    </div>
+
+      {/* Journey Summary Table */}
+      <GlassCard className="p-6 mt-6">
+        <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wider mb-4">Daily Breakdown</h3>
+        <DaySummaryTable
+          dayData={dayData}
+          totals={totals}
+          totalTimeSaved={totalTimeSaved}
+          activeShortcuts={activeShortcuts}
+          scenario={scenario}
+          formatTime={formatTime}
+          formatDate={formatDate}
+          onRowClick={handleSegmentClick}
+          onRowHover={setHoveredDay}
+          selectedDay={selectedDay}
+          hoveredDay={hoveredDay}
+        />
+      </GlassCard>
+
+      {/* Segment Detail Modal */}
+      <SegmentDetailModal
+        isOpen={showDetailModal}
+        dayIndex={selectedDay}
+        dayData={dayData}
+        scenario={scenario}
+        formatTime={formatTime}
+        formatDate={formatDate}
+        onClose={() => {
+          setShowDetailModal(false);
+          setSelectedDay(null);
+        }}
+        onShortcutToggle={onShortcutToggle}
+        selectedShortcuts={selectedShortcuts}
+      />
+    </div>
+  );
+};
+
 export default function App() {
   const [scenarios, setScenarios] = useState(DEFAULT_DATA.scenarios);
   const [activeScenarioId, setActiveScenarioId] = useState(DEFAULT_DATA.activeScenarioId);
@@ -918,9 +1859,80 @@ export default function App() {
   const [isDirty, setIsDirty] = useState(false);
   const [showSaved, setShowSaved] = useState(false);
   const [deleteConfirmDay, setDeleteConfirmDay] = useState(null);
+  const [hoveredElevationDay, setHoveredElevationDay] = useState(null);
+  const [hoveredShortcut, setHoveredShortcut] = useState(null);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareUrl, setShareUrl] = useState('');
+  const [toast, setToast] = useState({ message: '', type: 'info', isVisible: false });
 
-  // Load from localStorage on mount
+  // Show toast helper
+  const showToast = (message, type = 'info') => {
+    setToast({ message, type, isVisible: true });
+    setTimeout(() => setToast(prev => ({ ...prev, isVisible: false })), 3000);
+  };
+
+  // Encode scenario data for sharing
+  const encodeScenarioForShare = (scenario, shortcuts) => {
+    const shareData = {
+      n: scenario.name,
+      s: scenario.startDate,
+      d: scenario.days,
+      sc: shortcuts
+    };
+    return btoa(JSON.stringify(shareData));
+  };
+
+  // Decode scenario data from URL
+  const decodeScenarioFromUrl = (encoded) => {
+    try {
+      const decoded = JSON.parse(atob(encoded));
+      return {
+        name: decoded.n || 'Shared Trip',
+        startDate: decoded.s || '2026-08-01',
+        days: decoded.d || DEFAULT_DATA.scenarios[0].days,
+        shortcuts: decoded.sc || {}
+      };
+    } catch (e) {
+      console.error('Failed to decode shared trip:', e);
+      return null;
+    }
+  };
+
+  // Load from URL or localStorage on mount
   useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const sharedTrip = urlParams.get('trip');
+
+    if (sharedTrip) {
+      // Try to load from URL
+      const decoded = decodeScenarioFromUrl(sharedTrip);
+      if (decoded) {
+        // Create a new scenario from the shared data
+        const sharedScenario = {
+          id: Date.now(),
+          name: decoded.name + ' (Shared)',
+          startDate: decoded.startDate,
+          days: decoded.days
+        };
+        setScenarios([sharedScenario]);
+        setActiveScenarioId(sharedScenario.id);
+        setSelectedShortcuts(decoded.shortcuts);
+        setIsDirty(true); // Mark as dirty so user knows to save
+
+        // Clear the URL param without reloading
+        window.history.replaceState({}, '', window.location.pathname);
+
+        showToast('Loaded shared itinerary! Click Save to keep it.', 'success');
+      } else {
+        showToast("Couldn't load shared trip - using default", 'error');
+        loadFromLocalStorage();
+      }
+    } else {
+      loadFromLocalStorage();
+    }
+  }, []);
+
+  const loadFromLocalStorage = () => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
@@ -932,7 +1944,23 @@ export default function App() {
     } catch (e) {
       console.error('Failed to load saved data:', e);
     }
-  }, []);
+  };
+
+  // Generate share URL
+  const handleShare = () => {
+    if (!activeScenario) return;
+
+    // Only include shortcuts that are selected (true values)
+    const activeShortcutsOnly = {};
+    Object.entries(selectedShortcuts).forEach(([key, value]) => {
+      if (value) activeShortcutsOnly[key] = true;
+    });
+
+    const encoded = encodeScenarioForShare(activeScenario, activeShortcutsOnly);
+    const url = `${window.location.origin}${window.location.pathname}?trip=${encoded}`;
+    setShareUrl(url);
+    setShowShareModal(true);
+  };
 
   const saveToLocalStorage = () => {
     try {
@@ -1004,6 +2032,69 @@ export default function App() {
     ascent: acc.ascent + d.ascent,
     descent: acc.descent + d.descent
   }), { distance: 0, time: 0, ascent: 0, descent: 0 });
+
+  // Calculate these early for use in activeShortcuts
+  const maxAlt = Math.max(...WAYPOINTS.map(w => w.altitude));
+  const minAlt = Math.min(...WAYPOINTS.map(w => w.altitude));
+  const maxDist = WAYPOINTS[WAYPOINTS.length - 1].cumDist;
+
+  // Compute active shortcuts with visualization data
+  const activeShortcuts = useMemo(() => {
+    const shortcuts = [];
+    let totalCost = 0;
+
+    Object.entries(selectedShortcuts).forEach(([shortcutId, isSelected]) => {
+      if (!isSelected) return;
+
+      // Parse segment key from shortcutId (format: "fromId-toId-shortcutName")
+      const parts = shortcutId.split('-');
+      const fromId = parseInt(parts[0]);
+      const toId = parseInt(parts[1]);
+      const shortcutName = parts.slice(2).join('-');
+      const segmentKey = `${fromId}-${toId}`;
+
+      const segment = segmentData[segmentKey];
+      if (!segment?.shortcuts) return;
+
+      const shortcut = segment.shortcuts.find(s => s.name === shortcutName);
+      if (!shortcut) return;
+
+      const fromWp = WAYPOINTS[fromId];
+      const toWp = WAYPOINTS[toId];
+
+      if (!fromWp || !toWp) return;
+
+      // Calculate position within the segment
+      const startX = fromWp.cumDist + (toWp.cumDist - fromWp.cumDist) * shortcut.position;
+      const startAlt = fromWp.altitude + (toWp.altitude - fromWp.altitude) * shortcut.position;
+
+      // For shortcuts, the end point is either skipsToWaypoint or the segment end
+      let endWpId = shortcut.skipsToWaypoint || toId;
+      let endWp = WAYPOINTS[endWpId] || toWp;
+
+      shortcuts.push({
+        ...shortcut,
+        shortcutId,
+        segmentKey,
+        fromId,
+        toId,
+        fromWp,
+        toWp,
+        // Visualization coords
+        startDist: startX,
+        startAlt: startAlt,
+        endDist: endWp.cumDist,
+        endAlt: endWp.altitude,
+        // For map visualization
+        startAngle: (startX / maxDist) * 360 - 90,
+        endAngle: (endWp.cumDist / maxDist) * 360 - 90
+      });
+
+      totalCost += shortcut.cost || 0;
+    });
+
+    return { shortcuts, totalCost, totalTimeSaved: totalTimeSaved };
+  }, [selectedShortcuts, totalTimeSaved, maxDist]);
 
   const updateDay = (dayIndex, newEndIdx) => {
     setScenarios(scenarios.map(s => {
@@ -1102,10 +2193,6 @@ export default function App() {
     setIsDirty(true);
   };
 
-  const maxAlt = Math.max(...WAYPOINTS.map(w => w.altitude));
-  const minAlt = Math.min(...WAYPOINTS.map(w => w.altitude));
-  const maxDist = WAYPOINTS[WAYPOINTS.length - 1].cumDist;
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white p-6 relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -1148,6 +2235,13 @@ export default function App() {
             {showSaved && (
               <span className="text-emerald-400 text-sm animate-pulse">Saved!</span>
             )}
+            <button
+              onClick={handleShare}
+              className="px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10 hover:border-cyan-500/30 hover:text-cyan-400"
+            >
+              <Share2 className="w-4 h-4" />
+              <span className="hidden sm:inline">Share</span>
+            </button>
             <button
               onClick={saveToLocalStorage}
               className={`px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
@@ -1333,161 +2427,323 @@ export default function App() {
         )}
 
         {view === 'elevation' && (
-          <GlassCard className="p-6">
-            <h3 className="text-lg font-light mb-6 flex items-center gap-2">
-              <span className="text-2xl">📈</span> Elevation Profile
-            </h3>
-            <svg viewBox="0 0 800 320" className="w-full">
-              <defs>
-                <linearGradient id="elevGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#10b981" stopOpacity="0.3"/>
-                  <stop offset="100%" stopColor="#10b981" stopOpacity="0"/>
-                </linearGradient>
-              </defs>
+          <div className="space-y-6">
+            <GlassCard className="p-6">
+              <h3 className="text-lg font-light mb-6 flex items-center gap-2">
+                <span className="text-2xl">📈</span> Elevation Profile
+              </h3>
 
-              {[1000, 1500, 2000, 2500].map(alt => (
-                <g key={alt}>
-                  <line x1="60" y1={260 - ((alt - minAlt) / (maxAlt - minAlt)) * 200} x2="780" y2={260 - ((alt - minAlt) / (maxAlt - minAlt)) * 200} stroke="#334155" strokeWidth="1" strokeDasharray="4"/>
-                  <text x="55" y={264 - ((alt - minAlt) / (maxAlt - minAlt)) * 200} fill="#64748b" fontSize="10" textAnchor="end">{alt}m</text>
-                </g>
-              ))}
+              {/* Elevation Chart */}
+              <div className="relative">
+                <svg viewBox="0 0 800 300" className="w-full">
+                  {/* Grid lines */}
+                  {[1000, 1500, 2000, 2500].map(alt => {
+                    const y = 250 - ((alt - minAlt) / (maxAlt - minAlt)) * 200;
+                    return (
+                      <g key={alt}>
+                        <line x1="60" y1={y} x2="760" y2={y} stroke="#334155" strokeWidth="1" strokeDasharray="4,4" />
+                        <text x="52" y={y + 4} fill="#94a3b8" fontSize="11" textAnchor="end" fontFamily="system-ui">{alt}m</text>
+                      </g>
+                    );
+                  })}
 
-              <path
-                d={`M 60 260 L ${WAYPOINTS.map(p => `${60 + (p.cumDist / maxDist) * 720} ${260 - ((p.altitude - minAlt) / (maxAlt - minAlt)) * 200}`).join(' L ')} L 780 260 Z`}
-                fill="url(#elevGrad)"
-              />
+                  {/* X-axis labels */}
+                  {[0, 40, 80, 120, 160].map(km => (
+                    <text key={km} x={60 + (km / maxDist) * 700} y={280} fill="#94a3b8" fontSize="11" textAnchor="middle" fontFamily="system-ui">{km}km</text>
+                  ))}
 
-              <path
-                d={`M ${WAYPOINTS.map((p, i) => `${i === 0 ? 'M' : 'L'} ${60 + (p.cumDist / maxDist) * 720} ${260 - ((p.altitude - minAlt) / (maxAlt - minAlt)) * 200}`).join(' ')}`}
-                fill="none" stroke="#10b981" strokeWidth="2.5"
-              />
+                  {/* Subtle fill under the line */}
+                  <path
+                    d={`M 60 250 L ${WAYPOINTS.map(p => `${60 + (p.cumDist / maxDist) * 700} ${250 - ((p.altitude - minAlt) / (maxAlt - minAlt)) * 200}`).join(' L ')} L ${60 + (WAYPOINTS[WAYPOINTS.length-1].cumDist / maxDist) * 700} 250 Z`}
+                    fill="rgba(16, 185, 129, 0.08)"
+                  />
 
-              {dayData.map((d, i) => {
-                const x = 60 + (d.endWp.cumDist / maxDist) * 720;
-                const y = 260 - ((d.endWp.altitude - minAlt) / (maxAlt - minAlt)) * 200;
-                return (
-                  <g key={i}>
-                    <line x1={x} y1={40} x2={x} y2={260} stroke={DAY_COLORS[i % DAY_COLORS.length].main} strokeWidth="1.5" strokeDasharray="6" opacity="0.5"/>
-                    <circle cx={x} cy={y} r="8" fill={DAY_COLORS[i % DAY_COLORS.length].main} stroke="#0f172a" strokeWidth="2"/>
-                    <text x={x} y={y + 4} fill="white" fontSize="9" textAnchor="middle" fontWeight="bold">{i+1}</text>
-                    <text x={x} y={30} fill={DAY_COLORS[i % DAY_COLORS.length].main} fontSize="10" textAnchor="middle" fontWeight="500">D{i+1}</text>
+                  {/* Day-colored elevation line segments */}
+                  {dayData.map((d, i) => {
+                    const prevEnd = i === 0 ? 0 : activeScenario.days[i - 1];
+                    const dayWaypoints = WAYPOINTS.slice(prevEnd, activeScenario.days[i] + 1);
+                    const pathData = dayWaypoints.map((p, idx) => {
+                      const x = 60 + (p.cumDist / maxDist) * 700;
+                      const y = 250 - ((p.altitude - minAlt) / (maxAlt - minAlt)) * 200;
+                      return `${idx === 0 ? 'M' : 'L'} ${x} ${y}`;
+                    }).join(' ');
+
+                    return (
+                      <path
+                        key={i}
+                        d={pathData}
+                        fill="none"
+                        stroke={DAY_COLORS[i % DAY_COLORS.length].main}
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    );
+                  })}
+
+                  {/* Shortcut visualization lines */}
+                  {activeShortcuts.shortcuts.map((shortcut, i) => {
+                    const x1 = 60 + (shortcut.startDist / maxDist) * 700;
+                    const y1 = 250 - ((shortcut.startAlt - minAlt) / (maxAlt - minAlt)) * 200;
+                    const x2 = 60 + (shortcut.endDist / maxDist) * 700;
+                    const y2 = 250 - ((shortcut.endAlt - minAlt) / (maxAlt - minAlt)) * 200;
+                    const midX = (x1 + x2) / 2;
+                    const midY = (y1 + y2) / 2;
+
+                    const isCableCar = shortcut.type === 'cable_car';
+                    const isBus = shortcut.type === 'bus';
+                    const color = isCableCar ? '#22d3ee' : isBus ? '#fbbf24' : '#a78bfa';
+                    const isHovered = hoveredShortcut === shortcut.shortcutId;
+
+                    return (
+                      <g
+                        key={i}
+                        className="cursor-pointer"
+                        onMouseEnter={() => setHoveredShortcut(shortcut.shortcutId)}
+                        onMouseLeave={() => setHoveredShortcut(null)}
+                      >
+                        {/* Invisible wider hit area for easier hovering */}
+                        <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="transparent" strokeWidth="16" />
+                        {/* Faded "skipped" section indicator */}
+                        <line
+                          x1={x1} y1={y1} x2={x2} y2={y2}
+                          stroke="#334155"
+                          strokeWidth={isHovered ? "8" : "6"}
+                          strokeLinecap="round"
+                          opacity="0.3"
+                        />
+                        {/* Shortcut line */}
+                        <line
+                          x1={x1} y1={y1} x2={x2} y2={y2}
+                          stroke={color}
+                          strokeWidth={isHovered ? "4" : "3"}
+                          strokeLinecap="round"
+                          strokeDasharray={isCableCar ? '8,4' : isBus ? '4,4' : '2,4'}
+                          style={{ transition: 'stroke-width 0.15s ease' }}
+                        />
+                        {/* Start marker */}
+                        <circle cx={x1} cy={y1} r={isHovered ? "10" : "8"} fill={color} stroke="#0f172a" strokeWidth="2" style={{ transition: 'r 0.15s ease' }} />
+                        {/* End marker */}
+                        <circle cx={x2} cy={y2} r={isHovered ? "8" : "6"} fill={color} stroke="#0f172a" strokeWidth="2" opacity="0.7" style={{ transition: 'r 0.15s ease' }} />
+                        {/* Icon in middle of line */}
+                        <circle cx={midX} cy={midY} r={isHovered ? "14" : "12"} fill={color} stroke="#0f172a" strokeWidth="2" style={{ transition: 'r 0.15s ease' }} />
+                        <text x={midX} y={midY + 4} fill="#0f172a" fontSize={isHovered ? "12" : "10"} textAnchor="middle" fontWeight="bold">
+                          {isCableCar ? '🚡' : isBus ? '🚌' : '↗'}
+                        </text>
+                      </g>
+                    );
+                  })}
+
+                  {/* Day boundary markers and labels */}
+                  {dayData.map((d, i) => {
+                    const x = 60 + (d.endWp.cumDist / maxDist) * 700;
+                    const y = 250 - ((d.endWp.altitude - minAlt) / (maxAlt - minAlt)) * 200;
+                    const color = DAY_COLORS[i % DAY_COLORS.length].main;
+                    const isHovered = hoveredElevationDay === i;
+
+                    return (
+                      <g
+                        key={i}
+                        className="cursor-pointer"
+                        onMouseEnter={() => setHoveredElevationDay(i)}
+                        onMouseLeave={() => setHoveredElevationDay(null)}
+                      >
+                        {/* Vertical day boundary line */}
+                        <line x1={x} y1={35} x2={x} y2={250} stroke={color} strokeWidth={isHovered ? "2" : "1"} strokeDasharray="3,3" opacity={isHovered ? "0.7" : "0.4"} />
+
+                        {/* Day label at top */}
+                        <text x={x} y={25} fill={color} fontSize="11" textAnchor="middle" fontWeight="600" fontFamily="system-ui">D{i + 1}</text>
+
+                        {/* Marker circle - larger on hover */}
+                        <circle cx={x} cy={y} r={isHovered ? "13" : "10"} fill={color} stroke="#0f172a" strokeWidth="2.5" style={{ transition: 'r 0.15s ease' }} />
+                        <text x={x} y={y + 4} fill="white" fontSize={isHovered ? "12" : "10"} textAnchor="middle" fontWeight="bold" fontFamily="system-ui">{i + 1}</text>
+
+                        {/* Invisible larger hit area for easier hovering */}
+                        <circle cx={x} cy={y} r="20" fill="transparent" />
+                      </g>
+                    );
+                  })}
+
+                  {/* Start marker */}
+                  <g>
+                    <circle cx={60} cy={250 - ((WAYPOINTS[0].altitude - minAlt) / (maxAlt - minAlt)) * 200} r="6" fill="#10b981" stroke="#0f172a" strokeWidth="2" />
                   </g>
-                );
-              })}
+                </svg>
 
-              {[0, 40, 80, 120, 160].map(km => (
-                <text key={km} x={60 + (km / maxDist) * 720} y={285} fill="#64748b" fontSize="10" textAnchor="middle">{km}km</text>
-              ))}
-            </svg>
+                {/* Hover tooltip */}
+                {hoveredElevationDay !== null && dayData[hoveredElevationDay] && (() => {
+                  const d = dayData[hoveredElevationDay];
+                  const i = hoveredElevationDay;
+                  const xPercent = (d.endWp.cumDist / maxDist) * 100;
+                  const yPercent = ((d.endWp.altitude - minAlt) / (maxAlt - minAlt)) * 100;
+                  const showAbove = yPercent < 50;
 
-            <div className="flex flex-wrap gap-3 mt-6 justify-center">
-              {dayData.map((d, i) => (
-                <div key={i} className="flex items-center gap-2 text-sm bg-white/5 px-3 py-1.5 rounded-full">
-                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: DAY_COLORS[i % DAY_COLORS.length].main }} />
-                  <span className="text-slate-400">Day {d.day}:</span>
-                  <span className="text-slate-200">{d.endWp.name}</span>
+                  return (
+                    <div
+                      className="absolute pointer-events-none transition-opacity duration-150"
+                      style={{
+                        left: `calc(${7.5 + (xPercent * 0.875)}%)`,
+                        top: showAbove ? `calc(${83.3 - (yPercent * 0.667)}% + 20px)` : `calc(${83.3 - (yPercent * 0.667)}% - 140px)`,
+                        transform: 'translateX(-50%)',
+                        zIndex: 10
+                      }}
+                    >
+                      <div
+                        className="px-4 py-3 rounded-xl border border-white/10 shadow-xl text-sm min-w-[200px]"
+                        style={{ backgroundColor: 'rgba(30, 41, 59, 0.95)', backdropFilter: 'blur(12px)' }}
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: DAY_COLORS[i % DAY_COLORS.length].main }} />
+                          <span className="font-semibold text-white">Day {d.day}</span>
+                          <span className="text-slate-500">·</span>
+                          <span className="text-slate-400 text-xs">{formatDate(d.date)}</span>
+                        </div>
+                        <div className="text-slate-300 text-xs mb-2">
+                          {d.startWp.name} → {d.endWp.name}
+                        </div>
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+                          <div className="text-slate-500">Distance</div>
+                          <div className="text-right text-slate-200">{d.distance} km</div>
+                          <div className="text-slate-500">Ascent</div>
+                          <div className="text-right text-emerald-400">↑{d.ascent}m</div>
+                          <div className="text-slate-500">Descent</div>
+                          <div className="text-right text-rose-400">↓{d.descent}m</div>
+                          <div className="text-slate-500">Time</div>
+                          <div className="text-right text-slate-200">{formatTime(d.time)}</div>
+                          <div className="text-slate-500">End altitude</div>
+                          <div className="text-right text-slate-200">{d.endWp.altitude}m</div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* Shortcut hover tooltip */}
+                {hoveredShortcut && (() => {
+                  const shortcut = activeShortcuts.shortcuts.find(s => s.shortcutId === hoveredShortcut);
+                  if (!shortcut) return null;
+                  const midDist = (shortcut.startDist + shortcut.endDist) / 2;
+                  const midAltitude = (shortcut.startAlt + shortcut.endAlt) / 2;
+                  const xPercent = (midDist / maxDist) * 100;
+                  const yPercent = ((midAltitude - minAlt) / (maxAlt - minAlt)) * 100;
+                  const isCableCar = shortcut.type === 'cable_car';
+                  const isBus = shortcut.type === 'bus';
+                  const color = isCableCar ? '#22d3ee' : isBus ? '#fbbf24' : '#a78bfa';
+
+                  return (
+                    <div
+                      className="absolute pointer-events-none transition-opacity duration-150"
+                      style={{
+                        left: `calc(${7.5 + (xPercent * 0.875)}%)`,
+                        top: `calc(${83.3 - (yPercent * 0.667)}% - 120px)`,
+                        transform: 'translateX(-50%)',
+                        zIndex: 10
+                      }}
+                    >
+                      <div
+                        className="px-4 py-3 rounded-xl border shadow-xl text-sm min-w-[220px]"
+                        style={{ backgroundColor: 'rgba(30, 41, 59, 0.95)', backdropFilter: 'blur(12px)', borderColor: `${color}40` }}
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-lg">{isCableCar ? '🚡' : isBus ? '🚌' : '↗️'}</span>
+                          <span className="font-semibold text-white">{shortcut.name}</span>
+                        </div>
+                        <div className="text-xs text-slate-400 mb-2">{shortcut.description}</div>
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+                          <div className="text-slate-500">Type</div>
+                          <div className="text-right" style={{ color }}>{shortcut.type.replace('_', ' ')}</div>
+                          <div className="text-slate-500">Time saved</div>
+                          <div className="text-right text-cyan-400">{formatTime(shortcut.timeSaved)}</div>
+                          {shortcut.cost > 0 && (
+                            <>
+                              <div className="text-slate-500">Cost</div>
+                              <div className="text-right text-amber-400">€{shortcut.cost}</div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {/* Day Legend */}
+              <div className="flex flex-wrap gap-2 mt-6 justify-center">
+                {dayData.map((d, i) => (
+                  <div key={i} className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-white/5 hover:bg-white/10 transition-colors">
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: DAY_COLORS[i % DAY_COLORS.length].main }} />
+                    <span className="text-slate-400">D{d.day}</span>
+                    <span className="text-slate-500">·</span>
+                    <span className="text-slate-300">{d.endWp.name}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Shortcuts Legend (when shortcuts are active) */}
+              {activeShortcuts.shortcuts.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-white/10">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs text-slate-500 uppercase tracking-wider">Active Shortcuts</span>
+                    <div className="flex items-center gap-3 text-xs">
+                      <span className="text-cyan-400">Saves {formatTime(activeShortcuts.totalTimeSaved)}</span>
+                      {activeShortcuts.totalCost > 0 && (
+                        <span className="text-amber-400">€{activeShortcuts.totalCost}</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2 justify-center">
+                    {activeShortcuts.shortcuts.map((shortcut, i) => {
+                      const isCableCar = shortcut.type === 'cable_car';
+                      const isBus = shortcut.type === 'bus';
+                      const color = isCableCar ? '#22d3ee' : isBus ? '#fbbf24' : '#a78bfa';
+                      return (
+                        <div
+                          key={i}
+                          className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full hover:bg-white/10 transition-colors"
+                          style={{ backgroundColor: `${color}15`, border: `1px solid ${color}30` }}
+                        >
+                          <span>{isCableCar ? '🚡' : isBus ? '🚌' : '↗️'}</span>
+                          <span className="text-slate-300">{shortcut.name}</span>
+                          <span className="text-slate-500">·</span>
+                          <span style={{ color }}>-{formatTime(shortcut.timeSaved)}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              ))}
-            </div>
-          </GlassCard>
+              )}
+            </GlassCard>
+
+            {/* Day Summary Table */}
+            <GlassCard className="p-6">
+              <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wider mb-4">Daily Breakdown</h3>
+              <DaySummaryTable
+                dayData={dayData}
+                totals={totals}
+                totalTimeSaved={totalTimeSaved}
+                activeShortcuts={activeShortcuts}
+                scenario={activeScenario}
+                formatTime={formatTime}
+                formatDate={formatDate}
+                showEndAltitude={true}
+              />
+            </GlassCard>
+          </div>
         )}
 
         {view === 'map' && (
-          <GlassCard className="p-6">
-            <h3 className="text-lg font-light mb-6 flex items-center gap-2">
-              <span className="text-2xl">🗺️</span> Route Map
-            </h3>
-            <svg viewBox="0 0 400 400" className="w-full max-w-md mx-auto">
-              <defs>
-                <radialGradient id="mtGrad" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="#1e293b"/>
-                  <stop offset="100%" stopColor="#0f172a"/>
-                </radialGradient>
-                <filter id="glow">
-                  <feGaussianBlur stdDeviation="3" result="blur"/>
-                  <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-                </filter>
-              </defs>
-
-              <circle cx="200" cy="200" r="135" fill="none" stroke="#1e293b" strokeWidth="16"/>
-
-              {dayData.map((d, i) => {
-                const prevEnd = i === 0 ? 0 : activeScenario.days[i - 1];
-                const startAngle = (WAYPOINTS[prevEnd].cumDist / maxDist) * 360 - 90;
-                const endAngle = (d.endWp.cumDist / maxDist) * 360 - 90;
-                const r = 135;
-                const x1 = 200 + r * Math.cos(startAngle * Math.PI / 180);
-                const y1 = 200 + r * Math.sin(startAngle * Math.PI / 180);
-                const x2 = 200 + r * Math.cos(endAngle * Math.PI / 180);
-                const y2 = 200 + r * Math.sin(endAngle * Math.PI / 180);
-                const largeArc = (endAngle - startAngle) > 180 ? 1 : 0;
-
-                return (
-                  <path
-                    key={i}
-                    d={`M ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2}`}
-                    fill="none"
-                    stroke={DAY_COLORS[i % DAY_COLORS.length].main}
-                    strokeWidth="10"
-                    strokeLinecap="round"
-                    filter="url(#glow)"
-                  />
-                );
-              })}
-
-              <circle cx="200" cy="200" r="55" fill="url(#mtGrad)" stroke="#334155" strokeWidth="1"/>
-              <text x="200" y="195" fill="#94a3b8" fontSize="9" textAnchor="middle" fontWeight="500">MONT BLANC</text>
-              <text x="200" y="210" fill="#64748b" fontSize="8" textAnchor="middle">4,808m</text>
-
-              {dayData.map((d, i) => {
-                const angle = (d.endWp.cumDist / maxDist) * 360 - 90;
-                const r = 135;
-                const x = 200 + r * Math.cos(angle * Math.PI / 180);
-                const y = 200 + r * Math.sin(angle * Math.PI / 180);
-                const labelR = 175;
-                const lx = 200 + labelR * Math.cos(angle * Math.PI / 180);
-                const ly = 200 + labelR * Math.sin(angle * Math.PI / 180);
-
-                return (
-                  <g key={i}>
-                    <circle cx={x} cy={y} r="14" fill={DAY_COLORS[i % DAY_COLORS.length].main} stroke="#0f172a" strokeWidth="3"/>
-                    <text x={x} y={y + 4} fill="white" fontSize="11" textAnchor="middle" fontWeight="bold">{i + 1}</text>
-                    <text x={lx} y={ly} fill="#94a3b8" fontSize="8" textAnchor="middle">
-                      {d.endWp.name.length > 14 ? d.endWp.name.substring(0, 14) + '…' : d.endWp.name}
-                    </text>
-                  </g>
-                );
-              })}
-
-              <g>
-                <circle cx={200} cy={200 - 135} r="10" fill="#10b981" stroke="white" strokeWidth="2"/>
-                <text x={200} y={200 - 135 + 4} fill="white" fontSize="8" textAnchor="middle">▶</text>
-              </g>
-
-              <text x="200" y="355" fill="#475569" fontSize="10" textAnchor="middle">🇫🇷 France</text>
-              <text x="340" y="240" fill="#475569" fontSize="10" textAnchor="middle">🇨🇭</text>
-              <text x="290" y="130" fill="#475569" fontSize="10" textAnchor="middle">🇮🇹</text>
-            </svg>
-
-            <div className="flex flex-wrap gap-2 mt-6 justify-center">
-              {dayData.map((d, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-2 text-xs px-3 py-2 rounded-xl"
-                  style={{ backgroundColor: `${DAY_COLORS[i % DAY_COLORS.length].main}15` }}
-                >
-                  <div
-                    className="w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-bold"
-                    style={{ backgroundColor: DAY_COLORS[i % DAY_COLORS.length].main }}
-                  >
-                    {d.day}
-                  </div>
-                  <span className="text-slate-300">{d.distance}km</span>
-                  <span className="text-slate-500">·</span>
-                  <span className="text-slate-400">{formatTime(d.time)}</span>
-                </div>
-              ))}
-            </div>
+          <GlassCard className="p-4">
+            <TrailMap
+              dayData={dayData}
+              activeShortcuts={activeShortcuts}
+              formatTime={formatTime}
+              formatDate={formatDate}
+              scenario={activeScenario}
+              selectedShortcuts={selectedShortcuts}
+              onShortcutToggle={handleShortcutToggle}
+              totals={totals}
+              totalTimeSaved={totalTimeSaved}
+            />
           </GlassCard>
         )}
       </div>
@@ -1505,6 +2761,22 @@ export default function App() {
             setDeleteConfirmDay(null);
           }
         }}
+      />
+
+      {/* Share modal */}
+      <ShareModal
+        isOpen={showShareModal}
+        shareUrl={shareUrl}
+        onClose={() => setShowShareModal(false)}
+        onCopy={() => showToast('Link copied to clipboard!', 'success')}
+      />
+
+      {/* Toast notifications */}
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        icon={toast.type === 'success' ? <Check className="w-4 h-4" /> : toast.type === 'error' ? <AlertTriangle className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
       />
     </div>
   );
