@@ -82,6 +82,41 @@ const formatTime = (mins) => {
 
 const formatDate = (date) => date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
+// Unit conversion helpers
+const KM_TO_MI = 0.621371;
+const M_TO_FT = 3.28084;
+
+const formatDistance = (km, useImperial) => {
+  if (useImperial) {
+    return `${(km * KM_TO_MI).toFixed(1)} mi`;
+  }
+  return `${km} km`;
+};
+
+const formatDistanceValue = (km, useImperial) => {
+  if (useImperial) {
+    return (km * KM_TO_MI).toFixed(1);
+  }
+  return typeof km === 'number' ? km.toFixed(1) : km;
+};
+
+const formatElevation = (m, useImperial) => {
+  if (useImperial) {
+    return `${Math.round(m * M_TO_FT).toLocaleString()} ft`;
+  }
+  return `${m.toLocaleString()}m`;
+};
+
+const formatElevationValue = (m, useImperial) => {
+  if (useImperial) {
+    return Math.round(m * M_TO_FT);
+  }
+  return m;
+};
+
+const getDistanceUnit = (useImperial) => useImperial ? 'mi' : 'km';
+const getElevationUnit = (useImperial) => useImperial ? 'ft' : 'm';
+
 const GlassCard = ({ children, className = "", hover = false }) => (
   <div className={`backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl shadow-2xl ${hover ? 'hover:bg-white/10 hover:border-white/20 transition-all duration-300' : ''} ${className}`}>
     {children}
@@ -97,6 +132,7 @@ const DaySummaryTable = ({
   scenario,
   formatTime,
   formatDate,
+  useImperial = false,
   showEndAltitude = false,
   onRowClick,
   onRowHover,
@@ -115,6 +151,9 @@ const DaySummaryTable = ({
     });
     return timeSaved;
   };
+
+  const distUnit = getDistanceUnit(useImperial);
+  const elevUnit = getElevationUnit(useImperial);
 
   return (
     <div className="overflow-x-auto">
@@ -167,9 +206,9 @@ const DaySummaryTable = ({
                   <span className="text-slate-600 mx-1.5">→</span>
                   <span className="text-slate-200">{d.endWp.name}</span>
                 </td>
-                <td className="py-3 px-3 text-right font-medium text-slate-200">{d.distance} km</td>
-                <td className="py-3 px-3 text-right font-medium text-emerald-400">↑{d.ascent}m</td>
-                <td className="py-3 px-3 text-right font-medium text-rose-400">↓{d.descent}m</td>
+                <td className="py-3 px-3 text-right font-medium text-slate-200">{formatDistanceValue(d.distance, useImperial)} {distUnit}</td>
+                <td className="py-3 px-3 text-right font-medium text-emerald-400">↑{formatElevationValue(d.ascent, useImperial)}{elevUnit}</td>
+                <td className="py-3 px-3 text-right font-medium text-rose-400">↓{formatElevationValue(d.descent, useImperial)}{elevUnit}</td>
                 <td className={`py-3 px-3 text-right font-medium ${dayTimeSaved > 0 ? 'text-slate-500 line-through' : 'text-slate-200'}`}>
                   {formatTime(d.time)}
                 </td>
@@ -179,7 +218,7 @@ const DaySummaryTable = ({
                   </td>
                 )}
                 {showEndAltitude && (
-                  <td className="py-3 px-3 text-right text-slate-400">{d.endWp.altitude}m</td>
+                  <td className="py-3 px-3 text-right text-slate-400">{formatElevationValue(d.endWp.altitude, useImperial)}{elevUnit}</td>
                 )}
               </tr>
             );
@@ -188,9 +227,9 @@ const DaySummaryTable = ({
         <tfoot>
           <tr className="border-t border-white/10 bg-white/5">
             <td className="py-3 px-3 font-semibold text-white" colSpan="3">Total</td>
-            <td className="py-3 px-3 text-right font-semibold text-white">{totals.distance.toFixed(1)} km</td>
-            <td className="py-3 px-3 text-right font-semibold text-emerald-400">↑{totals.ascent}m</td>
-            <td className="py-3 px-3 text-right font-semibold text-rose-400">↓{totals.descent}m</td>
+            <td className="py-3 px-3 text-right font-semibold text-white">{formatDistanceValue(totals.distance, useImperial)} {distUnit}</td>
+            <td className="py-3 px-3 text-right font-semibold text-emerald-400">↑{formatElevationValue(totals.ascent, useImperial)}{elevUnit}</td>
+            <td className="py-3 px-3 text-right font-semibold text-rose-400">↓{formatElevationValue(totals.descent, useImperial)}{elevUnit}</td>
             <td className={`py-3 px-3 text-right font-semibold ${totalTimeSaved > 0 ? 'text-slate-500 line-through' : 'text-white'}`}>
               {formatTime(totals.time)}
             </td>
@@ -581,7 +620,7 @@ const EndpointDropdown = ({ value, options, onChange, formatTime }) => {
   );
 };
 
-const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, removeDay, selectedShortcuts, onShortcutToggle }) => {
+const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, removeDay, selectedShortcuts, onShortcutToggle, useImperial }) => {
   const [expanded, setExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState('segments');
   const [expandedSightId, setExpandedSightId] = useState(null);
@@ -734,20 +773,20 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
 
         {/* Column 5: Distance */}
         <div className="text-center hidden sm:block">
-          <div className="font-semibold text-slate-200 text-sm">{day.distance}</div>
-          <div className="text-[10px] text-slate-500">km</div>
+          <div className="font-semibold text-slate-200 text-sm">{formatDistanceValue(day.distance, useImperial)}</div>
+          <div className="text-[10px] text-slate-500">{getDistanceUnit(useImperial)}</div>
         </div>
 
         {/* Column 6: Elevation up */}
         <div className="text-center hidden sm:block">
-          <div className="font-semibold text-emerald-400 text-sm">↑{day.ascent}</div>
-          <div className="text-[10px] text-slate-500">m</div>
+          <div className="font-semibold text-emerald-400 text-sm">↑{formatElevationValue(day.ascent, useImperial)}</div>
+          <div className="text-[10px] text-slate-500">{getElevationUnit(useImperial)}</div>
         </div>
 
         {/* Column 7: Elevation down */}
         <div className="text-center hidden sm:block">
-          <div className="font-semibold text-rose-400 text-sm">↓{day.descent}</div>
-          <div className="text-[10px] text-slate-500">m</div>
+          <div className="font-semibold text-rose-400 text-sm">↓{formatElevationValue(day.descent, useImperial)}</div>
+          <div className="text-[10px] text-slate-500">{getElevationUnit(useImperial)}</div>
         </div>
 
         {/* Column 8: Time */}
@@ -1438,7 +1477,7 @@ const SegmentDetailModal = ({ isOpen, dayIndex, dayData, scenario, formatTime, f
 };
 
 // Trail Map component using Leaflet
-const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, selectedShortcuts, onShortcutToggle, totals, totalTimeSaved }) => {
+const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, selectedShortcuts, onShortcutToggle, totals, totalTimeSaved, useImperial }) => {
   const [hoveredDay, setHoveredDay] = useState(null);
   const [selectedDay, setSelectedDay] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
@@ -1825,6 +1864,7 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
           scenario={scenario}
           formatTime={formatTime}
           formatDate={formatDate}
+          useImperial={useImperial}
           onRowClick={handleSegmentClick}
           onRowHover={setHoveredDay}
           selectedDay={selectedDay}
@@ -1856,6 +1896,7 @@ export default function App() {
   const [activeScenarioId, setActiveScenarioId] = useState(DEFAULT_DATA.activeScenarioId);
   const [view, setView] = useState('plan');
   const [selectedShortcuts, setSelectedShortcuts] = useState(DEFAULT_DATA.selectedShortcuts);
+  const [useImperial, setUseImperial] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [showSaved, setShowSaved] = useState(false);
   const [deleteConfirmDay, setDeleteConfirmDay] = useState(null);
@@ -1940,6 +1981,7 @@ export default function App() {
         if (data.scenarios) setScenarios(data.scenarios);
         if (data.activeScenarioId) setActiveScenarioId(data.activeScenarioId);
         if (data.selectedShortcuts) setSelectedShortcuts(data.selectedShortcuts);
+        if (data.useImperial !== undefined) setUseImperial(data.useImperial);
       }
     } catch (e) {
       console.error('Failed to load saved data:', e);
@@ -1964,7 +2006,7 @@ export default function App() {
 
   const saveToLocalStorage = () => {
     try {
-      const data = { scenarios, activeScenarioId, selectedShortcuts };
+      const data = { scenarios, activeScenarioId, selectedShortcuts, useImperial };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       setIsDirty(false);
       setShowSaved(true);
@@ -2235,6 +2277,19 @@ export default function App() {
             {showSaved && (
               <span className="text-emerald-400 text-sm animate-pulse">Saved!</span>
             )}
+            {/* Unit Toggle */}
+            <button
+              onClick={() => {
+                setUseImperial(!useImperial);
+                setIsDirty(true);
+              }}
+              className="px-3 py-2 rounded-full text-xs font-medium transition-all duration-300 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 flex items-center gap-1.5"
+              title={useImperial ? 'Switch to metric (km/m)' : 'Switch to imperial (mi/ft)'}
+            >
+              <span className={useImperial ? 'text-slate-500' : 'text-emerald-400'}>km</span>
+              <span className="text-slate-600">/</span>
+              <span className={useImperial ? 'text-amber-400' : 'text-slate-500'}>mi</span>
+            </button>
             <button
               onClick={handleShare}
               className="px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10 hover:border-cyan-500/30 hover:text-cyan-400"
@@ -2373,7 +2428,7 @@ export default function App() {
 
                   {/* Distance */}
                   <div className="text-center">
-                    <div className="text-2xl font-bold">{totals.distance.toFixed(0)}km</div>
+                    <div className="text-2xl font-bold">{formatDistanceValue(totals.distance, useImperial)}{getDistanceUnit(useImperial)}</div>
                     <div className="text-xs text-slate-500 uppercase tracking-wider">Distance</div>
                   </div>
 
@@ -2402,16 +2457,17 @@ export default function App() {
                   removeDay={(dayIndex) => setDeleteConfirmDay(dayIndex)}
                   selectedShortcuts={selectedShortcuts}
                   onShortcutToggle={handleShortcutToggle}
+                  useImperial={useImperial}
                 />
               ))}
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                { value: totals.distance.toFixed(1), unit: 'km', label: 'Total Distance', icon: '🥾', gradient: 'from-emerald-500 to-teal-500' },
+                { value: formatDistanceValue(totals.distance, useImperial), unit: getDistanceUnit(useImperial), label: 'Total Distance', icon: '🥾', gradient: 'from-emerald-500 to-teal-500' },
                 { value: formatTime(totals.time - totalTimeSaved), unit: '', label: totalTimeSaved > 0 ? 'Adj. Time' : 'Hiking Time', icon: '⏱️', gradient: 'from-blue-500 to-indigo-500' },
-                { value: totals.ascent.toLocaleString(), unit: 'm', label: 'Total Ascent', icon: '⬆️', gradient: 'from-amber-500 to-orange-500' },
-                { value: totals.descent.toLocaleString(), unit: 'm', label: 'Total Descent', icon: '⬇️', gradient: 'from-rose-500 to-pink-500' },
+                { value: formatElevationValue(totals.ascent, useImperial).toLocaleString(), unit: getElevationUnit(useImperial), label: 'Total Ascent', icon: '⬆️', gradient: 'from-amber-500 to-orange-500' },
+                { value: formatElevationValue(totals.descent, useImperial).toLocaleString(), unit: getElevationUnit(useImperial), label: 'Total Descent', icon: '⬇️', gradient: 'from-rose-500 to-pink-500' },
               ].map((stat, i) => (
                 <GlassCard key={i} className="p-5 text-center relative overflow-hidden" hover>
                   <div className="text-2xl mb-2">{stat.icon}</div>
@@ -2725,6 +2781,7 @@ export default function App() {
                 scenario={activeScenario}
                 formatTime={formatTime}
                 formatDate={formatDate}
+                useImperial={useImperial}
                 showEndAltitude={true}
               />
             </GlassCard>
@@ -2743,6 +2800,7 @@ export default function App() {
               onShortcutToggle={handleShortcutToggle}
               totals={totals}
               totalTimeSaved={totalTimeSaved}
+              useImperial={useImperial}
             />
           </GlassCard>
         )}
