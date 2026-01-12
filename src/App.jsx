@@ -217,45 +217,45 @@ const DaySummaryTable = ({
                   <span className="text-slate-600 mx-1.5">→</span>
                   <span className="text-slate-200">{d.endWp.name}</span>
                 </td>
-                <td className="py-3 px-3 text-right font-medium whitespace-nowrap">
-                  {daySavings.distanceSaved > 0 ? (
-                    <div className="flex flex-col items-end">
-                      <span className="text-slate-500 text-xs line-through">{formatDistanceValue(d.distance, useImperial)}</span>
-                      <span className="text-cyan-400">{formatDistanceValue(adjustedDistance, useImperial)} {distUnit}</span>
-                    </div>
-                  ) : (
-                    <span className="text-slate-200">{formatDistanceValue(d.distance, useImperial)} {distUnit}</span>
-                  )}
+                <td className="py-3 px-3 text-right font-medium whitespace-nowrap w-20">
+                  {hasDaySavings ? (
+                    daySavings.distanceSaved > 0 ? (
+                      <div className="text-slate-500 text-xs line-through">{formatDistanceValue(d.distance, useImperial)}</div>
+                    ) : (
+                      <div className="text-xs invisible">-</div>
+                    )
+                  ) : null}
+                  <div className="text-slate-200">{formatDistanceValue(hasDaySavings ? adjustedDistance : d.distance, useImperial)} {distUnit}</div>
                 </td>
-                <td className="py-3 px-3 text-right font-medium whitespace-nowrap">
-                  {daySavings.ascentSaved > 0 ? (
-                    <div className="flex flex-col items-end">
-                      <span className="text-slate-500 text-xs line-through">↑{formatElevationValue(d.ascent, useImperial)}</span>
-                      <span className="text-cyan-400">↑{formatElevationValue(adjustedAscent, useImperial)}{elevUnit}</span>
-                    </div>
-                  ) : (
-                    <span className="text-emerald-400">↑{formatElevationValue(d.ascent, useImperial)}{elevUnit}</span>
-                  )}
+                <td className="py-3 px-3 text-right font-medium whitespace-nowrap w-20">
+                  {hasDaySavings ? (
+                    daySavings.ascentSaved > 0 ? (
+                      <div className="text-slate-500 text-xs line-through">↑{formatElevationValue(d.ascent, useImperial)}</div>
+                    ) : (
+                      <div className="text-xs invisible">-</div>
+                    )
+                  ) : null}
+                  <div className="text-emerald-400">↑{formatElevationValue(hasDaySavings ? adjustedAscent : d.ascent, useImperial)}{elevUnit}</div>
                 </td>
-                <td className="py-3 px-3 text-right font-medium whitespace-nowrap">
-                  {daySavings.descentSaved > 0 ? (
-                    <div className="flex flex-col items-end">
-                      <span className="text-slate-500 text-xs line-through">↓{formatElevationValue(d.descent, useImperial)}</span>
-                      <span className="text-cyan-400">↓{formatElevationValue(adjustedDescent, useImperial)}{elevUnit}</span>
-                    </div>
-                  ) : (
-                    <span className="text-rose-400">↓{formatElevationValue(d.descent, useImperial)}{elevUnit}</span>
-                  )}
+                <td className="py-3 px-3 text-right font-medium whitespace-nowrap w-20">
+                  {hasDaySavings ? (
+                    daySavings.descentSaved > 0 ? (
+                      <div className="text-slate-500 text-xs line-through">↓{formatElevationValue(d.descent, useImperial)}</div>
+                    ) : (
+                      <div className="text-xs invisible">-</div>
+                    )
+                  ) : null}
+                  <div className="text-rose-400">↓{formatElevationValue(hasDaySavings ? adjustedDescent : d.descent, useImperial)}{elevUnit}</div>
                 </td>
-                <td className="py-3 px-3 text-right font-medium whitespace-nowrap">
-                  {daySavings.timeSaved > 0 ? (
-                    <div className="flex flex-col items-end">
-                      <span className="text-slate-500 text-xs line-through">{formatTime(d.time)}</span>
-                      <span className="text-cyan-400">{formatTime(adjustedTime)}</span>
-                    </div>
-                  ) : (
-                    <span className="text-slate-200">{formatTime(d.time)}</span>
-                  )}
+                <td className="py-3 px-3 text-right font-medium whitespace-nowrap w-20">
+                  {hasDaySavings ? (
+                    daySavings.timeSaved > 0 ? (
+                      <div className="text-slate-500 text-xs line-through">{formatTime(d.time)}</div>
+                    ) : (
+                      <div className="text-xs invisible">-</div>
+                    )
+                  ) : null}
+                  <div className="text-slate-200">{formatTime(hasDaySavings ? adjustedTime : d.time)}</div>
                 </td>
                 {showEndAltitude && (
                   <td className="py-3 px-3 text-right text-slate-400">{formatElevationValue(d.endWp.altitude, useImperial)}{elevUnit}</td>
@@ -267,45 +267,45 @@ const DaySummaryTable = ({
         <tfoot>
           <tr className="border-t border-white/10 bg-white/5">
             <td className="py-3 px-3 font-semibold text-white" colSpan="3">Total</td>
-            <td className="py-3 px-3 text-right font-semibold whitespace-nowrap">
-              {activeShortcuts.totalDistanceSaved > 0 ? (
-                <div className="flex flex-col items-end">
-                  <span className="text-slate-500 text-xs line-through">{formatDistanceValue(totals.distance, useImperial)}</span>
-                  <span className="text-cyan-400">{formatDistanceValue(totals.distance - activeShortcuts.totalDistanceSaved, useImperial)} {distUnit}</span>
-                </div>
-              ) : (
-                <span className="text-white">{formatDistanceValue(totals.distance, useImperial)} {distUnit}</span>
-              )}
+            <td className="py-3 px-3 text-right font-semibold whitespace-nowrap w-20">
+              {hasAnySavings ? (
+                activeShortcuts.totalDistanceSaved > 0 ? (
+                  <div className="text-slate-500 text-xs line-through">{formatDistanceValue(totals.distance, useImperial)}</div>
+                ) : (
+                  <div className="text-xs invisible">-</div>
+                )
+              ) : null}
+              <div className="text-white">{formatDistanceValue(totals.distance - (activeShortcuts.totalDistanceSaved || 0), useImperial)} {distUnit}</div>
             </td>
-            <td className="py-3 px-3 text-right font-semibold whitespace-nowrap">
-              {activeShortcuts.totalAscentSaved > 0 ? (
-                <div className="flex flex-col items-end">
-                  <span className="text-slate-500 text-xs line-through">↑{formatElevationValue(totals.ascent, useImperial)}</span>
-                  <span className="text-cyan-400">↑{formatElevationValue(totals.ascent - activeShortcuts.totalAscentSaved, useImperial)}{elevUnit}</span>
-                </div>
-              ) : (
-                <span className="text-emerald-400">↑{formatElevationValue(totals.ascent, useImperial)}{elevUnit}</span>
-              )}
+            <td className="py-3 px-3 text-right font-semibold whitespace-nowrap w-20">
+              {hasAnySavings ? (
+                activeShortcuts.totalAscentSaved > 0 ? (
+                  <div className="text-slate-500 text-xs line-through">↑{formatElevationValue(totals.ascent, useImperial)}</div>
+                ) : (
+                  <div className="text-xs invisible">-</div>
+                )
+              ) : null}
+              <div className="text-emerald-400">↑{formatElevationValue(totals.ascent - (activeShortcuts.totalAscentSaved || 0), useImperial)}{elevUnit}</div>
             </td>
-            <td className="py-3 px-3 text-right font-semibold whitespace-nowrap">
-              {activeShortcuts.totalDescentSaved > 0 ? (
-                <div className="flex flex-col items-end">
-                  <span className="text-slate-500 text-xs line-through">↓{formatElevationValue(totals.descent, useImperial)}</span>
-                  <span className="text-cyan-400">↓{formatElevationValue(totals.descent - activeShortcuts.totalDescentSaved, useImperial)}{elevUnit}</span>
-                </div>
-              ) : (
-                <span className="text-rose-400">↓{formatElevationValue(totals.descent, useImperial)}{elevUnit}</span>
-              )}
+            <td className="py-3 px-3 text-right font-semibold whitespace-nowrap w-20">
+              {hasAnySavings ? (
+                activeShortcuts.totalDescentSaved > 0 ? (
+                  <div className="text-slate-500 text-xs line-through">↓{formatElevationValue(totals.descent, useImperial)}</div>
+                ) : (
+                  <div className="text-xs invisible">-</div>
+                )
+              ) : null}
+              <div className="text-rose-400">↓{formatElevationValue(totals.descent - (activeShortcuts.totalDescentSaved || 0), useImperial)}{elevUnit}</div>
             </td>
-            <td className="py-3 px-3 text-right font-semibold whitespace-nowrap">
-              {totalTimeSaved > 0 ? (
-                <div className="flex flex-col items-end">
-                  <span className="text-slate-500 text-xs line-through">{formatTime(totals.time)}</span>
-                  <span className="text-cyan-400">{formatTime(totals.time - totalTimeSaved)}</span>
-                </div>
-              ) : (
-                <span className="text-white">{formatTime(totals.time)}</span>
-              )}
+            <td className="py-3 px-3 text-right font-semibold whitespace-nowrap w-20">
+              {hasAnySavings ? (
+                totalTimeSaved > 0 ? (
+                  <div className="text-slate-500 text-xs line-through">{formatTime(totals.time)}</div>
+                ) : (
+                  <div className="text-xs invisible">-</div>
+                )
+              ) : null}
+              <div className="text-white">{formatTime(totals.time - totalTimeSaved)}</div>
             </td>
             {showEndAltitude && <td className="py-3 px-3"></td>}
           </tr>
@@ -875,52 +875,73 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
         </div>
 
         {/* Row 3: Stats */}
-        <div className="flex items-center justify-between px-1 py-2 bg-white/5 rounded-lg">
-          <div className="text-center flex-1">
-            {daySavings.distanceSaved > 0 ? (
-              <>
-                <div className="text-slate-500 text-[10px] line-through">{formatDistanceValue(day.distance, useImperial)}</div>
-                <div className="font-semibold text-cyan-400 text-sm">{formatDistanceValue(adjustedDistance, useImperial)}</div>
-              </>
-            ) : (
-              <div className="font-semibold text-slate-200 text-sm">{formatDistanceValue(day.distance, useImperial)}</div>
-            )}
-            <div className="text-[10px] text-slate-500">{getDistanceUnit(useImperial)}</div>
-          </div>
-          <div className="text-center flex-1 border-l border-white/10">
-            {daySavings.ascentSaved > 0 ? (
-              <>
-                <div className="text-slate-500 text-[10px] line-through">↑{formatElevationValue(day.ascent, useImperial)}</div>
-                <div className="font-semibold text-cyan-400 text-sm">↑{formatElevationValue(adjustedAscent, useImperial)}</div>
-              </>
-            ) : (
-              <div className="font-semibold text-emerald-400 text-sm">↑{formatElevationValue(day.ascent, useImperial)}</div>
-            )}
-            <div className="text-[10px] text-slate-500">{getElevationUnit(useImperial)}</div>
-          </div>
-          <div className="text-center flex-1 border-l border-white/10">
-            {daySavings.descentSaved > 0 ? (
-              <>
-                <div className="text-slate-500 text-[10px] line-through">↓{formatElevationValue(day.descent, useImperial)}</div>
-                <div className="font-semibold text-cyan-400 text-sm">↓{formatElevationValue(adjustedDescent, useImperial)}</div>
-              </>
-            ) : (
-              <div className="font-semibold text-rose-400 text-sm">↓{formatElevationValue(day.descent, useImperial)}</div>
-            )}
-            <div className="text-[10px] text-slate-500">{getElevationUnit(useImperial)}</div>
-          </div>
-          <div className="text-center flex-1 border-l border-white/10">
-            {daySavings.timeSaved > 0 ? (
-              <>
-                <div className="text-slate-500 text-[10px] line-through">{formatTime(day.time)}</div>
-                <div className="font-semibold text-cyan-400 text-sm">{formatTime(adjustedTime)}</div>
-              </>
-            ) : (
-              <div className="font-semibold text-slate-200 text-sm">{formatTime(day.time)}</div>
-            )}
-            <div className="text-[10px] text-slate-500">hike</div>
-          </div>
-        </div>
+        {(() => {
+          const hasAnyShortcut = daySavings.timeSaved > 0 || daySavings.distanceSaved > 0 || daySavings.ascentSaved > 0 || daySavings.descentSaved > 0;
+          return (
+            <div className="flex items-center justify-between px-1 py-2 bg-white/5 rounded-lg">
+              <div className="text-center flex-1">
+                {hasAnyShortcut ? (
+                  <>
+                    {daySavings.distanceSaved > 0 ? (
+                      <div className="text-slate-500 text-[10px] line-through">{formatDistanceValue(day.distance, useImperial)}</div>
+                    ) : (
+                      <div className="text-[10px] invisible">-</div>
+                    )}
+                    <div className="font-semibold text-slate-200 text-sm">{formatDistanceValue(adjustedDistance, useImperial)}</div>
+                  </>
+                ) : (
+                  <div className="font-semibold text-slate-200 text-sm">{formatDistanceValue(day.distance, useImperial)}</div>
+                )}
+                <div className="text-[10px] text-slate-500">{getDistanceUnit(useImperial)}</div>
+              </div>
+              <div className="text-center flex-1 border-l border-white/10">
+                {hasAnyShortcut ? (
+                  <>
+                    {daySavings.ascentSaved > 0 ? (
+                      <div className="text-slate-500 text-[10px] line-through">↑{formatElevationValue(day.ascent, useImperial)}</div>
+                    ) : (
+                      <div className="text-[10px] invisible">-</div>
+                    )}
+                    <div className="font-semibold text-emerald-400 text-sm">↑{formatElevationValue(adjustedAscent, useImperial)}</div>
+                  </>
+                ) : (
+                  <div className="font-semibold text-emerald-400 text-sm">↑{formatElevationValue(day.ascent, useImperial)}</div>
+                )}
+                <div className="text-[10px] text-slate-500">{getElevationUnit(useImperial)}</div>
+              </div>
+              <div className="text-center flex-1 border-l border-white/10">
+                {hasAnyShortcut ? (
+                  <>
+                    {daySavings.descentSaved > 0 ? (
+                      <div className="text-slate-500 text-[10px] line-through">↓{formatElevationValue(day.descent, useImperial)}</div>
+                    ) : (
+                      <div className="text-[10px] invisible">-</div>
+                    )}
+                    <div className="font-semibold text-rose-400 text-sm">↓{formatElevationValue(adjustedDescent, useImperial)}</div>
+                  </>
+                ) : (
+                  <div className="font-semibold text-rose-400 text-sm">↓{formatElevationValue(day.descent, useImperial)}</div>
+                )}
+                <div className="text-[10px] text-slate-500">{getElevationUnit(useImperial)}</div>
+              </div>
+              <div className="text-center flex-1 border-l border-white/10">
+                {hasAnyShortcut ? (
+                  <>
+                    {daySavings.timeSaved > 0 ? (
+                      <div className="text-slate-500 text-[10px] line-through">{formatTime(day.time)}</div>
+                    ) : (
+                      <div className="text-[10px] invisible">-</div>
+                    )}
+                    <div className="font-semibold text-slate-200 text-sm">{formatTime(adjustedTime)}</div>
+                  </>
+                ) : (
+                  <div className="font-semibold text-slate-200 text-sm">{formatTime(day.time)}</div>
+                )}
+                <div className="text-[10px] text-slate-500">hike</div>
+              </div>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Desktop layout: horizontal grid */}
@@ -966,57 +987,81 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
           formatTime={formatTime}
         />
 
-        {/* Column 5: Distance */}
-        <div className="text-center">
-          {daySavings.distanceSaved > 0 ? (
+        {/* Columns 5-8: Stats with aligned heights */}
+        {(() => {
+          const hasAnyShortcut = daySavings.timeSaved > 0 || daySavings.distanceSaved > 0 || daySavings.ascentSaved > 0 || daySavings.descentSaved > 0;
+          return (
             <>
-              <div className="text-slate-500 text-[10px] line-through">{formatDistanceValue(day.distance, useImperial)}</div>
-              <div className="font-semibold text-cyan-400 text-sm">{formatDistanceValue(adjustedDistance, useImperial)}</div>
-            </>
-          ) : (
-            <div className="font-semibold text-slate-200 text-sm">{formatDistanceValue(day.distance, useImperial)}</div>
-          )}
-          <div className="text-[10px] text-slate-500">{getDistanceUnit(useImperial)}</div>
-        </div>
+              {/* Column 5: Distance */}
+              <div className="text-center">
+                {hasAnyShortcut ? (
+                  <>
+                    {daySavings.distanceSaved > 0 ? (
+                      <div className="text-slate-500 text-[10px] line-through">{formatDistanceValue(day.distance, useImperial)}</div>
+                    ) : (
+                      <div className="text-[10px] invisible">-</div>
+                    )}
+                    <div className="font-semibold text-slate-200 text-sm">{formatDistanceValue(adjustedDistance, useImperial)}</div>
+                  </>
+                ) : (
+                  <div className="font-semibold text-slate-200 text-sm">{formatDistanceValue(day.distance, useImperial)}</div>
+                )}
+                <div className="text-[10px] text-slate-500">{getDistanceUnit(useImperial)}</div>
+              </div>
 
-        {/* Column 6: Elevation up */}
-        <div className="text-center">
-          {daySavings.ascentSaved > 0 ? (
-            <>
-              <div className="text-slate-500 text-[10px] line-through">↑{formatElevationValue(day.ascent, useImperial)}</div>
-              <div className="font-semibold text-cyan-400 text-sm">↑{formatElevationValue(adjustedAscent, useImperial)}</div>
-            </>
-          ) : (
-            <div className="font-semibold text-emerald-400 text-sm">↑{formatElevationValue(day.ascent, useImperial)}</div>
-          )}
-          <div className="text-[10px] text-slate-500">{getElevationUnit(useImperial)}</div>
-        </div>
+              {/* Column 6: Elevation up */}
+              <div className="text-center">
+                {hasAnyShortcut ? (
+                  <>
+                    {daySavings.ascentSaved > 0 ? (
+                      <div className="text-slate-500 text-[10px] line-through">↑{formatElevationValue(day.ascent, useImperial)}</div>
+                    ) : (
+                      <div className="text-[10px] invisible">-</div>
+                    )}
+                    <div className="font-semibold text-emerald-400 text-sm">↑{formatElevationValue(adjustedAscent, useImperial)}</div>
+                  </>
+                ) : (
+                  <div className="font-semibold text-emerald-400 text-sm">↑{formatElevationValue(day.ascent, useImperial)}</div>
+                )}
+                <div className="text-[10px] text-slate-500">{getElevationUnit(useImperial)}</div>
+              </div>
 
-        {/* Column 7: Elevation down */}
-        <div className="text-center">
-          {daySavings.descentSaved > 0 ? (
-            <>
-              <div className="text-slate-500 text-[10px] line-through">↓{formatElevationValue(day.descent, useImperial)}</div>
-              <div className="font-semibold text-cyan-400 text-sm">↓{formatElevationValue(adjustedDescent, useImperial)}</div>
-            </>
-          ) : (
-            <div className="font-semibold text-rose-400 text-sm">↓{formatElevationValue(day.descent, useImperial)}</div>
-          )}
-          <div className="text-[10px] text-slate-500">{getElevationUnit(useImperial)}</div>
-        </div>
+              {/* Column 7: Elevation down */}
+              <div className="text-center">
+                {hasAnyShortcut ? (
+                  <>
+                    {daySavings.descentSaved > 0 ? (
+                      <div className="text-slate-500 text-[10px] line-through">↓{formatElevationValue(day.descent, useImperial)}</div>
+                    ) : (
+                      <div className="text-[10px] invisible">-</div>
+                    )}
+                    <div className="font-semibold text-rose-400 text-sm">↓{formatElevationValue(adjustedDescent, useImperial)}</div>
+                  </>
+                ) : (
+                  <div className="font-semibold text-rose-400 text-sm">↓{formatElevationValue(day.descent, useImperial)}</div>
+                )}
+                <div className="text-[10px] text-slate-500">{getElevationUnit(useImperial)}</div>
+              </div>
 
-        {/* Column 8: Time */}
-        <div className="text-center">
-          {daySavings.timeSaved > 0 ? (
-            <>
-              <div className="text-slate-500 text-[10px] line-through">{formatTime(day.time)}</div>
-              <div className="font-semibold text-cyan-400 text-sm">{formatTime(adjustedTime)}</div>
+              {/* Column 8: Time */}
+              <div className="text-center">
+                {hasAnyShortcut ? (
+                  <>
+                    {daySavings.timeSaved > 0 ? (
+                      <div className="text-slate-500 text-[10px] line-through">{formatTime(day.time)}</div>
+                    ) : (
+                      <div className="text-[10px] invisible">-</div>
+                    )}
+                    <div className="font-semibold text-slate-200 text-sm">{formatTime(adjustedTime)}</div>
+                  </>
+                ) : (
+                  <div className="font-semibold text-slate-200 text-sm">{formatTime(day.time)}</div>
+                )}
+                <div className="text-[10px] text-slate-500">hike</div>
+              </div>
             </>
-          ) : (
-            <div className="font-semibold text-slate-200 text-sm">{formatTime(day.time)}</div>
-          )}
-          <div className="text-[10px] text-slate-500">hike</div>
-        </div>
+          );
+        })()}
 
         {/* Column 9: Expand arrow + delete */}
         <div className="flex items-center gap-1 justify-end">
@@ -1238,52 +1283,73 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
           )}
 
           {/* Mobile stats */}
-          <div className="sm:hidden grid grid-cols-4 gap-2 mt-4 pt-4 border-t border-white/10">
-            <div className="text-center">
-              {daySavings.distanceSaved > 0 ? (
-                <>
-                  <div className="text-slate-500 text-[10px] line-through">{day.distance}</div>
-                  <div className="font-semibold text-cyan-400">{adjustedDistance.toFixed(1)}</div>
-                </>
-              ) : (
-                <div className="font-semibold text-slate-200">{day.distance}</div>
-              )}
-              <div className="text-xs text-slate-500">{getDistanceUnit(useImperial)}</div>
-            </div>
-            <div className="text-center">
-              {daySavings.ascentSaved > 0 ? (
-                <>
-                  <div className="text-slate-500 text-[10px] line-through">↑{day.ascent}</div>
-                  <div className="font-semibold text-cyan-400">↑{adjustedAscent}</div>
-                </>
-              ) : (
-                <div className="font-semibold text-emerald-400">↑{day.ascent}</div>
-              )}
-              <div className="text-xs text-slate-500">{getElevationUnit(useImperial)}</div>
-            </div>
-            <div className="text-center">
-              {daySavings.descentSaved > 0 ? (
-                <>
-                  <div className="text-slate-500 text-[10px] line-through">↓{day.descent}</div>
-                  <div className="font-semibold text-cyan-400">↓{adjustedDescent}</div>
-                </>
-              ) : (
-                <div className="font-semibold text-rose-400">↓{day.descent}</div>
-              )}
-              <div className="text-xs text-slate-500">{getElevationUnit(useImperial)}</div>
-            </div>
-            <div className="text-center">
-              {daySavings.timeSaved > 0 ? (
-                <>
-                  <div className="text-slate-500 text-[10px] line-through">{formatTime(day.time)}</div>
-                  <div className="font-semibold text-cyan-400">{formatTime(adjustedTime)}</div>
-                </>
-              ) : (
-                <div className="font-semibold text-slate-200">{formatTime(day.time)}</div>
-              )}
-              <div className="text-xs text-slate-500">hike</div>
-            </div>
-          </div>
+          {(() => {
+            const hasAnyShortcut = daySavings.timeSaved > 0 || daySavings.distanceSaved > 0 || daySavings.ascentSaved > 0 || daySavings.descentSaved > 0;
+            return (
+              <div className="sm:hidden grid grid-cols-4 gap-2 mt-4 pt-4 border-t border-white/10">
+                <div className="text-center">
+                  {hasAnyShortcut ? (
+                    <>
+                      {daySavings.distanceSaved > 0 ? (
+                        <div className="text-slate-500 text-[10px] line-through">{day.distance}</div>
+                      ) : (
+                        <div className="text-[10px] invisible">-</div>
+                      )}
+                      <div className="font-semibold text-slate-200">{adjustedDistance.toFixed(1)}</div>
+                    </>
+                  ) : (
+                    <div className="font-semibold text-slate-200">{day.distance}</div>
+                  )}
+                  <div className="text-xs text-slate-500">{getDistanceUnit(useImperial)}</div>
+                </div>
+                <div className="text-center">
+                  {hasAnyShortcut ? (
+                    <>
+                      {daySavings.ascentSaved > 0 ? (
+                        <div className="text-slate-500 text-[10px] line-through">↑{day.ascent}</div>
+                      ) : (
+                        <div className="text-[10px] invisible">-</div>
+                      )}
+                      <div className="font-semibold text-emerald-400">↑{adjustedAscent}</div>
+                    </>
+                  ) : (
+                    <div className="font-semibold text-emerald-400">↑{day.ascent}</div>
+                  )}
+                  <div className="text-xs text-slate-500">{getElevationUnit(useImperial)}</div>
+                </div>
+                <div className="text-center">
+                  {hasAnyShortcut ? (
+                    <>
+                      {daySavings.descentSaved > 0 ? (
+                        <div className="text-slate-500 text-[10px] line-through">↓{day.descent}</div>
+                      ) : (
+                        <div className="text-[10px] invisible">-</div>
+                      )}
+                      <div className="font-semibold text-rose-400">↓{adjustedDescent}</div>
+                    </>
+                  ) : (
+                    <div className="font-semibold text-rose-400">↓{day.descent}</div>
+                  )}
+                  <div className="text-xs text-slate-500">{getElevationUnit(useImperial)}</div>
+                </div>
+                <div className="text-center">
+                  {hasAnyShortcut ? (
+                    <>
+                      {daySavings.timeSaved > 0 ? (
+                        <div className="text-slate-500 text-[10px] line-through">{formatTime(day.time)}</div>
+                      ) : (
+                        <div className="text-[10px] invisible">-</div>
+                      )}
+                      <div className="font-semibold text-slate-200">{formatTime(adjustedTime)}</div>
+                    </>
+                  ) : (
+                    <div className="font-semibold text-slate-200">{formatTime(day.time)}</div>
+                  )}
+                  <div className="text-xs text-slate-500">hike</div>
+                </div>
+              </div>
+            );
+          })()}
         </div>
       )}
     </GlassCard>
@@ -2730,7 +2796,7 @@ export default function App() {
                       <div className="text-xs text-slate-400">days</div>
                     </div>
                     <div className="bg-white/5 rounded-xl p-3 text-center">
-                      <div className="text-2xl font-bold text-cyan-400">{tots.distance.toFixed(0)}</div>
+                      <div className="text-2xl font-bold text-slate-200">{tots.distance.toFixed(0)}</div>
                       <div className="text-xs text-slate-400">km</div>
                     </div>
                   </div>
@@ -2805,7 +2871,7 @@ export default function App() {
                     </button>
                   </div>
                   <div className="text-center">
-                    <div className={`text-lg font-bold ${shortcutSavings.distanceSaved > 0 ? 'text-cyan-400' : ''}`}>
+                    <div className="text-lg font-bold text-slate-200">
                       {formatDistanceValue(totals.distance - shortcutSavings.distanceSaved, useImperial)}{getDistanceUnit(useImperial)}
                     </div>
                     <div className="text-[10px] text-slate-500 uppercase tracking-wider">
@@ -2813,7 +2879,7 @@ export default function App() {
                     </div>
                   </div>
                   <div className="text-center">
-                    <div className={`text-lg font-bold ${totalTimeSaved > 0 ? 'text-cyan-400' : ''}`}>
+                    <div className="text-lg font-bold text-slate-200">
                       {formatTime(totals.time - totalTimeSaved)}
                     </div>
                     <div className="text-[10px] text-slate-500 uppercase tracking-wider">
@@ -2878,7 +2944,7 @@ export default function App() {
 
                   {/* Distance */}
                   <div className="text-center">
-                    <div className={`text-2xl font-bold ${shortcutSavings.distanceSaved > 0 ? 'text-cyan-400' : ''}`}>
+                    <div className="text-2xl font-bold text-slate-200">
                       {formatDistanceValue(totals.distance - shortcutSavings.distanceSaved, useImperial)}{getDistanceUnit(useImperial)}
                     </div>
                     <div className="text-xs text-slate-500 uppercase tracking-wider">
@@ -2888,7 +2954,7 @@ export default function App() {
 
                   {/* Hiking time */}
                   <div className="text-center">
-                    <div className={`text-2xl font-bold ${totalTimeSaved > 0 ? 'text-cyan-400' : ''}`}>
+                    <div className="text-2xl font-bold text-slate-200">
                       {formatTime(totals.time - totalTimeSaved)}
                     </div>
                     <div className="text-xs text-slate-500 uppercase tracking-wider">
