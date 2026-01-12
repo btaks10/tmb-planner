@@ -1778,14 +1778,19 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [currentZoom, setCurrentZoom] = useState(11);
 
-  // Dynamic line weight based on zoom level
+  // Dynamic line weight based on zoom level - thicker for dark map
   const getLineWeight = (isSelected, isHovered) => {
-    if (isSelected) return currentZoom < 11 ? 5 : 7;
-    if (isHovered) return currentZoom < 11 ? 4 : 6;
-    // Thinner lines when zoomed out to prevent "red blob"
-    if (currentZoom < 10) return 2;
-    if (currentZoom < 11) return 3;
-    return 4;
+    if (isSelected) return currentZoom < 11 ? 7 : 9;
+    if (isHovered) return currentZoom < 11 ? 6 : 8;
+    // Thicker lines on dark background
+    if (currentZoom < 10) return 3;
+    if (currentZoom < 11) return 4;
+    return 5;
+  };
+
+  // Shadow/glow line weight (slightly larger than main line)
+  const getShadowWeight = (isSelected, isHovered) => {
+    return getLineWeight(isSelected, isHovered) + 3;
   };
 
   // Dynamic opacity based on zoom level
@@ -1920,12 +1925,36 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
           {/* Track zoom level for dynamic styling */}
           <ZoomTracker onZoomChange={setCurrentZoom} />
 
-          {/* Topographic tile layer */}
+          {/* Dark tile layer - clean background for route visibility */}
           <TileLayer
-            attribution='&copy; <a href="https://opentopomap.org">OpenTopoMap</a>'
-            url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
-            maxZoom={15}
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+            maxZoom={19}
           />
+
+          {/* Route shadow/glow lines (rendered first, behind main lines) */}
+          {daySegments.map((segment, i) => {
+            const isSelected = selectedDay === i;
+            const isHovered = hoveredDay === i;
+            const hasSelection = selectedDay !== null;
+            const shadowOpacity = hasSelection
+              ? (isSelected ? 0.6 : 0.1)
+              : (hoveredDay === null || isHovered ? 0.4 : 0.15);
+
+            return (
+              <Polyline
+                key={`shadow-${i}`}
+                positions={segment.positions}
+                pathOptions={{
+                  color: '#000',
+                  weight: getShadowWeight(isSelected, isHovered),
+                  opacity: shadowOpacity,
+                  lineCap: 'round',
+                  lineJoin: 'round'
+                }}
+              />
+            );
+          })}
 
           {/* Route segments by day */}
           {daySegments.map((segment, i) => {
@@ -1934,8 +1963,8 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
             const hasSelection = selectedDay !== null;
             const baseOpacity = getBaseOpacity();
             const opacity = hasSelection
-              ? (isSelected ? 1 : 0.2)
-              : (hoveredDay === null || isHovered ? baseOpacity : 0.35);
+              ? (isSelected ? 1 : 0.25)
+              : (hoveredDay === null || isHovered ? baseOpacity : 0.4);
 
             return (
               <Polyline
@@ -1980,8 +2009,8 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
               positions={line.positions}
               pathOptions={{
                 color: line.color,
-                weight: currentZoom < 10 ? 2 : currentZoom < 11 ? 3 : 4,
-                opacity: selectedDay !== null ? 0.4 : 0.8,
+                weight: currentZoom < 10 ? 3 : currentZoom < 11 ? 4 : 5,
+                opacity: selectedDay !== null ? 0.5 : 0.9,
                 dashArray: line.dashArray,
                 lineCap: 'round'
               }}
@@ -2008,12 +2037,12 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
               <CircleMarker
                 key={`shortcut-icon-${i}`}
                 center={icon.position}
-                radius={icon.isSelected ? 10 : 7}
+                radius={icon.isSelected ? 11 : 8}
                 pathOptions={{
-                  color: '#0f172a',
+                  color: icon.isSelected ? '#fff' : '#94a3b8',
                   weight: 2,
                   fillColor: icon.isSelected ? color : '#475569',
-                  fillOpacity: icon.isSelected ? 1 : 0.7
+                  fillOpacity: icon.isSelected ? 1 : 0.8
                 }}
                 eventHandlers={{
                   click: (e) => {
@@ -2044,19 +2073,30 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
             );
           })}
 
-          {/* Start marker */}
+          {/* Start marker - outer glow */}
           <CircleMarker
             center={[WAYPOINTS[0].lat, WAYPOINTS[0].lng]}
-            radius={10}
+            radius={16}
             pathOptions={{
-              color: '#0f172a',
+              color: '#10b981',
+              weight: 0,
+              fillColor: '#10b981',
+              fillOpacity: 0.3
+            }}
+          />
+          {/* Start marker - main */}
+          <CircleMarker
+            center={[WAYPOINTS[0].lat, WAYPOINTS[0].lng]}
+            radius={12}
+            pathOptions={{
+              color: '#fff',
               weight: 3,
               fillColor: '#10b981',
               fillOpacity: 1
             }}
         >
-          <Tooltip permanent direction="top" offset={[0, -10]}>
-            <span className="font-semibold text-xs">START</span>
+          <Tooltip permanent direction="top" offset={[0, -12]}>
+            <span className="font-bold text-xs px-1">START</span>
           </Tooltip>
         </CircleMarker>
 
@@ -2065,15 +2105,15 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
           <CircleMarker
             key={`marker-${i}`}
             center={marker.position}
-            radius={hoveredDay === i ? 10 : 8}
+            radius={hoveredDay === i ? 12 : 10}
             pathOptions={{
-              color: '#0f172a',
+              color: '#fff',
               weight: 2,
               fillColor: marker.color,
               fillOpacity: 1
             }}
           >
-            <Tooltip direction="top" offset={[0, -8]}>
+            <Tooltip direction="top" offset={[0, -10]}>
               <div className="font-sans">
                 <div className="font-semibold">Day {marker.day}: {marker.name}</div>
                 <div className="text-xs text-gray-600">
@@ -2087,17 +2127,17 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
         {/* Mont Blanc marker */}
         <CircleMarker
           center={[MONT_BLANC.lat, MONT_BLANC.lng]}
-          radius={6}
+          radius={8}
           pathOptions={{
-            color: '#64748b',
-            weight: 1,
+            color: '#fff',
+            weight: 2,
             fillColor: '#f8fafc',
-            fillOpacity: 0.9
+            fillOpacity: 0.95
           }}
         >
-          <Tooltip direction="top" offset={[0, -6]}>
+          <Tooltip direction="top" offset={[0, -8]}>
             <div className="font-sans text-center">
-              <div className="font-semibold">Mont Blanc</div>
+              <div className="font-semibold">⛰️ Mont Blanc</div>
               <div className="text-xs text-gray-600">{MONT_BLANC.altitude}m</div>
             </div>
           </Tooltip>
