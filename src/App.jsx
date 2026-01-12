@@ -220,7 +220,7 @@ const DaySummaryTable = ({
                 <td className="py-3 px-3 text-right font-medium whitespace-nowrap w-20">
                   {hasDaySavings ? (
                     daySavings.distanceSaved > 0 ? (
-                      <div className="text-slate-500 text-xs line-through">{formatDistanceValue(d.distance, useImperial)}</div>
+                      <div className="text-slate-500 text-xs">{formatDistanceValue(d.distance, useImperial)}</div>
                     ) : (
                       <div className="text-xs invisible">-</div>
                     )
@@ -230,7 +230,7 @@ const DaySummaryTable = ({
                 <td className="py-3 px-3 text-right font-medium whitespace-nowrap w-20">
                   {hasDaySavings ? (
                     daySavings.ascentSaved > 0 ? (
-                      <div className="text-slate-500 text-xs line-through">↑{formatElevationValue(d.ascent, useImperial)}</div>
+                      <div className="text-slate-500 text-xs">↑{formatElevationValue(d.ascent, useImperial)}</div>
                     ) : (
                       <div className="text-xs invisible">-</div>
                     )
@@ -240,7 +240,7 @@ const DaySummaryTable = ({
                 <td className="py-3 px-3 text-right font-medium whitespace-nowrap w-20">
                   {hasDaySavings ? (
                     daySavings.descentSaved > 0 ? (
-                      <div className="text-slate-500 text-xs line-through">↓{formatElevationValue(d.descent, useImperial)}</div>
+                      <div className="text-slate-500 text-xs">↓{formatElevationValue(d.descent, useImperial)}</div>
                     ) : (
                       <div className="text-xs invisible">-</div>
                     )
@@ -250,7 +250,7 @@ const DaySummaryTable = ({
                 <td className="py-3 px-3 text-right font-medium whitespace-nowrap w-20">
                   {hasDaySavings ? (
                     daySavings.timeSaved > 0 ? (
-                      <div className="text-slate-500 text-xs line-through">{formatTime(d.time)}</div>
+                      <div className="text-slate-500 text-xs">{formatTime(d.time)}</div>
                     ) : (
                       <div className="text-xs invisible">-</div>
                     )
@@ -270,7 +270,7 @@ const DaySummaryTable = ({
             <td className="py-3 px-3 text-right font-semibold whitespace-nowrap w-20">
               {hasAnySavings ? (
                 activeShortcuts.totalDistanceSaved > 0 ? (
-                  <div className="text-slate-500 text-xs line-through">{formatDistanceValue(totals.distance, useImperial)}</div>
+                  <div className="text-slate-500 text-xs">{formatDistanceValue(totals.distance, useImperial)}</div>
                 ) : (
                   <div className="text-xs invisible">-</div>
                 )
@@ -280,7 +280,7 @@ const DaySummaryTable = ({
             <td className="py-3 px-3 text-right font-semibold whitespace-nowrap w-20">
               {hasAnySavings ? (
                 activeShortcuts.totalAscentSaved > 0 ? (
-                  <div className="text-slate-500 text-xs line-through">↑{formatElevationValue(totals.ascent, useImperial)}</div>
+                  <div className="text-slate-500 text-xs">↑{formatElevationValue(totals.ascent, useImperial)}</div>
                 ) : (
                   <div className="text-xs invisible">-</div>
                 )
@@ -290,7 +290,7 @@ const DaySummaryTable = ({
             <td className="py-3 px-3 text-right font-semibold whitespace-nowrap w-20">
               {hasAnySavings ? (
                 activeShortcuts.totalDescentSaved > 0 ? (
-                  <div className="text-slate-500 text-xs line-through">↓{formatElevationValue(totals.descent, useImperial)}</div>
+                  <div className="text-slate-500 text-xs">↓{formatElevationValue(totals.descent, useImperial)}</div>
                 ) : (
                   <div className="text-xs invisible">-</div>
                 )
@@ -300,7 +300,7 @@ const DaySummaryTable = ({
             <td className="py-3 px-3 text-right font-semibold whitespace-nowrap w-20">
               {hasAnySavings ? (
                 totalTimeSaved > 0 ? (
-                  <div className="text-slate-500 text-xs line-through">{formatTime(totals.time)}</div>
+                  <div className="text-slate-500 text-xs">{formatTime(totals.time)}</div>
                 ) : (
                   <div className="text-xs invisible">-</div>
                 )
@@ -883,7 +883,7 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                 {hasAnyShortcut ? (
                   <>
                     {daySavings.distanceSaved > 0 ? (
-                      <div className="text-slate-500 text-[10px] line-through">{formatDistanceValue(day.distance, useImperial)}</div>
+                      <div className="text-slate-500 text-[10px]">{formatDistanceValue(day.distance, useImperial)}</div>
                     ) : (
                       <div className="text-[10px] invisible">-</div>
                     )}
@@ -898,7 +898,7 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                 {hasAnyShortcut ? (
                   <>
                     {daySavings.ascentSaved > 0 ? (
-                      <div className="text-slate-500 text-[10px] line-through">↑{formatElevationValue(day.ascent, useImperial)}</div>
+                      <div className="text-slate-500 text-[10px]">↑{formatElevationValue(day.ascent, useImperial)}</div>
                     ) : (
                       <div className="text-[10px] invisible">-</div>
                     )}
@@ -913,7 +913,7 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                 {hasAnyShortcut ? (
                   <>
                     {daySavings.descentSaved > 0 ? (
-                      <div className="text-slate-500 text-[10px] line-through">↓{formatElevationValue(day.descent, useImperial)}</div>
+                      <div className="text-slate-500 text-[10px]">↓{formatElevationValue(day.descent, useImperial)}</div>
                     ) : (
                       <div className="text-[10px] invisible">-</div>
                     )}
@@ -928,7 +928,7 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                 {hasAnyShortcut ? (
                   <>
                     {daySavings.timeSaved > 0 ? (
-                      <div className="text-slate-500 text-[10px] line-through">{formatTime(day.time)}</div>
+                      <div className="text-slate-500 text-[10px]">{formatTime(day.time)}</div>
                     ) : (
                       <div className="text-[10px] invisible">-</div>
                     )}
@@ -997,7 +997,7 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                 {hasAnyShortcut ? (
                   <>
                     {daySavings.distanceSaved > 0 ? (
-                      <div className="text-slate-500 text-[10px] line-through">{formatDistanceValue(day.distance, useImperial)}</div>
+                      <div className="text-slate-500 text-[10px]">{formatDistanceValue(day.distance, useImperial)}</div>
                     ) : (
                       <div className="text-[10px] invisible">-</div>
                     )}
@@ -1014,7 +1014,7 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                 {hasAnyShortcut ? (
                   <>
                     {daySavings.ascentSaved > 0 ? (
-                      <div className="text-slate-500 text-[10px] line-through">↑{formatElevationValue(day.ascent, useImperial)}</div>
+                      <div className="text-slate-500 text-[10px]">↑{formatElevationValue(day.ascent, useImperial)}</div>
                     ) : (
                       <div className="text-[10px] invisible">-</div>
                     )}
@@ -1031,7 +1031,7 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                 {hasAnyShortcut ? (
                   <>
                     {daySavings.descentSaved > 0 ? (
-                      <div className="text-slate-500 text-[10px] line-through">↓{formatElevationValue(day.descent, useImperial)}</div>
+                      <div className="text-slate-500 text-[10px]">↓{formatElevationValue(day.descent, useImperial)}</div>
                     ) : (
                       <div className="text-[10px] invisible">-</div>
                     )}
@@ -1048,7 +1048,7 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                 {hasAnyShortcut ? (
                   <>
                     {daySavings.timeSaved > 0 ? (
-                      <div className="text-slate-500 text-[10px] line-through">{formatTime(day.time)}</div>
+                      <div className="text-slate-500 text-[10px]">{formatTime(day.time)}</div>
                     ) : (
                       <div className="text-[10px] invisible">-</div>
                     )}
@@ -1291,7 +1291,7 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                   {hasAnyShortcut ? (
                     <>
                       {daySavings.distanceSaved > 0 ? (
-                        <div className="text-slate-500 text-[10px] line-through">{day.distance}</div>
+                        <div className="text-slate-500 text-[10px]">{day.distance}</div>
                       ) : (
                         <div className="text-[10px] invisible">-</div>
                       )}
@@ -1306,7 +1306,7 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                   {hasAnyShortcut ? (
                     <>
                       {daySavings.ascentSaved > 0 ? (
-                        <div className="text-slate-500 text-[10px] line-through">↑{day.ascent}</div>
+                        <div className="text-slate-500 text-[10px]">↑{day.ascent}</div>
                       ) : (
                         <div className="text-[10px] invisible">-</div>
                       )}
@@ -1321,7 +1321,7 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                   {hasAnyShortcut ? (
                     <>
                       {daySavings.descentSaved > 0 ? (
-                        <div className="text-slate-500 text-[10px] line-through">↓{day.descent}</div>
+                        <div className="text-slate-500 text-[10px]">↓{day.descent}</div>
                       ) : (
                         <div className="text-[10px] invisible">-</div>
                       )}
@@ -1336,7 +1336,7 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                   {hasAnyShortcut ? (
                     <>
                       {daySavings.timeSaved > 0 ? (
-                        <div className="text-slate-500 text-[10px] line-through">{formatTime(day.time)}</div>
+                        <div className="text-slate-500 text-[10px]">{formatTime(day.time)}</div>
                       ) : (
                         <div className="text-[10px] invisible">-</div>
                       )}
