@@ -2984,16 +2984,19 @@ export default function App() {
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                { value: formatDistanceValue(totals.distance - shortcutSavings.distanceSaved, useImperial), unit: getDistanceUnit(useImperial), label: shortcutSavings.distanceSaved > 0 ? 'Adj. Distance' : 'Total Distance', icon: '🥾', gradient: shortcutSavings.distanceSaved > 0 ? 'from-cyan-500 to-blue-500' : 'from-emerald-500 to-teal-500' },
-                { value: formatTime(totals.time - totalTimeSaved), unit: '', label: totalTimeSaved > 0 ? 'Adj. Time' : 'Hiking Time', icon: '⏱️', gradient: totalTimeSaved > 0 ? 'from-cyan-500 to-blue-500' : 'from-blue-500 to-indigo-500' },
-                { value: formatElevationValue(totals.ascent - shortcutSavings.ascentSaved, useImperial).toLocaleString(), unit: getElevationUnit(useImperial), label: shortcutSavings.ascentSaved > 0 ? 'Adj. Ascent' : 'Total Ascent', icon: '⬆️', gradient: shortcutSavings.ascentSaved > 0 ? 'from-cyan-500 to-blue-500' : 'from-amber-500 to-orange-500' },
-                { value: formatElevationValue(totals.descent - shortcutSavings.descentSaved, useImperial).toLocaleString(), unit: getElevationUnit(useImperial), label: shortcutSavings.descentSaved > 0 ? 'Adj. Descent' : 'Total Descent', icon: '⬇️', gradient: shortcutSavings.descentSaved > 0 ? 'from-cyan-500 to-blue-500' : 'from-rose-500 to-pink-500' },
+                { value: formatDistanceValue(totals.distance - shortcutSavings.distanceSaved, useImperial), unit: getDistanceUnit(useImperial), label: 'Total Distance', icon: '🥾', gradient: 'from-emerald-500 to-teal-500', savings: shortcutSavings.distanceSaved, savingsFormatted: `-${formatDistanceValue(shortcutSavings.distanceSaved, useImperial)}${getDistanceUnit(useImperial)} saved` },
+                { value: formatTime(totals.time - totalTimeSaved), unit: '', label: 'Hiking Time', icon: '⏱️', gradient: 'from-blue-500 to-indigo-500', savings: totalTimeSaved, savingsFormatted: `-${formatTime(totalTimeSaved)} saved` },
+                { value: formatElevationValue(totals.ascent - shortcutSavings.ascentSaved, useImperial).toLocaleString(), unit: getElevationUnit(useImperial), label: 'Total Ascent', icon: '⬆️', gradient: 'from-amber-500 to-orange-500', savings: shortcutSavings.ascentSaved, savingsFormatted: `-${formatElevationValue(shortcutSavings.ascentSaved, useImperial)}${getElevationUnit(useImperial)} saved` },
+                { value: formatElevationValue(totals.descent - shortcutSavings.descentSaved, useImperial).toLocaleString(), unit: getElevationUnit(useImperial), label: 'Total Descent', icon: '⬇️', gradient: 'from-rose-500 to-pink-500', savings: shortcutSavings.descentSaved, savingsFormatted: `-${formatElevationValue(shortcutSavings.descentSaved, useImperial)}${getElevationUnit(useImperial)} saved` },
               ].map((stat, i) => (
                 <GlassCard key={i} className="p-5 text-center relative overflow-hidden" hover>
                   <div className="text-2xl mb-2">{stat.icon}</div>
                   <div className="text-3xl font-bold">
                     {stat.value}<span className="text-lg text-slate-400">{stat.unit}</span>
                   </div>
+                  {stat.savings > 0 && (
+                    <div className="text-sm text-emerald-400 mt-1">{stat.savingsFormatted}</div>
+                  )}
                   <div className="text-xs text-slate-500 uppercase tracking-wider mt-1">{stat.label}</div>
                   <div className={`absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r ${stat.gradient}`} />
                 </GlassCard>
