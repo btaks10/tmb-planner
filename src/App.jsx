@@ -3142,38 +3142,73 @@ export default function App() {
               </div>
             </GlassCard>
 
-            {/* Pre-trip arrival card */}
-            {arrivalBooking && (
-              <GlassCard className="p-4 mb-4 border-l-4 border-l-amber-500/60">
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-tmb-amber flex items-center justify-center shrink-0 shadow-lg">
-                    <Bed className="w-5 h-5 text-tmb-ink" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-semibold text-tmb-ink">{arrivalBooking.place_name}</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">Pre-hike</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-tmb-ink border border-tmb-line2">{arrivalBooking.type}</span>
-                    </div>
-                    <div className="text-xs text-tmb-muted mt-1">
-                      {arrivalBooking.check_in} → {arrivalBooking.check_out}
-                    </div>
-                    {arrivalBooking.cost && (
-                      <div className="text-xs text-tmb-moss mt-0.5">
-                        {arrivalBooking.currency === 'CHF' ? 'CHF' : '€'}{Number(arrivalBooking.cost).toFixed(2)}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </GlassCard>
-            )}
-
-            {/* Trail line itinerary */}
+            {/* Trail line itinerary with Aug 2-11 bookends */}
             <div className="relative pl-8 sm:pl-10 mb-6" style={{ paddingTop: '8px' }}>
               {/* Dashed trail line */}
               <div className="absolute left-[17px] sm:left-[21px] top-6 bottom-6 w-[3px]" style={{ background: 'repeating-linear-gradient(#bf6334 0 7px, transparent 7px 14px)' }} />
 
-              {/* Section header */}
+              {/* ── Getting there ── */}
+              {arrivalBooking && (<>
+                <div className="flex items-center gap-2 mb-3 font-display uppercase tracking-[.16em] text-[11px] text-tmb-rust">
+                  <span className="h-[2px] w-6 bg-tmb-rust" />Getting there
+                </div>
+
+                {/* Travel card — Barcelona → Chamonix */}
+                <div className="relative mb-4">
+                  <div className="absolute -left-8 sm:-left-10 top-4 w-[46px] h-[46px] rounded-full bg-tmb-clay flex items-center justify-center border-[3px] border-tmb-cream z-10" style={{ boxShadow: '0 4px 12px -3px rgba(0,0,0,.4)' }}>
+                    <span className="text-lg">✈</span>
+                  </div>
+                  <div className="ml-6 sm:ml-8">
+                    <GlassCard className="overflow-hidden">
+                      <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-2.5 border-b border-tmb-line2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-display uppercase tracking-[.02em] font-semibold text-lg">Barcelona</span>
+                          <span className="text-tmb-clay font-display">→</span>
+                          <span className="font-display uppercase font-semibold text-lg text-tmb-pine">Chamonix</span>
+                        </div>
+                        <span className="font-display tracking-[.13em] uppercase text-[10.5px] text-tmb-muted">Sun · Aug 2 · depart</span>
+                      </div>
+                      <div className="flex items-center gap-4 px-3 sm:px-4 py-2.5">
+                        <p className="flex-1 text-[12.5px] text-tmb-muted">Fly BCN → Geneva, transfer to Chamonix. <strong className="font-semibold text-tmb-rust">The trip begins here.</strong></p>
+                        <div className="flex items-center gap-2 bg-[#f1e7cf] border border-tmb-line rounded-[9px] px-2.5 py-1.5 shrink-0">
+                          <div className="w-6 h-6 rounded-md bg-tmb-forest text-[#f3e7c9] flex items-center justify-center text-sm">⌂</div>
+                          <div>
+                            <div className="font-display uppercase tracking-[.05em] text-[8px] text-tmb-muted">Night</div>
+                            <div className="font-semibold text-xs text-tmb-pine leading-tight">{arrivalBooking.place_name}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </GlassCard>
+                  </div>
+                </div>
+
+                {/* Rest & acclimatize card */}
+                <div className="relative mb-4">
+                  <div className="absolute -left-8 sm:-left-10 top-4 w-[46px] h-[46px] rounded-full bg-tmb-moss flex items-center justify-center border-[3px] border-tmb-cream z-10" style={{ boxShadow: '0 4px 12px -3px rgba(0,0,0,.4)' }}>
+                    <span className="text-lg">☼</span>
+                  </div>
+                  <div className="ml-6 sm:ml-8">
+                    <GlassCard className="overflow-hidden">
+                      <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-2.5 border-b border-tmb-line2">
+                        <span className="font-display uppercase tracking-[.02em] font-semibold text-lg">Rest & acclimatize</span>
+                        <span className="font-display tracking-[.13em] uppercase text-[10.5px] text-tmb-muted">Mon · Aug 3–4 · Chamonix</span>
+                      </div>
+                      <div className="flex items-center gap-4 px-3 sm:px-4 py-2.5">
+                        <p className="flex-1 text-[12.5px] text-tmb-muted">Gear check, short legs-loosener, fuel up before the climb.</p>
+                        <div className="flex items-center gap-2 bg-[#f1e7cf] border border-tmb-line rounded-[9px] px-2.5 py-1.5 shrink-0">
+                          <div className="w-6 h-6 rounded-md bg-tmb-forest text-[#f3e7c9] flex items-center justify-center text-sm">⌂</div>
+                          <div>
+                            <div className="font-display uppercase tracking-[.05em] text-[8px] text-tmb-muted">Night</div>
+                            <div className="font-semibold text-xs text-tmb-pine leading-tight">{arrivalBooking.place_name}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </GlassCard>
+                  </div>
+                </div>
+              </>)}
+
+              {/* ── On the trail ── */}
               <div className="flex items-center gap-2 mb-3 font-display uppercase tracking-[.16em] text-[11px] text-tmb-rust">
                 <span className="h-[2px] w-6 bg-tmb-rust" />On the trail
               </div>
@@ -3208,6 +3243,41 @@ export default function App() {
                   </div>
                 ))}
               </div>
+
+              {/* ── Heading home ── */}
+              {bookings?.some(b => b.phase === 'departure') && (<>
+                <div className="flex items-center gap-2 mt-5 mb-3 font-display uppercase tracking-[.16em] text-[11px] text-tmb-rust">
+                  <span className="h-[2px] w-6 bg-tmb-rust" />Heading home
+                </div>
+
+                <div className="relative mb-2">
+                  <div className="absolute -left-8 sm:-left-10 top-4 w-[46px] h-[46px] rounded-full bg-tmb-rust flex items-center justify-center border-[3px] border-tmb-cream z-10" style={{ boxShadow: '0 4px 12px -3px rgba(0,0,0,.4)' }}>
+                    <span className="text-lg">✈</span>
+                  </div>
+                  <div className="ml-6 sm:ml-8">
+                    <GlassCard className="overflow-hidden">
+                      <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-2.5 border-b border-tmb-line2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-display uppercase tracking-[.02em] font-semibold text-lg">Chamonix</span>
+                          <span className="text-tmb-clay font-display">→</span>
+                          <span className="font-display uppercase font-semibold text-lg text-tmb-pine">Barcelona</span>
+                        </div>
+                        <span className="font-display tracking-[.13em] uppercase text-[10.5px] text-tmb-muted">Tue · Aug 11 · return</span>
+                      </div>
+                      <div className="flex items-center gap-4 px-3 sm:px-4 py-2.5">
+                        <p className="flex-1 text-[12.5px] text-tmb-muted">Transfer to Geneva, fly home.</p>
+                        <div className="flex items-center gap-2 bg-[#f7e6cb] border border-[#e7c794] rounded-[9px] px-2.5 py-1.5 shrink-0">
+                          <div className="w-6 h-6 rounded-md bg-tmb-amber text-white flex items-center justify-center text-sm">✈</div>
+                          <div>
+                            <div className="font-display uppercase tracking-[.05em] text-[8px] text-tmb-muted">Flight</div>
+                            <div className="font-semibold text-xs text-[#8a5618] leading-tight">GVA → BCN · to add</div>
+                          </div>
+                        </div>
+                      </div>
+                    </GlassCard>
+                  </div>
+                </div>
+              </>)}
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
