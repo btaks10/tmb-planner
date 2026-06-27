@@ -3063,7 +3063,7 @@ export default function App() {
           ].map(s => (
             <button
               key={s.id}
-              onClick={() => navigate(urlToken ? `/t/${urlToken}/${s.id}` : '/', { replace: false })}
+              onClick={() => navigate(urlToken ? `/t/${urlToken}/${s.id}` : `/${s.id}`, { replace: false })}
               className={`flex-1 sm:flex-initial px-4 sm:px-6 py-3 sm:py-2.5 min-h-[48px] sm:min-h-[44px] rounded-xl text-sm font-semibold transition-all duration-300 flex items-center justify-center sm:justify-start gap-2.5 ${
                 section === s.id
                   ? 'bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 text-white border border-emerald-500/30 shadow-lg shadow-emerald-500/10'

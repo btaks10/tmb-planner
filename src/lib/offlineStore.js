@@ -35,6 +35,8 @@ export async function idbGetAll(store, tripId) {
     const all = await db.getAll(store);
     return tripId ? all.filter(r => r.id === tripId) : all;
   }
+  // If no tripId, return all records from the store
+  if (!tripId) return db.getAll(store);
   return db.getAllFromIndex(store, 'trip_id', tripId);
 }
 
