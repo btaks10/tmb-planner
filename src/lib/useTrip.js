@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import { idbPut, idbGetAll, outboxPush, outboxCount } from './offlineStore';
+import { useOnlineStatus, replayOutbox } from './useOffline';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -18,11 +20,13 @@ export function useTrip(shareToken) {
   const [error, setError] = useState(null);
   const [syncing, setSyncing] = useState(false);
   const [connected, setConnected] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
   const saveTimeoutRef = useRef(null);
   const tripRef = useRef(null);
   const clientRef = useRef(null);
   const channelRef = useRef(null);
   const refreshTimerRef = useRef(null);
+  const online = useOnlineStatus();
 
   // Exchange share token for JWT + trip data
   const loadTrip = useCallback(async (token) => {
@@ -49,8 +53,22 @@ export function useTrip(shareToken) {
       tripRef.current = data.trip;
       clientRef.current = createTripClient(data.jwt);
 
+      // Mirror to IDB
+      await idbPut('trips', data.trip);
+
       return data;
     } catch (err) {
+      // Serve from IDB when offline
+      if (!navigator.onLine && token) {
+        const cached = await idbGetAll('trips');
+        if (cached.length) {
+          const t = cached[0];
+          setTrip(t);
+          tripRef.current = t;
+          setLoading(false);
+          return { trip: t };
+        }
+      }
       setError(err.message);
       return null;
     } finally {
@@ -83,6 +101,9 @@ export function useTrip(shareToken) {
       setTrip(result.trip);
       tripRef.current = result.trip;
 
+      // Mirror to IDB
+      await idbPut('trips', result.trip);
+
       return result;
     } catch (err) {
       setError(err.message);
@@ -95,16 +116,25 @@ export function useTrip(shareToken) {
   // Debounced save to Supabase
   const updateTrip = useCallback(
     (updates) => {
-      if (!tripRef.current?.id || !clientRef.current) return;
+      if (!tripRef.current?.id) return;
 
       // Optimistic local update
       const merged = { ...tripRef.current, ...updates };
       setTrip(merged);
       tripRef.current = merged;
 
-      // Debounce the write
+      // Always write to IDB
+      idbPut('trips', merged);
+
+      // Debounce the network write
       if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
       saveTimeoutRef.current = setTimeout(async () => {
+        if (!clientRef.current) {
+          // Offline — queue to outbox
+          await outboxPush({ table: 'trips', action: 'update', id: merged.id, payload: updates });
+          setPendingCount(await outboxCount());
+          return;
+        }
         try {
           setSyncing(true);
           const { error: err } = await clientRef.current
@@ -112,9 +142,14 @@ export function useTrip(shareToken) {
             .update(updates)
             .eq('id', tripRef.current.id);
 
-          if (err) console.error('Sync error:', err);
-        } catch (err) {
-          console.error('Sync failed:', err);
+          if (err) {
+            // Network failed — queue to outbox
+            await outboxPush({ table: 'trips', action: 'update', id: tripRef.current.id, payload: updates });
+            setPendingCount(await outboxCount());
+          }
+        } catch {
+          await outboxPush({ table: 'trips', action: 'update', id: tripRef.current.id, payload: updates });
+          setPendingCount(await outboxCount());
         } finally {
           setSyncing(false);
         }
@@ -122,6 +157,20 @@ export function useTrip(shareToken) {
     },
     [] // stable — reads from refs
   );
+
+  // Replay outbox when coming back online
+  useEffect(() => {
+    if (!online || !clientRef.current) return;
+
+    (async () => {
+      setSyncing(true);
+      const { replayed } = await replayOutbox(clientRef.current);
+      if (replayed > 0) {
+        setPendingCount(await outboxCount());
+      }
+      setSyncing(false);
+    })();
+  }, [online]);
 
   // Load trip when shareToken is provided
   useEffect(() => {
@@ -147,6 +196,7 @@ export function useTrip(shareToken) {
           if (payload.new && payload.new.updated_at !== tripRef.current?.updated_at) {
             setTrip(payload.new);
             tripRef.current = payload.new;
+            idbPut('trips', payload.new);
           }
         }
       )
@@ -176,6 +226,7 @@ export function useTrip(shareToken) {
           if (!err && data && data.updated_at !== tripRef.current?.updated_at) {
             setTrip(data);
             tripRef.current = data;
+            idbPut('trips', data);
           }
         } catch {
           // silent
@@ -219,6 +270,8 @@ export function useTrip(shareToken) {
     error,
     syncing,
     connected,
+    online,
+    pendingCount,
     updateTrip,
     createTrip,
     loadTrip,

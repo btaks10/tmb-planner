@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import { idbPutAll, idbGetAll, idbPut, idbDelete, outboxPush } from './offlineStore';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -33,7 +34,14 @@ export function useTransportLegs(tripId, jwt) {
 
         if (err) throw err;
         setLegs(data || []);
+        // Mirror to IDB
+        if (data?.length) await idbPutAll('transport_legs', data);
       } catch (err) {
+        // Serve from IDB when offline
+        if (!navigator.onLine) {
+          const cached = await idbGetAll('transport_legs', tripId);
+          if (cached.length) { setLegs(cached); return; }
+        }
         setError(err.message);
       } finally {
         setLoading(false);
@@ -61,38 +69,67 @@ export function useTransportLegs(tripId, jwt) {
       .single();
 
     if (err) {
+      if (!navigator.onLine) {
+        await outboxPush({ table: 'transport_legs', action: 'insert', payload: legData });
+        // Optimistic local insert with temp id
+        const temp = { ...legData, id: `temp-${Date.now()}` };
+        setLegs(prev => [...prev, temp].sort((a, b) => (a.day_index ?? 0) - (b.day_index ?? 0)));
+        await idbPut('transport_legs', temp);
+        return temp;
+      }
       console.error('createLeg failed:', err);
       return null;
     }
 
     setLegs(prev => [...prev, data].sort((a, b) => (a.day_index ?? 0) - (b.day_index ?? 0)));
+    await idbPut('transport_legs', data);
     return data;
   }, []);
 
   const updateLeg = useCallback(async (id, updates) => {
     if (!clientRef.current) return;
 
-    setLegs(prev => prev.map(l => l.id === id ? { ...l, ...updates } : l));
+    const updated_at = new Date().toISOString();
+    const payload = { ...updates, updated_at };
+    setLegs(prev => prev.map(l => l.id === id ? { ...l, ...payload } : l));
+
+    // Write to IDB
+    const all = await idbGetAll('transport_legs', undefined);
+    const existing = all.find(l => l.id === id);
+    if (existing) await idbPut('transport_legs', { ...existing, ...payload });
 
     const { error: err } = await clientRef.current
       .from('transport_legs')
-      .update({ ...updates, updated_at: new Date().toISOString() })
+      .update(payload)
       .eq('id', id);
 
-    if (err) console.error('updateLeg failed:', err);
+    if (err) {
+      if (!navigator.onLine) {
+        await outboxPush({ table: 'transport_legs', action: 'update', id, payload });
+      } else {
+        console.error('updateLeg failed:', err);
+      }
+    }
   }, []);
 
   const deleteLeg = useCallback(async (id) => {
     if (!clientRef.current) return;
 
     setLegs(prev => prev.filter(l => l.id !== id));
+    await idbDelete('transport_legs', id);
 
     const { error: err } = await clientRef.current
       .from('transport_legs')
       .delete()
       .eq('id', id);
 
-    if (err) console.error('deleteLeg failed:', err);
+    if (err) {
+      if (!navigator.onLine) {
+        await outboxPush({ table: 'transport_legs', action: 'delete', id });
+      } else {
+        console.error('deleteLeg failed:', err);
+      }
+    }
   }, []);
 
   return { legs, legsByDay, loading, error, createLeg, updateLeg, deleteLeg };

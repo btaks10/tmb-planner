@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import { idbPutAll, idbGetAll } from './offlineStore';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -40,7 +41,14 @@ export function useBookings(tripId, jwt) {
 
         if (err) throw err;
         setBookings(data || []);
+        // Mirror to IDB
+        if (data?.length) await idbPutAll('bookings', data);
       } catch (err) {
+        // Serve from IDB when offline
+        if (!navigator.onLine) {
+          const cached = await idbGetAll('bookings', tripId);
+          if (cached.length) { setBookings(cached); return; }
+        }
         setError(err.message);
       } finally {
         setLoading(false);
