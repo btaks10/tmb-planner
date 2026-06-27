@@ -22,12 +22,14 @@ import {
   ChevronDown, ChevronRight, Utensils, Home, MapPin,
   Zap, Bus, CableCar, Route, Check, AlertTriangle,
   Plus, Minus, Save, Share2, Link2, Copy, X, Maximize2, RotateCcw,
-  Wifi, WifiOff, LoaderCircle, CloudOff,
+  Wifi, WifiOff, LoaderCircle, CloudOff, Download, CheckCircle,
   ExternalLink, Phone, FileText, Bed
 } from 'lucide-react';
 import { MapContainer, TileLayer, Polyline, CircleMarker, Tooltip, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import savedTripCapture from './data/savedTripCapture.json';
+import { warmTiles, getCachedTileCount, getTileList } from './lib/offlineTiles';
+import { outboxCount as getOutboxCount } from './lib/offlineStore';
 import gearSeed from './data/gearSeed.json';
 
 const STORAGE_KEY = 'tmb-planner-data';
@@ -1629,6 +1631,71 @@ const MapControls = ({ onFitRoute }) => {
   );
 };
 
+// Offline map download button — sits in bottom-right corner of map
+const OfflineMapButton = ({ tileUrl }) => {
+  const [state, setState] = useState('idle'); // idle | checking | downloading | done
+  const [progress, setProgress] = useState({ done: 0, total: 0 });
+  const [tileInfo, setTileInfo] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const info = await getCachedTileCount(tileUrl);
+        if (!cancelled) {
+          setTileInfo(info);
+          if (info.cached === info.total && info.total > 0) setState('done');
+        }
+      } catch { /* cache API may not be available */ }
+    })();
+    return () => { cancelled = true; };
+  }, [tileUrl]);
+
+  const handleDownload = async () => {
+    setState('downloading');
+    await warmTiles(tileUrl, (done, total) => setProgress({ done, total }));
+    setState('done');
+  };
+
+  const tiles = tileInfo || { cached: 0, total: getTileList(tileUrl).length };
+  const pct = progress.total > 0 ? Math.round((progress.done / progress.total) * 100) : 0;
+
+  return (
+    <div className="absolute bottom-4 right-4 z-[1000]">
+      <div
+        className="rounded-xl border border-white/10 shadow-xl overflow-hidden"
+        style={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(12px)' }}
+      >
+        {state === 'downloading' ? (
+          <div className="px-3 py-2 min-w-[160px]">
+            <div className="text-[10px] text-slate-400 mb-1">Downloading tiles...</div>
+            <div className="w-full h-1.5 bg-slate-700 rounded-full overflow-hidden">
+              <div className="h-full bg-emerald-500 transition-all duration-300 rounded-full" style={{ width: `${pct}%` }} />
+            </div>
+            <div className="text-[10px] text-slate-500 mt-1">{progress.done}/{progress.total} ({pct}%)</div>
+          </div>
+        ) : state === 'done' ? (
+          <div className="px-3 py-2 flex items-center gap-1.5">
+            <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="text-[11px] text-emerald-400">Map cached</span>
+          </div>
+        ) : (
+          <button
+            onClick={handleDownload}
+            className="px-3 py-2 flex items-center gap-1.5 hover:bg-white/5 transition-colors min-h-[44px]"
+          >
+            <Download className="w-3.5 h-3.5 text-slate-400" />
+            <div className="text-left">
+              <div className="text-[11px] text-slate-300">Offline Map</div>
+              <div className="text-[9px] text-slate-500">~{tiles.total} tiles · ~25MB</div>
+            </div>
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // Get country for a waypoint based on latitude/longitude
 const getCountryForWaypoint = (wp) => {
   // Approximate country boundaries for TMB
@@ -2004,10 +2071,10 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
           {/* Track zoom level for dynamic styling */}
           <ZoomTracker onZoomChange={setCurrentZoom} />
 
-          {/* Dark tile layer - clean background for route visibility */}
+          {/* Tile layer - supports Thunderforest outdoors or CARTO dark fallback */}
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            url={import.meta.env.VITE_MAP_TILE_URL || "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"}
             maxZoom={19}
           />
 
@@ -2224,6 +2291,9 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
 
         <MapControls />
       </MapContainer>
+
+      {/* Offline Map Download Button */}
+      <OfflineMapButton tileUrl={import.meta.env.VITE_MAP_TILE_URL || "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"} />
 
       {/* Map Legend Overlay */}
       <div className="absolute bottom-4 left-4 z-[1000]">
@@ -2568,7 +2638,7 @@ export default function App() {
   const { token: urlToken, section: urlSection } = useParams();
   const section = urlSection || 'trail';
   const navigate = useNavigate();
-  const { trip, jwt, loading: tripLoading, error: tripError, syncing, connected, updateTrip, createTrip, shareToken: tripShareToken } = useTrip(urlToken);
+  const { trip, jwt, loading: tripLoading, error: tripError, syncing, connected, online, pendingCount, updateTrip, createTrip, shareToken: tripShareToken } = useTrip(urlToken);
   const { bookings, bookingsByDayIndex, arrivalBooking, totals: bookingTotals, gaps: bookingGaps, getFileUrl, loading: bookingsLoading } = useBookings(trip?.id, jwt);
   const { items: gearItems, loading: gearLoading, error: gearError, togglePacked, updateItem: updateGearItem } = useGearItems(trip?.id, jwt);
   const { legs: transportLegs, legsByDay, loading: transportLoading, error: transportError, createLeg, updateLeg, deleteLeg } = useTransportLegs(trip?.id, jwt);
@@ -2970,11 +3040,13 @@ export default function App() {
               <Route className="w-3 h-3" />Trail Conditions
             </a>
             {trip?.id && (
-              <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full" title={connected ? 'Live sync active' : syncing ? 'Saving...' : 'Offline'}>
+              <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full" title={connected ? 'Live sync active' : syncing ? 'Syncing...' : !online ? `Offline${pendingCount ? ` (${pendingCount} pending)` : ''}` : 'Offline'}>
                 {syncing ? (
-                  <><LoaderCircle className="w-3 h-3 animate-spin text-amber-400" /><span className="text-amber-400">Saving</span></>
+                  <><LoaderCircle className="w-3 h-3 animate-spin text-amber-400" /><span className="text-amber-400">Syncing</span></>
                 ) : connected ? (
                   <><Wifi className="w-3 h-3 text-emerald-400" /><span className="text-emerald-400">Live</span></>
+                ) : !online ? (
+                  <><CloudOff className="w-3 h-3 text-orange-400" /><span className="text-orange-400">Offline{pendingCount > 0 && ` (${pendingCount})`}</span></>
                 ) : (
                   <><CloudOff className="w-3 h-3 text-slate-500" /><span className="text-slate-500">Offline</span></>
                 )}
