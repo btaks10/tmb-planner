@@ -1,0 +1,8 @@
+{
+  "scenarios": [
+    { "id": 1, "name": "7-Day Classic", "startDate": "2026-08-05", "days": [6, 8, 12, 15, 21, 26, 33] }
+  ],
+  "activeScenarioId": 1,
+  "selectedShortcuts": {},
+  "useImperial": true
+}

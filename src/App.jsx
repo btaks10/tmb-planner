@@ -4,11 +4,18 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { segmentData } from './segmentData';
 import { useTrip } from './lib/useTrip';
 import {
+  formatTime, formatDistanceValue, formatElevationValue,
+  getDistanceUnit, getElevationUnit,
+} from './lib/format';
+import { decodeScenarioFromUrl } from './lib/share';
+import { getDayData as computeDayData, getTotals, getShortcutSavings } from './lib/itinerary';
+import { migrateLocalStorageToTrip } from './lib/migrate';
+import {
   Eye, Waves, Mountain, Landmark, Church, Bird, Camera,
   ChevronDown, ChevronRight, Utensils, Home, MapPin,
   Zap, Bus, CableCar, Route, Check, AlertTriangle,
   Plus, Minus, Save, Share2, Link2, Copy, X, Maximize2, RotateCcw,
-  Wifi, WifiOff, Loader2, CloudOff
+  Wifi, WifiOff, LoaderCircle, CloudOff
 } from 'lucide-react';
 import { MapContainer, TileLayer, Polyline, CircleMarker, Tooltip, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -79,48 +86,7 @@ const DAY_COLORS = [
   { main: '#14b8a6', gradient: 'from-teal-500 to-emerald-600' },
 ];
 
-const formatTime = (mins) => {
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
-  return m > 0 ? `${h}h ${m}m` : `${h}h`;
-};
-
 const formatDate = (date) => date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-
-// Unit conversion helpers
-const KM_TO_MI = 0.621371;
-const M_TO_FT = 3.28084;
-
-const formatDistance = (km, useImperial) => {
-  if (useImperial) {
-    return `${(km * KM_TO_MI).toFixed(1)} mi`;
-  }
-  return `${km} km`;
-};
-
-const formatDistanceValue = (km, useImperial) => {
-  if (useImperial) {
-    return (km * KM_TO_MI).toFixed(1);
-  }
-  return typeof km === 'number' ? km.toFixed(1) : km;
-};
-
-const formatElevation = (m, useImperial) => {
-  if (useImperial) {
-    return `${Math.round(m * M_TO_FT).toLocaleString()} ft`;
-  }
-  return `${m.toLocaleString()}m`;
-};
-
-const formatElevationValue = (m, useImperial) => {
-  if (useImperial) {
-    return Math.round(m * M_TO_FT);
-  }
-  return m;
-};
-
-const getDistanceUnit = (useImperial) => useImperial ? 'mi' : 'km';
-const getElevationUnit = (useImperial) => useImperial ? 'ft' : 'm';
 
 const GlassCard = ({ children, className = "", hover = false }) => (
   <div className={`backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl shadow-2xl ${hover ? 'hover:bg-white/10 hover:border-white/20 transition-all duration-300' : ''} ${className}`}>
@@ -811,7 +777,6 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
   const adjustedDistance = parseFloat(day.distance) - daySavings.distanceSaved;
   const adjustedAscent = day.ascent - daySavings.ascentSaved;
   const adjustedDescent = day.descent - daySavings.descentSaved;
-  const hasAnySavings = daySavings.timeSaved > 0 || daySavings.distanceSaved > 0 || daySavings.ascentSaved > 0 || daySavings.descentSaved > 0;
 
   // Group items by day position
   const getDayPositionLabel = (pos) => {
@@ -1366,10 +1331,10 @@ const DeleteConfirmModal = ({ isOpen, dayNumber, startName, endName, onCancel, o
 
   useEffect(() => {
     if (isOpen) {
-      // Small delay to trigger CSS transition
       requestAnimationFrame(() => setIsVisible(true));
     } else {
-      setIsVisible(false);
+      // Reset visibility when modal closes
+      requestAnimationFrame(() => setIsVisible(false));
     }
   }, [isOpen]);
 
@@ -1422,10 +1387,12 @@ const ShareModal = ({ isOpen, shareUrl, onClose, onCopy }) => {
 
   useEffect(() => {
     if (isOpen) {
-      requestAnimationFrame(() => setIsVisible(true));
-      setCopied(false);
+      requestAnimationFrame(() => {
+        setIsVisible(true);
+        setCopied(false);
+      });
     } else {
-      setIsVisible(false);
+      requestAnimationFrame(() => setIsVisible(false));
     }
   }, [isOpen]);
 
@@ -1435,7 +1402,7 @@ const ShareModal = ({ isOpen, shareUrl, onClose, onCopy }) => {
       setCopied(true);
       onCopy();
       setTimeout(() => setCopied(false), 2000);
-    } catch (e) {
+    } catch {
       // Fallback for older browsers
       if (inputRef.current) {
         inputRef.current.select();
@@ -1645,7 +1612,7 @@ const SegmentDetailModal = ({ isOpen, dayIndex, dayData, scenario, formatTime, f
     if (isOpen) {
       requestAnimationFrame(() => setIsVisible(true));
     } else {
-      setIsVisible(false);
+      requestAnimationFrame(() => setIsVisible(false));
     }
   }, [isOpen]);
 
@@ -1943,10 +1910,6 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
     setShowDetailModal(true);
   };
 
-  // Handle click outside to deselect
-  const handleMapClick = () => {
-    setSelectedDay(null);
-  };
 
   // Get shortcut icon positions for map
   const shortcutIcons = useMemo(() => {
@@ -2393,7 +2356,7 @@ export default function App() {
     });
     setSelectedShortcuts(trip.selected_shortcuts || {});
     setUseImperial(trip.use_imperial ?? true);
-  }, [trip?.updated_at]);
+  }, [trip?.updated_at]); // eslint-disable-line react-hooks/exhaustive-deps -- intentionally react only to updated_at, not every trip re-render
 
   // On mount without a share token: check for localStorage to migrate, or check for old ?trip= param
   useEffect(() => {
@@ -2404,22 +2367,18 @@ export default function App() {
     const urlParams = new URLSearchParams(window.location.search);
     const legacyTrip = urlParams.get('trip');
     if (legacyTrip) {
-      try {
-        const decoded = JSON.parse(atob(legacyTrip));
-        const scenario = {
-          id: Date.now(),
-          name: (decoded.n || 'Shared Trip') + ' (Imported)',
-          startDate: decoded.s || '2026-08-01',
-          days: decoded.d || DEFAULT_DATA.scenarios[0].days,
-        };
-        setScenarios([scenario]);
-        setActiveScenarioId(scenario.id);
-        setSelectedShortcuts(decoded.sc || {});
-        window.history.replaceState({}, '', window.location.pathname);
-        showToast('Imported legacy shared trip! Use "Share" to get a live link.', 'success');
-      } catch (_) {
-        showToast("Couldn't load shared trip", 'error');
-      }
+      const decoded = decodeScenarioFromUrl(legacyTrip, DEFAULT_DATA.scenarios[0].days);
+      const scenario = {
+        id: Date.now(),
+        name: decoded.name,
+        startDate: decoded.startDate,
+        days: decoded.days,
+      };
+      setScenarios([scenario]);
+      setActiveScenarioId(scenario.id);
+      setSelectedShortcuts(decoded.selectedShortcuts);
+      window.history.replaceState({}, '', window.location.pathname);
+      showToast('Imported legacy shared trip! Use "Share" to get a live link.', 'success');
       return;
     }
 
@@ -2435,7 +2394,7 @@ export default function App() {
         if (data.activeScenarioId) setActiveScenarioId(data.activeScenarioId);
         if (data.selectedShortcuts) setSelectedShortcuts(data.selectedShortcuts);
         if (data.useImperial !== undefined) setUseImperial(data.useImperial);
-      } catch (_) {}
+      } catch { /* ignore parse errors */ }
     }
   }, [urlToken, tripLoading]);
 
@@ -2447,18 +2406,13 @@ export default function App() {
       let saved;
       try {
         saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-      } catch (_) {}
+      } catch { /* ignore parse errors */ }
 
-      const source = saved || savedTripCapture;
-      const activeScen = source.scenarios?.[0];
-      if (!activeScen) throw new Error('No scenario data found');
+      const tripData = migrateLocalStorageToTrip(saved, savedTripCapture);
+      if (!tripData) throw new Error('No scenario data found');
 
       const result = await createTrip({
-        name: activeScen.name,
-        start_date: activeScen.startDate,
-        day_splits: activeScen.days,
-        selected_shortcuts: source.selectedShortcuts || {},
-        use_imperial: source.useImperial ?? true,
+        ...tripData,
         gear_items: gearSeed.items,
       });
 
@@ -2532,7 +2486,7 @@ export default function App() {
 
   const activeScenario = scenarios.find(s => s.id === activeScenarioId);
 
-  const handleShortcutToggle = (shortcutId, timeSaved) => {
+  const handleShortcutToggle = (shortcutId) => {
     setSelectedShortcuts(prev => ({
       ...prev,
       [shortcutId]: !prev[shortcutId]
@@ -2540,62 +2494,19 @@ export default function App() {
     setIsDirty(true);
   };
 
-  const getDayData = (scenario) => {
-    if (!scenario) return [];
-    const days = [];
-    let prevIdx = 0;
-    scenario.days.forEach((endIdx, i) => {
-      const startWp = WAYPOINTS[prevIdx];
-      const endWp = WAYPOINTS[endIdx];
-      days.push({
-        day: i + 1, startWp, endWp,
-        distance: (endWp.cumDist - startWp.cumDist).toFixed(1),
-        time: endWp.cumTime - startWp.cumTime,
-        ascent: endWp.ascent - startWp.ascent,
-        descent: endWp.descent - startWp.descent,
-        date: new Date(new Date(scenario.startDate).getTime() + i * 86400000)
-      });
-      prevIdx = endIdx;
-    });
-    return days;
-  };
+  const getDayData = (scenario) => computeDayData(scenario, WAYPOINTS);
 
   const dayData = getDayData(activeScenario);
 
   // Calculate total stats saved from selected shortcuts
-  const shortcutSavings = useMemo(() => {
-    let timeSaved = 0;
-    let distanceSaved = 0;
-    let ascentSaved = 0;
-    let descentSaved = 0;
-    Object.entries(selectedShortcuts).forEach(([shortcutId, isSelected]) => {
-      if (isSelected) {
-        const [segmentKey] = shortcutId.split('-').slice(0, 2);
-        const fullSegmentKey = shortcutId.substring(0, shortcutId.lastIndexOf('-'));
-        const segment = segmentData[fullSegmentKey.split('-').slice(0, 2).join('-')];
-        if (segment?.shortcuts) {
-          const shortcutName = shortcutId.split('-').slice(2).join('-');
-          const shortcut = segment.shortcuts.find(s => s.name === shortcutName);
-          if (shortcut) {
-            timeSaved += shortcut.timeSaved || 0;
-            distanceSaved += shortcut.distanceSaved || 0;
-            ascentSaved += shortcut.ascentSaved || 0;
-            descentSaved += shortcut.descentSaved || 0;
-          }
-        }
-      }
-    });
-    return { timeSaved, distanceSaved, ascentSaved, descentSaved };
-  }, [selectedShortcuts]);
+  const shortcutSavings = useMemo(() =>
+    getShortcutSavings(selectedShortcuts, segmentData),
+    [selectedShortcuts]
+  );
 
   const totalTimeSaved = shortcutSavings.timeSaved;
 
-  const totals = dayData.reduce((acc, d) => ({
-    distance: acc.distance + parseFloat(d.distance),
-    time: acc.time + d.time,
-    ascent: acc.ascent + d.ascent,
-    descent: acc.descent + d.descent
-  }), { distance: 0, time: 0, ascent: 0, descent: 0 });
+  const totals = getTotals(dayData);
 
   // Calculate these early for use in activeShortcuts
   const maxAlt = Math.max(...WAYPOINTS.map(w => w.altitude));
@@ -2777,7 +2688,7 @@ export default function App() {
             {trip?.id && (
               <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full" title={connected ? 'Live sync active' : syncing ? 'Saving...' : 'Offline'}>
                 {syncing ? (
-                  <><Loader2 className="w-3 h-3 animate-spin text-amber-400" /><span className="text-amber-400">Saving</span></>
+                  <><LoaderCircle className="w-3 h-3 animate-spin text-amber-400" /><span className="text-amber-400">Saving</span></>
                 ) : connected ? (
                   <><Wifi className="w-3 h-3 text-emerald-400" /><span className="text-emerald-400">Live</span></>
                 ) : (
@@ -3503,7 +3414,7 @@ export default function App() {
                 disabled={migrating}
                 className="flex-1 px-4 py-3 min-h-[44px] rounded-xl text-sm font-medium bg-gradient-to-r from-emerald-500 to-cyan-500 text-white hover:shadow-lg hover:shadow-emerald-500/25 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                {migrating ? <><Loader2 className="w-4 h-4 animate-spin" /> Migrating...</> : 'Import & Go Live'}
+                {migrating ? <><LoaderCircle className="w-4 h-4 animate-spin" /> Migrating...</> : 'Import & Go Live'}
               </button>
               <button
                 onClick={() => setShowMigration(false)}
@@ -3521,7 +3432,7 @@ export default function App() {
       {tripLoading && createPortal(
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-slate-950/80 backdrop-blur-sm">
           <div className="flex flex-col items-center gap-4">
-            <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
+            <LoaderCircle className="w-8 h-8 animate-spin text-emerald-400" />
             <p className="text-slate-300 text-sm">Loading your trip...</p>
           </div>
         </div>,

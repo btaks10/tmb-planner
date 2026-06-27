@@ -134,7 +134,6 @@ export function useTrip(shareToken) {
   useEffect(() => {
     if (!trip?.id || !jwt || !clientRef.current) return;
 
-    let polling = false;
     let pollInterval = null;
 
     // Try Realtime first
@@ -158,7 +157,6 @@ export function useTrip(shareToken) {
           // Fallback to polling
           console.warn('Realtime failed, falling back to polling');
           setConnected(false);
-          polling = true;
           startPolling();
         }
       });
@@ -179,7 +177,7 @@ export function useTrip(shareToken) {
             setTrip(data);
             tripRef.current = data;
           }
-        } catch (_) {
+        } catch {
           // silent
         }
       }, 10_000);
