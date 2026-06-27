@@ -2850,8 +2850,8 @@ export default function App() {
         ))}
       </div>
 
-      {/* Section nav — letterpress tabs */}
-      <div className="flex bg-tmb-kraft border-b-2 border-[#c8ad77]">
+      {/* Section nav — letterpress tabs (hidden on mobile, bottom bar replaces) */}
+      <div className="hidden sm:flex bg-tmb-kraft border-b-2 border-[#c8ad77]">
         {[
           { id: 'trail', label: 'The Trail' },
           { id: 'logistics', label: 'Logistics & Packing' }
@@ -2870,7 +2870,7 @@ export default function App() {
         ))}
       </div>
 
-      <div className="max-w-5xl mx-auto relative px-4 sm:px-6 py-5 sm:py-8">
+      <div className="max-w-5xl mx-auto relative px-4 sm:px-6 py-5 sm:py-8 pb-24 sm:pb-8">
 
         {section === 'trail' && (<>
         {/* Scenario tabs and action buttons */}
@@ -3817,6 +3817,38 @@ export default function App() {
         isVisible={toast.isVisible}
         icon={toast.type === 'success' ? <Check className="w-4 h-4" /> : toast.type === 'error' ? <AlertTriangle className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
       />
+
+      {/* Mobile bottom tab bar */}
+      <nav className="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-tmb-kraft border-t border-tmb-line flex" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+        {[
+          { id: 'trail', section: 'trail', label: 'Trail', icon: '▲' },
+          { id: 'map', section: 'trail', label: 'Map', icon: '◔', view: 'map' },
+          { id: 'gear', section: 'logistics', label: 'Gear', icon: '▣', logView: 'packing' },
+          { id: 'logi', section: 'logistics', label: 'Logi', icon: '≡', logView: 'bookings' },
+        ].map(tab => {
+          const isActive = tab.view
+            ? section === tab.section && view === tab.view
+            : tab.logView
+              ? section === tab.section && logisticsView === tab.logView
+              : section === tab.section && !tab.view && !tab.logView && (tab.id === 'trail' ? view === 'plan' : true);
+          return (
+            <button
+              key={tab.id}
+              onClick={() => {
+                const path = urlToken ? `/t/${urlToken}/${tab.section}` : `/${tab.section}`;
+                navigate(path, { replace: false });
+                if (tab.view) setView(tab.view);
+                else if (tab.section === 'trail') setView('plan');
+                if (tab.logView) setLogisticsView(tab.logView);
+              }}
+              className={`flex-1 text-center py-2 pt-2.5 ${isActive ? 'text-tmb-rust' : 'text-[#7d6b43]'}`}
+            >
+              <span className="block text-lg mb-0.5">{tab.icon}</span>
+              <span className="font-display text-[9px] uppercase tracking-[.05em]">{tab.label}</span>
+            </button>
+          );
+        })}
+      </nav>
     </div>
   );
 }
