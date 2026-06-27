@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom';
 import { segmentData } from './segmentData';
 import { useTrip } from './lib/useTrip';
+import { useBookings } from './lib/useBookings';
 import {
   formatTime, formatDistanceValue, formatElevationValue,
   getDistanceUnit, getElevationUnit,
@@ -15,7 +16,8 @@ import {
   ChevronDown, ChevronRight, Utensils, Home, MapPin,
   Zap, Bus, CableCar, Route, Check, AlertTriangle,
   Plus, Minus, Save, Share2, Link2, Copy, X, Maximize2, RotateCcw,
-  Wifi, WifiOff, LoaderCircle, CloudOff
+  Wifi, WifiOff, LoaderCircle, CloudOff,
+  ExternalLink, Phone, FileText, Bed
 } from 'lucide-react';
 import { MapContainer, TileLayer, Polyline, CircleMarker, Tooltip, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -679,7 +681,7 @@ const EndpointDropdown = ({ value, options, onChange, formatTime }) => {
   );
 };
 
-const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, removeDay, selectedShortcuts, onShortcutToggle, useImperial }) => {
+const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, removeDay, selectedShortcuts, onShortcutToggle, useImperial, booking }) => {
   const [expanded, setExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState('segments');
   const [expandedSightId, setExpandedSightId] = useState(null);
@@ -1046,6 +1048,43 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
           </button>
         </div>
       </div>
+
+      {/* Stay block — always visible when booking exists */}
+      {booking && (() => {
+        const importantNotes = [];
+        const notes = booking.notes || '';
+        if (/navette/i.test(notes)) importantNotes.push(notes.match(/\d{2}:\d{2}\s+navette[^.;]*/i)?.[0] || 'Navette required');
+        if (/sleeping.?bag\s+liner/i.test(notes)) importantNotes.push(notes.match(/sleeping.?bag\s+liner[^.;]*/i)?.[0] || 'Sleeping-bag liner required');
+        if (/pay\s+in\s+CHF/i.test(notes)) importantNotes.push('Pay in CHF');
+        if (/meal\s+\d{2}:\d{2}/i.test(notes)) importantNotes.push(notes.match(/meal\s+\d{2}:\d{2}[^.;]*/i)?.[0] || 'Fixed meal time');
+        if (/receipt\s+missing|⚠️/i.test(notes)) importantNotes.push('Receipt missing — verify reservation');
+        return (
+          <div className="mt-2 px-3 py-2 rounded-lg bg-white/5 border border-white/5">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Home className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span className="text-xs font-medium text-slate-200">{booking.place_name}</span>
+              {booking.type && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/10 text-slate-400">{booking.type}</span>}
+              {booking.status && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">{booking.status}</span>}
+              <span className="text-[10px] text-slate-500 ml-auto">{booking.check_in} → {booking.check_out}</span>
+              {booking.cost && (
+                <span className="text-[10px] font-medium text-emerald-400">
+                  {booking.currency === 'CHF' ? 'CHF ' : '€'}{Number(booking.cost).toFixed(2)}
+                </span>
+              )}
+            </div>
+            {importantNotes.length > 0 && (
+              <div className="mt-1.5 space-y-1">
+                {importantNotes.map((note, i) => (
+                  <div key={i} className="flex items-center gap-1.5 text-[11px] text-amber-300">
+                    <AlertTriangle className="w-3 h-3 shrink-0" />
+                    <span>{note}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {expanded && (
         <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-white/10">
@@ -2289,11 +2328,234 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
   );
 };
 
+// --- Bookings UI Components ---
+
+const BookingCard = ({ booking, getFileUrl }) => {
+  const [expanded, setExpanded] = useState(false);
+  const [fileUrls, setFileUrls] = useState({});
+
+  const loadFileUrls = useCallback(async () => {
+    if (!booking.documents?.length || Object.keys(fileUrls).length > 0) return;
+    const urls = {};
+    for (const doc of booking.documents) {
+      const url = await getFileUrl(doc.storage_path);
+      if (url) urls[doc.storage_path] = url;
+    }
+    setFileUrls(urls);
+  }, [booking.documents, getFileUrl, fileUrls]);
+
+  useEffect(() => {
+    if (expanded) loadFileUrls();
+  }, [expanded, loadFileUrls]);
+
+  const importantNotes = [];
+  const notes = booking.notes || '';
+  if (/navette/i.test(notes)) importantNotes.push(notes.match(/\d{2}:\d{2}\s+navette[^.;]*/i)?.[0] || 'Navette required');
+  if (/sleeping.?bag\s+liner/i.test(notes)) importantNotes.push(notes.match(/sleeping.?bag\s+liner[^.;]*/i)?.[0] || 'Sleeping-bag liner required');
+  if (/pay\s+in\s+CHF/i.test(notes)) importantNotes.push('Pay in CHF');
+  if (/meal\s+\d{2}:\d{2}/i.test(notes)) importantNotes.push(notes.match(/meal\s+\d{2}:\d{2}[^.;]*/i)?.[0] || 'Fixed meal time');
+  if (/receipt\s+missing|⚠️/i.test(notes)) importantNotes.push('Receipt missing — verify reservation');
+
+  return (
+    <GlassCard className="overflow-hidden" hover>
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full p-4 flex items-start gap-3 text-left hover:bg-white/5 transition-colors"
+      >
+        <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center shrink-0 text-sm font-bold text-white">
+          {booking.day_index || '—'}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm font-medium text-white">{booking.place_name}</span>
+            {booking.type && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/10 text-slate-400">{booking.type}</span>}
+            {booking.status && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">{booking.status}</span>}
+          </div>
+          <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">
+            <span>{booking.check_in} → {booking.check_out}</span>
+            {booking.cost && (
+              <span className="text-emerald-400 font-medium">
+                {booking.currency === 'CHF' ? 'CHF ' : '€'}{Number(booking.cost).toFixed(2)}
+              </span>
+            )}
+          </div>
+          {importantNotes.length > 0 && (
+            <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-amber-300">
+              <AlertTriangle className="w-3 h-3 shrink-0" />
+              <span>{importantNotes[0]}</span>
+            </div>
+          )}
+        </div>
+        <ChevronDown className={`w-4 h-4 text-slate-500 shrink-0 mt-1 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+      </button>
+
+      {expanded && (
+        <div className="px-4 pb-4 border-t border-white/5 pt-3 space-y-3">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+            {booking.confirmation_no && (
+              <>
+                <span className="text-slate-500">Confirmation</span>
+                <span className="text-slate-200 font-mono">{booking.confirmation_no}</span>
+              </>
+            )}
+            {booking.guests && (
+              <>
+                <span className="text-slate-500">Room</span>
+                <span className="text-slate-200">{booking.guests}</span>
+              </>
+            )}
+            {booking.phone && (
+              <>
+                <span className="text-slate-500">Phone</span>
+                <a href={`tel:${booking.phone}`} className="text-cyan-400 hover:text-cyan-300 flex items-center gap-1">
+                  <Phone className="w-3 h-3" />{booking.phone}
+                </a>
+              </>
+            )}
+            {booking.location && (
+              <>
+                <span className="text-slate-500">Address</span>
+                <span className="text-slate-300">{booking.location}</span>
+              </>
+            )}
+          </div>
+
+          {booking.notes && (
+            <div className="text-xs text-slate-400 bg-white/5 rounded-lg p-2.5">
+              {booking.notes}
+            </div>
+          )}
+
+          {importantNotes.length > 0 && (
+            <div className="space-y-1">
+              {importantNotes.map((note, i) => (
+                <div key={i} className="flex items-center gap-1.5 text-xs text-amber-300 bg-amber-500/10 rounded-lg px-2.5 py-1.5 border border-amber-500/20">
+                  <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                  <span>{note}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {booking.documents?.length > 0 && (
+            <div>
+              <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Documents</div>
+              <div className="flex flex-wrap gap-2">
+                {booking.documents.map((doc) => (
+                  <a
+                    key={doc.id}
+                    href={fileUrls[doc.storage_path] || '#'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs hover:bg-white/10 transition-colors ${fileUrls[doc.storage_path] ? 'text-cyan-400' : 'text-slate-500'}`}
+                    onClick={(e) => { if (!fileUrls[doc.storage_path]) e.preventDefault(); }}
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span className="truncate max-w-[160px]">{doc.kind || 'file'}</span>
+                    {fileUrls[doc.storage_path] && <ExternalLink className="w-3 h-3" />}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </GlassCard>
+  );
+};
+
+const BookingsPanel = ({ bookings, arrivalBooking, totals, gaps, getFileUrl, loading }) => {
+  if (loading) {
+    return (
+      <GlassCard className="p-8 text-center">
+        <LoaderCircle className="w-6 h-6 animate-spin text-emerald-400 mx-auto mb-2" />
+        <p className="text-slate-400 text-sm">Loading bookings...</p>
+      </GlassCard>
+    );
+  }
+
+  if (!bookings.length) {
+    return (
+      <GlassCard className="p-8 text-center">
+        <div className="text-4xl mb-4">📋</div>
+        <h3 className="text-lg font-semibold text-white mb-2">No Bookings Yet</h3>
+        <p className="text-slate-400 text-sm">Run the ingest script to load bookings from the manifest.</p>
+      </GlassCard>
+    );
+  }
+
+  const stageBookings = bookings.filter(b => b.phase === 'stage');
+
+  return (
+    <div className="space-y-4">
+      {/* Needs Attention */}
+      {gaps.length > 0 && (
+        <GlassCard className="p-4 border-l-4 border-l-amber-500/60">
+          <h4 className="text-sm font-semibold text-amber-300 flex items-center gap-2 mb-3">
+            <AlertTriangle className="w-4 h-4" /> Needs Attention
+          </h4>
+          <div className="space-y-2">
+            {gaps.map((gap, i) => (
+              <div key={i} className="flex items-start gap-2 text-xs">
+                <span className="text-amber-400 mt-0.5">•</span>
+                <div>
+                  <span className="text-slate-200">{gap.label}</span>
+                  <span className="text-slate-500 ml-2">— {gap.action}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </GlassCard>
+      )}
+
+      {/* Cost Summary */}
+      <GlassCard className="p-4">
+        <h4 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+          <span className="text-lg">💰</span> Cost Summary
+        </h4>
+        <div className="flex gap-6">
+          <div>
+            <div className="text-2xl font-bold text-emerald-400">€{totals.eur.toFixed(2)}</div>
+            <div className="text-[10px] text-slate-500 uppercase tracking-wider">EUR</div>
+          </div>
+          {totals.chf > 0 && (
+            <div>
+              <div className="text-2xl font-bold text-cyan-400">CHF {totals.chf.toFixed(2)}</div>
+              <div className="text-[10px] text-slate-500 uppercase tracking-wider">CHF</div>
+            </div>
+          )}
+        </div>
+      </GlassCard>
+
+      {/* Arrival Booking */}
+      {arrivalBooking && (
+        <div>
+          <div className="text-xs text-slate-500 uppercase tracking-wider mb-2 px-1">Arrival</div>
+          <BookingCard booking={arrivalBooking} getFileUrl={getFileUrl} />
+        </div>
+      )}
+
+      {/* Stage Bookings */}
+      {stageBookings.length > 0 && (
+        <div>
+          <div className="text-xs text-slate-500 uppercase tracking-wider mb-2 px-1">Stages (Days 1–{stageBookings.length})</div>
+          <div className="space-y-2">
+            {stageBookings.map((b) => (
+              <BookingCard key={b.id} booking={b} getFileUrl={getFileUrl} />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function App() {
   const { token: urlToken, section: urlSection } = useParams();
   const section = urlSection || 'trail';
   const navigate = useNavigate();
-  const { trip, loading: tripLoading, error: tripError, syncing, connected, updateTrip, createTrip, shareToken: tripShareToken } = useTrip(urlToken);
+  const { trip, jwt, loading: tripLoading, error: tripError, syncing, connected, updateTrip, createTrip, shareToken: tripShareToken } = useTrip(urlToken);
+  const { bookings, bookingsByDayIndex, arrivalBooking, totals: bookingTotals, gaps: bookingGaps, getFileUrl, loading: bookingsLoading } = useBookings(trip?.id, jwt);
 
   const [scenarios, setScenarios] = useState(DEFAULT_DATA.scenarios);
   const [activeScenarioId, setActiveScenarioId] = useState(DEFAULT_DATA.activeScenarioId);
@@ -2997,6 +3259,32 @@ export default function App() {
               </div>
             </GlassCard>
 
+            {/* Pre-trip arrival card */}
+            {arrivalBooking && (
+              <GlassCard className="p-4 mb-4 border-l-4 border-l-amber-500/60">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shrink-0 shadow-lg">
+                    <Bed className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm font-semibold text-white">{arrivalBooking.place_name}</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">Pre-hike</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-slate-300 border border-white/10">{arrivalBooking.type}</span>
+                    </div>
+                    <div className="text-xs text-slate-400 mt-1">
+                      {arrivalBooking.check_in} → {arrivalBooking.check_out}
+                    </div>
+                    {arrivalBooking.cost && (
+                      <div className="text-xs text-emerald-400 mt-0.5">
+                        {arrivalBooking.currency === 'CHF' ? 'CHF' : '€'}{Number(arrivalBooking.cost).toFixed(2)}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </GlassCard>
+            )}
+
             <div className="space-y-3 mb-6">
               {dayData.map((day, idx) => (
                 <ExpandableDayCard
@@ -3010,6 +3298,7 @@ export default function App() {
                   selectedShortcuts={selectedShortcuts}
                   onShortcutToggle={handleShortcutToggle}
                   useImperial={useImperial}
+                  booking={bookingsByDayIndex?.get(idx + 1)}
                 />
               ))}
             </div>
@@ -3417,16 +3706,26 @@ export default function App() {
               ))}
             </GlassCard>
 
-            {/* Logistics placeholder content */}
-            <GlassCard className="p-8 sm:p-12 text-center">
-              <div className="text-4xl mb-4">
-                {logisticsView === 'bookings' ? '📋' : logisticsView === 'packing' ? '✅' : logisticsView === 'transport' ? '🚌' : '📄'}
-              </div>
-              <h3 className="text-lg font-semibold text-white mb-2">
-                {logisticsView === 'bookings' ? 'Bookings' : logisticsView === 'packing' ? 'Packing' : logisticsView === 'transport' ? 'Transport' : 'Documents & Safety'}
-              </h3>
-              <p className="text-slate-400 text-sm">Coming soon — this section is under construction.</p>
-            </GlassCard>
+            {logisticsView === 'bookings' ? (
+              <BookingsPanel
+                bookings={bookings}
+                arrivalBooking={arrivalBooking}
+                totals={bookingTotals}
+                gaps={bookingGaps}
+                getFileUrl={getFileUrl}
+                loading={bookingsLoading}
+              />
+            ) : (
+              <GlassCard className="p-8 sm:p-12 text-center">
+                <div className="text-4xl mb-4">
+                  {logisticsView === 'packing' ? '✅' : logisticsView === 'transport' ? '🚌' : '📄'}
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-2">
+                  {logisticsView === 'packing' ? 'Packing' : logisticsView === 'transport' ? 'Transport' : 'Documents & Safety'}
+                </h3>
+                <p className="text-slate-400 text-sm">Coming soon — this section is under construction.</p>
+              </GlassCard>
+            )}
           </>
         )}
       </div>
