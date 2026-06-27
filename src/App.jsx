@@ -685,6 +685,35 @@ const EndpointDropdown = ({ value, options, onChange, formatTime }) => {
   );
 };
 
+// Mini elevation profile generated from real waypoint altitudes
+const ElevationMiniProfile = ({ dayIndex, activeScenario, color }) => {
+  const prevEnd = dayIndex === 0 ? 0 : activeScenario.days[dayIndex - 1];
+  const dayWaypoints = WAYPOINTS.slice(prevEnd, activeScenario.days[dayIndex] + 1);
+  if (dayWaypoints.length < 2) return null;
+
+  const alts = dayWaypoints.map(w => w.altitude);
+  const minA = Math.min(...alts);
+  const maxA = Math.max(...alts);
+  const range = maxA - minA || 1;
+  const w = 150, h = 40, pad = 4;
+
+  const points = dayWaypoints.map((wp, i) => {
+    const x = (i / (dayWaypoints.length - 1)) * w;
+    const y = h - pad - ((wp.altitude - minA) / range) * (h - pad * 2);
+    return `${x},${y}`;
+  });
+
+  const fillColor = `${color.main}25`;
+  const strokeColor = color.main;
+
+  return (
+    <svg width="150" height="40" viewBox={`0 0 ${w} ${h}`} className="flex-shrink-0 hidden sm:block">
+      <path d={`M${points.join(' L')} L${w},${h} L0,${h} Z`} fill={fillColor} />
+      <path d={`M${points.join(' L')}`} fill="none" stroke={strokeColor} strokeWidth="2" />
+    </svg>
+  );
+};
+
 const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, removeDay, selectedShortcuts, onShortcutToggle, useImperial, booking }) => {
   const [expanded, setExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState('segments');
@@ -801,41 +830,13 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
   };
 
   return (
-    <GlassCard className="p-3 sm:p-4 group" hover>
-      {/* Mobile layout: stacked rows */}
-      <div className="md:hidden space-y-3" onClick={() => setExpanded(!expanded)}>
-        {/* Row 1: Day badge + Date + Expand/Delete */}
-        <div className="flex items-center gap-3">
-          <div
-            className={`w-11 h-11 rounded-full flex flex-col items-center justify-center shrink-0 ${color.gradient} shadow-lg border-3 border-tmb-cream`}
-            style={{ boxShadow: `0 4px 12px -3px rgba(0,0,0,.4)` }}
-          >
-            <span className="text-[7px] font-display uppercase tracking-[.1em] text-white/85">Day</span>
-            <span className="text-base font-poster text-white leading-none">{day.day}</span>
-          </div>
-          <div className="flex-1">
-            <div className="text-xs text-tmb-muted">{formatDate(day.date)}</div>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="text-tmb-muted">
-              {expanded ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
-            </div>
-            <button
-              onClick={(e) => { e.stopPropagation(); removeDay(dayIndex); }}
-              className="w-10 h-10 min-h-[44px] min-w-[44px] rounded-full text-tmb-muted hover:text-tmb-rust hover:bg-rose-500/10 transition-all flex items-center justify-center text-xl"
-            >
-              ×
-            </button>
-          </div>
-        </div>
-
-        {/* Row 2: Start → End */}
-        <div className="flex items-center gap-2 pl-1">
-          <span className="font-medium text-tmb-ink text-sm truncate max-w-[120px]">{day.startWp.name}</span>
-          <svg className="w-4 h-4 text-tmb-muted/70 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-          </svg>
-          <div className="flex-1" onClick={(e) => e.stopPropagation()}>
+    <GlassCard className="overflow-hidden group" hover>
+      {/* Card header: route + date */}
+      <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-2.5 border-b border-tmb-line2 cursor-pointer" onClick={() => setExpanded(!expanded)}>
+        <div className="flex items-center gap-2 flex-wrap min-w-0">
+          <span className="font-display uppercase tracking-[.02em] font-semibold text-base sm:text-lg text-tmb-ink truncate">{day.startWp.name}</span>
+          <span className="text-tmb-clay font-display">→</span>
+          <div onClick={(e) => e.stopPropagation()} className="min-w-0">
             <EndpointDropdown
               value={activeScenario.days[dayIndex]}
               options={availableWaypoints.map(wp => ({
@@ -849,243 +850,75 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
             />
           </div>
         </div>
-
-        {/* Row 3: Stats */}
-        {(() => {
-          const hasAnyShortcut = daySavings.timeSaved > 0 || daySavings.distanceSaved > 0 || daySavings.ascentSaved > 0 || daySavings.descentSaved > 0;
-          return (
-            <div className="flex items-center justify-between px-1 py-2 bg-tmb-cream/60 rounded-lg">
-              <div className="text-center flex-1">
-                {hasAnyShortcut ? (
-                  <>
-                    {daySavings.distanceSaved > 0 ? (
-                      <div className="text-tmb-muted text-[10px]">{formatDistanceValue(day.distance, useImperial)}</div>
-                    ) : (
-                      <div className="text-[10px] invisible">-</div>
-                    )}
-                    <div className="font-semibold text-tmb-ink text-sm">{formatDistanceValue(adjustedDistance, useImperial)}</div>
-                  </>
-                ) : (
-                  <div className="font-semibold text-tmb-ink text-sm">{formatDistanceValue(day.distance, useImperial)}</div>
-                )}
-                <div className="text-[10px] text-tmb-muted">{getDistanceUnit(useImperial)}</div>
-              </div>
-              <div className="text-center flex-1 border-l border-tmb-line2">
-                {hasAnyShortcut ? (
-                  <>
-                    {daySavings.ascentSaved > 0 ? (
-                      <div className="text-tmb-muted text-[10px]">↑{formatElevationValue(day.ascent, useImperial)}</div>
-                    ) : (
-                      <div className="text-[10px] invisible">-</div>
-                    )}
-                    <div className="font-semibold text-tmb-moss text-sm">↑{formatElevationValue(adjustedAscent, useImperial)}</div>
-                  </>
-                ) : (
-                  <div className="font-semibold text-tmb-moss text-sm">↑{formatElevationValue(day.ascent, useImperial)}</div>
-                )}
-                <div className="text-[10px] text-tmb-muted">{getElevationUnit(useImperial)}</div>
-              </div>
-              <div className="text-center flex-1 border-l border-tmb-line2">
-                {hasAnyShortcut ? (
-                  <>
-                    {daySavings.descentSaved > 0 ? (
-                      <div className="text-tmb-muted text-[10px]">↓{formatElevationValue(day.descent, useImperial)}</div>
-                    ) : (
-                      <div className="text-[10px] invisible">-</div>
-                    )}
-                    <div className="font-semibold text-tmb-rust text-sm">↓{formatElevationValue(adjustedDescent, useImperial)}</div>
-                  </>
-                ) : (
-                  <div className="font-semibold text-tmb-rust text-sm">↓{formatElevationValue(day.descent, useImperial)}</div>
-                )}
-                <div className="text-[10px] text-tmb-muted">{getElevationUnit(useImperial)}</div>
-              </div>
-              <div className="text-center flex-1 border-l border-tmb-line2">
-                {hasAnyShortcut ? (
-                  <>
-                    {daySavings.timeSaved > 0 ? (
-                      <div className="text-tmb-muted text-[10px]">{formatTime(day.time)}</div>
-                    ) : (
-                      <div className="text-[10px] invisible">-</div>
-                    )}
-                    <div className="font-semibold text-tmb-ink text-sm">{formatTime(adjustedTime)}</div>
-                  </>
-                ) : (
-                  <div className="font-semibold text-tmb-ink text-sm">{formatTime(day.time)}</div>
-                )}
-                <div className="text-[10px] text-tmb-muted">hike</div>
-              </div>
-            </div>
-          );
-        })()}
-      </div>
-
-      {/* Desktop layout: horizontal grid */}
-      <div
-        className="hidden md:grid items-center gap-3 cursor-pointer"
-        style={{ gridTemplateColumns: '3rem 5.5rem 9rem 1.5rem 14rem 3.5rem 4rem 4rem 4.5rem auto' }}
-        onClick={() => setExpanded(!expanded)}
-      >
-        {/* Column 1: Day badge */}
-        <div
-          className={`w-12 h-12 rounded-full flex flex-col items-center justify-center shrink-0 ${color.gradient} shadow-lg border-3 border-tmb-cream`}
-          style={{ boxShadow: `0 4px 12px -3px rgba(0,0,0,.4)` }}
-        >
-          <span className="text-[8px] font-display uppercase tracking-[.1em] text-white/85">Day</span>
-          <span className="text-xl font-poster text-white leading-none">{day.day}</span>
-        </div>
-
-        {/* Column 2: Date */}
-        <div className="text-xs text-tmb-muted">{formatDate(day.date)}</div>
-
-        {/* Column 3: Start location (fixed width) */}
-        <div className="flex items-center">
-          <span className="font-medium text-tmb-ink truncate">{day.startWp.name}</span>
-        </div>
-
-        {/* Arrow between start and end */}
-        <div className="flex items-center justify-center">
-          <svg className="w-4 h-4 text-tmb-muted/70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-          </svg>
-        </div>
-
-        {/* Column 4: End dropdown (fixed width) */}
-        <EndpointDropdown
-          value={activeScenario.days[dayIndex]}
-          options={availableWaypoints.map(wp => ({
-            id: wp.id,
-            name: wp.name,
-            dist: (wp.cumDist - WAYPOINTS[prevEnd].cumDist).toFixed(1),
-            time: wp.cumTime - WAYPOINTS[prevEnd].cumTime
-          }))}
-          onChange={(newValue) => updateDay(dayIndex, newValue)}
-          formatTime={formatTime}
-        />
-
-        {/* Columns 5-8: Stats with aligned heights */}
-        {(() => {
-          const hasAnyShortcut = daySavings.timeSaved > 0 || daySavings.distanceSaved > 0 || daySavings.ascentSaved > 0 || daySavings.descentSaved > 0;
-          return (
-            <>
-              {/* Column 5: Distance */}
-              <div className="text-center">
-                {hasAnyShortcut ? (
-                  <>
-                    {daySavings.distanceSaved > 0 ? (
-                      <div className="text-tmb-muted text-[10px]">{formatDistanceValue(day.distance, useImperial)}</div>
-                    ) : (
-                      <div className="text-[10px] invisible">-</div>
-                    )}
-                    <div className="font-semibold text-tmb-ink text-sm">{formatDistanceValue(adjustedDistance, useImperial)}</div>
-                  </>
-                ) : (
-                  <div className="font-semibold text-tmb-ink text-sm">{formatDistanceValue(day.distance, useImperial)}</div>
-                )}
-                <div className="text-[10px] text-tmb-muted">{getDistanceUnit(useImperial)}</div>
-              </div>
-
-              {/* Column 6: Elevation up */}
-              <div className="text-center">
-                {hasAnyShortcut ? (
-                  <>
-                    {daySavings.ascentSaved > 0 ? (
-                      <div className="text-tmb-muted text-[10px]">↑{formatElevationValue(day.ascent, useImperial)}</div>
-                    ) : (
-                      <div className="text-[10px] invisible">-</div>
-                    )}
-                    <div className="font-semibold text-tmb-moss text-sm">↑{formatElevationValue(adjustedAscent, useImperial)}</div>
-                  </>
-                ) : (
-                  <div className="font-semibold text-tmb-moss text-sm">↑{formatElevationValue(day.ascent, useImperial)}</div>
-                )}
-                <div className="text-[10px] text-tmb-muted">{getElevationUnit(useImperial)}</div>
-              </div>
-
-              {/* Column 7: Elevation down */}
-              <div className="text-center">
-                {hasAnyShortcut ? (
-                  <>
-                    {daySavings.descentSaved > 0 ? (
-                      <div className="text-tmb-muted text-[10px]">↓{formatElevationValue(day.descent, useImperial)}</div>
-                    ) : (
-                      <div className="text-[10px] invisible">-</div>
-                    )}
-                    <div className="font-semibold text-tmb-rust text-sm">↓{formatElevationValue(adjustedDescent, useImperial)}</div>
-                  </>
-                ) : (
-                  <div className="font-semibold text-tmb-rust text-sm">↓{formatElevationValue(day.descent, useImperial)}</div>
-                )}
-                <div className="text-[10px] text-tmb-muted">{getElevationUnit(useImperial)}</div>
-              </div>
-
-              {/* Column 8: Time */}
-              <div className="text-center">
-                {hasAnyShortcut ? (
-                  <>
-                    {daySavings.timeSaved > 0 ? (
-                      <div className="text-tmb-muted text-[10px]">{formatTime(day.time)}</div>
-                    ) : (
-                      <div className="text-[10px] invisible">-</div>
-                    )}
-                    <div className="font-semibold text-tmb-ink text-sm">{formatTime(adjustedTime)}</div>
-                  </>
-                ) : (
-                  <div className="font-semibold text-tmb-ink text-sm">{formatTime(day.time)}</div>
-                )}
-                <div className="text-[10px] text-tmb-muted">hike</div>
-              </div>
-            </>
-          );
-        })()}
-
-        {/* Column 9: Expand arrow + delete */}
-        <div className="flex items-center gap-1 justify-end">
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="font-display tracking-[.13em] uppercase text-[10.5px] text-tmb-muted whitespace-nowrap">{formatDate(day.date)}</span>
           <div className="text-tmb-muted">
-            {expanded ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+            {expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
           </div>
           <button
             onClick={(e) => { e.stopPropagation(); removeDay(dayIndex); }}
-            className="w-8 h-8 min-h-[44px] min-w-[44px] rounded-full text-tmb-muted/70 hover:text-tmb-rust hover:bg-rose-500/10 transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center"
+            className="w-8 h-8 min-h-[44px] min-w-[44px] rounded-full text-tmb-muted/50 hover:text-tmb-rust transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center"
           >
             ×
           </button>
         </div>
       </div>
 
-      {/* Stay block — always visible when booking exists */}
-      {booking && (() => {
+      {/* Card body: stat chips + elevation profile + refuge tag */}
+      <div className="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-2.5 flex-wrap">
+        {/* Stat chips */}
+        <div className="flex flex-1 gap-0">
+          {[
+            { label: 'Dist', value: formatDistanceValue(daySavings.distanceSaved > 0 ? adjustedDistance : day.distance, useImperial) + ' ' + getDistanceUnit(useImperial), cls: '' },
+            { label: 'Ascent', value: `↑ ${formatElevationValue(daySavings.ascentSaved > 0 ? adjustedAscent : day.ascent, useImperial)}`, cls: 'text-tmb-moss' },
+            { label: 'Descent', value: `↓ ${formatElevationValue(daySavings.descentSaved > 0 ? adjustedDescent : day.descent, useImperial)}`, cls: 'text-tmb-rust' },
+            { label: 'Time', value: formatTime(daySavings.timeSaved > 0 ? adjustedTime : day.time), cls: '' },
+          ].map((s, i) => (
+            <div key={i} className={`px-2 sm:px-4 ${i < 3 ? 'border-r border-tmb-line2' : ''} ${i === 0 ? 'pl-0' : ''}`}>
+              <div className="font-display uppercase tracking-[.1em] text-[9px] text-tmb-muted">{s.label}</div>
+              <div className={`font-display font-semibold text-base sm:text-lg mt-0.5 ${s.cls || 'text-tmb-ink'}`}>{s.value}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Mini elevation profile */}
+        <ElevationMiniProfile dayIndex={dayIndex} activeScenario={activeScenario} color={color} />
+
+        {/* Refuge/stay tag */}
+        {booking && (
+          <div className="flex items-center gap-2 bg-[#f1e7cf] border border-tmb-line rounded-[9px] px-2.5 py-1.5 shrink-0">
+            <div className="w-6 h-6 rounded-md bg-tmb-forest text-[#f3e7c9] flex items-center justify-center text-sm">▲</div>
+            <div>
+              <div className="font-display uppercase tracking-[.05em] text-[8px] text-tmb-muted">Night</div>
+              <div className="font-semibold text-xs text-tmb-pine leading-tight">{booking.place_name}</div>
+            </div>
+            {booking.status && (
+              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-tmb-moss/20 text-tmb-moss border border-tmb-moss/30 font-display uppercase">{booking.status}</span>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Important booking notes */}
+
+      {/* Booking notes alerts */}
+      {booking && booking.notes && (() => {
         const importantNotes = [];
-        const notes = booking.notes || '';
+        const notes = booking.notes;
         if (/navette/i.test(notes)) importantNotes.push(notes.match(/\d{2}:\d{2}\s+navette[^.;]*/i)?.[0] || 'Navette required');
         if (/sleeping.?bag\s+liner/i.test(notes)) importantNotes.push(notes.match(/sleeping.?bag\s+liner[^.;]*/i)?.[0] || 'Sleeping-bag liner required');
         if (/pay\s+in\s+CHF/i.test(notes)) importantNotes.push('Pay in CHF');
         if (/meal\s+\d{2}:\d{2}/i.test(notes)) importantNotes.push(notes.match(/meal\s+\d{2}:\d{2}[^.;]*/i)?.[0] || 'Fixed meal time');
         if (/receipt\s+missing|⚠️/i.test(notes)) importantNotes.push('Receipt missing — verify reservation');
+        if (importantNotes.length === 0) return null;
         return (
-          <div className="mt-2 px-3 py-2 rounded-lg bg-tmb-cream/60 border border-tmb-line2">
-            <div className="flex items-center gap-2 flex-wrap">
-              <Home className="w-3.5 h-3.5 text-tmb-amber shrink-0" />
-              <span className="text-xs font-medium text-tmb-ink">{booking.place_name}</span>
-              {booking.type && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/10 text-tmb-muted">{booking.type}</span>}
-              {booking.status && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-tmb-moss border border-emerald-500/20">{booking.status}</span>}
-              <span className="text-[10px] text-tmb-muted ml-auto">{booking.check_in} → {booking.check_out}</span>
-              {booking.cost && (
-                <span className="text-[10px] font-medium text-tmb-moss">
-                  {booking.currency === 'CHF' ? 'CHF ' : '€'}{Number(booking.cost).toFixed(2)}
-                </span>
-              )}
-            </div>
-            {importantNotes.length > 0 && (
-              <div className="mt-1.5 space-y-1">
-                {importantNotes.map((note, i) => (
-                  <div key={i} className="flex items-center gap-1.5 text-[11px] text-amber-300">
-                    <AlertTriangle className="w-3 h-3 shrink-0" />
-                    <span>{note}</span>
-                  </div>
-                ))}
+          <div className="px-3 sm:px-4 pb-2">
+            {importantNotes.map((note, i) => (
+              <div key={i} className="flex items-center gap-1.5 text-[11px] text-tmb-amber">
+                <AlertTriangle className="w-3 h-3 shrink-0" />
+                <span>{note}</span>
               </div>
-            )}
+            ))}
           </div>
         );
       })()}
@@ -1295,74 +1128,7 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
             </div>
           )}
 
-          {/* Mobile stats */}
-          {(() => {
-            const hasAnyShortcut = daySavings.timeSaved > 0 || daySavings.distanceSaved > 0 || daySavings.ascentSaved > 0 || daySavings.descentSaved > 0;
-            return (
-              <div className="sm:hidden grid grid-cols-4 gap-2 mt-4 pt-4 border-t border-tmb-line2">
-                <div className="text-center">
-                  {hasAnyShortcut ? (
-                    <>
-                      {daySavings.distanceSaved > 0 ? (
-                        <div className="text-tmb-muted text-[10px]">{day.distance}</div>
-                      ) : (
-                        <div className="text-[10px] invisible">-</div>
-                      )}
-                      <div className="font-semibold text-tmb-ink">{adjustedDistance.toFixed(1)}</div>
-                    </>
-                  ) : (
-                    <div className="font-semibold text-tmb-ink">{day.distance}</div>
-                  )}
-                  <div className="text-xs text-tmb-muted">{getDistanceUnit(useImperial)}</div>
-                </div>
-                <div className="text-center">
-                  {hasAnyShortcut ? (
-                    <>
-                      {daySavings.ascentSaved > 0 ? (
-                        <div className="text-tmb-muted text-[10px]">↑{day.ascent}</div>
-                      ) : (
-                        <div className="text-[10px] invisible">-</div>
-                      )}
-                      <div className="font-semibold text-tmb-moss">↑{adjustedAscent}</div>
-                    </>
-                  ) : (
-                    <div className="font-semibold text-tmb-moss">↑{day.ascent}</div>
-                  )}
-                  <div className="text-xs text-tmb-muted">{getElevationUnit(useImperial)}</div>
-                </div>
-                <div className="text-center">
-                  {hasAnyShortcut ? (
-                    <>
-                      {daySavings.descentSaved > 0 ? (
-                        <div className="text-tmb-muted text-[10px]">↓{day.descent}</div>
-                      ) : (
-                        <div className="text-[10px] invisible">-</div>
-                      )}
-                      <div className="font-semibold text-tmb-rust">↓{adjustedDescent}</div>
-                    </>
-                  ) : (
-                    <div className="font-semibold text-tmb-rust">↓{day.descent}</div>
-                  )}
-                  <div className="text-xs text-tmb-muted">{getElevationUnit(useImperial)}</div>
-                </div>
-                <div className="text-center">
-                  {hasAnyShortcut ? (
-                    <>
-                      {daySavings.timeSaved > 0 ? (
-                        <div className="text-tmb-muted text-[10px]">{formatTime(day.time)}</div>
-                      ) : (
-                        <div className="text-[10px] invisible">-</div>
-                      )}
-                      <div className="font-semibold text-tmb-ink">{formatTime(adjustedTime)}</div>
-                    </>
-                  ) : (
-                    <div className="font-semibold text-tmb-ink">{formatTime(day.time)}</div>
-                  )}
-                  <div className="text-xs text-tmb-muted">hike</div>
-                </div>
-              </div>
-            );
-          })()}
+          {/* Stats are shown in the card body above */}
         </div>
       )}
     </GlassCard>
@@ -3402,22 +3168,46 @@ export default function App() {
               </GlassCard>
             )}
 
-            <div className="space-y-3 mb-6">
-              {dayData.map((day, idx) => (
-                <ExpandableDayCard
-                  key={idx}
-                  day={day}
-                  dayIndex={idx}
-                  color={DAY_COLORS[idx % DAY_COLORS.length]}
-                  activeScenario={activeScenario}
-                  updateDay={updateDay}
-                  removeDay={(dayIndex) => setDeleteConfirmDay(dayIndex)}
-                  selectedShortcuts={selectedShortcuts}
-                  onShortcutToggle={handleShortcutToggle}
-                  useImperial={useImperial}
-                  booking={bookingsByDayIndex?.get(idx + 1)}
-                />
-              ))}
+            {/* Trail line itinerary */}
+            <div className="relative pl-8 sm:pl-10 mb-6" style={{ paddingTop: '8px' }}>
+              {/* Dashed trail line */}
+              <div className="absolute left-[17px] sm:left-[21px] top-6 bottom-6 w-[3px]" style={{ background: 'repeating-linear-gradient(#bf6334 0 7px, transparent 7px 14px)' }} />
+
+              {/* Section header */}
+              <div className="flex items-center gap-2 mb-3 font-display uppercase tracking-[.16em] text-[11px] text-tmb-rust">
+                <span className="h-[2px] w-6 bg-tmb-rust" />On the trail
+              </div>
+
+              <div className="space-y-4">
+                {dayData.map((day, idx) => (
+                  <div key={idx} className="relative">
+                    {/* Day medallion on the trail line */}
+                    <div
+                      className={`absolute -left-8 sm:-left-10 top-4 w-[46px] h-[46px] rounded-full flex flex-col items-center justify-center border-[3px] border-tmb-cream z-10 ${DAY_COLORS[idx % DAY_COLORS.length].gradient}`}
+                      style={{ boxShadow: '0 4px 12px -3px rgba(0,0,0,.4)' }}
+                    >
+                      <span className="text-[8px] font-display uppercase tracking-[.1em] text-white/85 -mt-px">Day</span>
+                      <span className="text-xl font-poster text-white leading-none">{day.day}</span>
+                    </div>
+
+                    {/* Card offset from medallion */}
+                    <div className="ml-6 sm:ml-8">
+                      <ExpandableDayCard
+                        day={day}
+                        dayIndex={idx}
+                        color={DAY_COLORS[idx % DAY_COLORS.length]}
+                        activeScenario={activeScenario}
+                        updateDay={updateDay}
+                        removeDay={(dayIndex) => setDeleteConfirmDay(dayIndex)}
+                        selectedShortcuts={selectedShortcuts}
+                        onShortcutToggle={handleShortcutToggle}
+                        useImperial={useImperial}
+                        booking={bookingsByDayIndex?.get(idx + 1)}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
