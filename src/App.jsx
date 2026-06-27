@@ -4,6 +4,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { segmentData } from './segmentData';
 import { useTrip } from './lib/useTrip';
 import { useBookings } from './lib/useBookings';
+import { useGearItems } from './lib/useGearItems';
+import { useTransportLegs } from './lib/useTransportLegs';
+import { useSafetyContacts } from './lib/useSafetyContacts';
+import PackingTab from './components/PackingTab';
+import TransportTab from './components/TransportTab';
+import DocumentsSafetyTab from './components/DocumentsSafetyTab';
 import {
   formatTime, formatDistanceValue, formatElevationValue,
   getDistanceUnit, getElevationUnit,
@@ -2412,6 +2418,14 @@ const BookingCard = ({ booking, getFileUrl }) => {
                 </a>
               </>
             )}
+            {booking.booking_url && (
+              <>
+                <span className="text-slate-500">Booking</span>
+                <a href={booking.booking_url} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 flex items-center gap-1">
+                  <ExternalLink className="w-3 h-3" />View booking
+                </a>
+              </>
+            )}
             {booking.location && (
               <>
                 <span className="text-slate-500">Address</span>
@@ -2556,6 +2570,9 @@ export default function App() {
   const navigate = useNavigate();
   const { trip, jwt, loading: tripLoading, error: tripError, syncing, connected, updateTrip, createTrip, shareToken: tripShareToken } = useTrip(urlToken);
   const { bookings, bookingsByDayIndex, arrivalBooking, totals: bookingTotals, gaps: bookingGaps, getFileUrl, loading: bookingsLoading } = useBookings(trip?.id, jwt);
+  const { items: gearItems, loading: gearLoading, error: gearError, togglePacked, updateItem: updateGearItem } = useGearItems(trip?.id, jwt);
+  const { legs: transportLegs, legsByDay, loading: transportLoading, error: transportError, createLeg, updateLeg, deleteLeg } = useTransportLegs(trip?.id, jwt);
+  const { contacts: safetyContacts, loading: contactsLoading, error: contactsError, createContact, updateContact, deleteContact } = useSafetyContacts(trip?.id, jwt);
 
   const [scenarios, setScenarios] = useState(DEFAULT_DATA.scenarios);
   const [activeScenarioId, setActiveScenarioId] = useState(DEFAULT_DATA.activeScenarioId);
@@ -2947,8 +2964,11 @@ export default function App() {
             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center text-lg sm:text-xl">⛰️</div>
             <h1 className="text-xl sm:text-3xl font-light tracking-tight">Tour du Mont Blanc</h1>
           </div>
-          <div className="flex items-center gap-2 ml-10 sm:ml-13">
+          <div className="flex items-center gap-2 flex-wrap ml-10 sm:ml-13">
             <p className="text-slate-400 text-xs sm:text-sm">Plan your journey around the roof of Europe</p>
+            <a href="https://www.autourdumontblanc.com/en/information/trails-conditions" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors">
+              <Route className="w-3 h-3" />Trail Conditions
+            </a>
             {trip?.id && (
               <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full" title={connected ? 'Live sync active' : syncing ? 'Saving...' : 'Offline'}>
                 {syncing ? (
@@ -3715,16 +3735,37 @@ export default function App() {
                 getFileUrl={getFileUrl}
                 loading={bookingsLoading}
               />
+            ) : logisticsView === 'packing' ? (
+              <PackingTab
+                items={gearItems}
+                loading={gearLoading}
+                error={gearError}
+                onTogglePacked={togglePacked}
+                onUpdateItem={updateGearItem}
+              />
+            ) : logisticsView === 'transport' ? (
+              <TransportTab
+                legs={transportLegs}
+                legsByDay={legsByDay}
+                loading={transportLoading}
+                error={transportError}
+                tripId={trip?.id}
+                onCreateLeg={createLeg}
+                onUpdateLeg={updateLeg}
+                onDeleteLeg={deleteLeg}
+              />
             ) : (
-              <GlassCard className="p-8 sm:p-12 text-center">
-                <div className="text-4xl mb-4">
-                  {logisticsView === 'packing' ? '✅' : logisticsView === 'transport' ? '🚌' : '📄'}
-                </div>
-                <h3 className="text-lg font-semibold text-white mb-2">
-                  {logisticsView === 'packing' ? 'Packing' : logisticsView === 'transport' ? 'Transport' : 'Documents & Safety'}
-                </h3>
-                <p className="text-slate-400 text-sm">Coming soon — this section is under construction.</p>
-              </GlassCard>
+              <DocumentsSafetyTab
+                bookings={bookings}
+                contacts={safetyContacts}
+                getFileUrl={getFileUrl}
+                contactsLoading={contactsLoading}
+                contactsError={contactsError}
+                tripId={trip?.id}
+                onCreateContact={createContact}
+                onUpdateContact={updateContact}
+                onDeleteContact={deleteContact}
+              />
             )}
           </>
         )}
