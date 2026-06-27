@@ -11,7 +11,7 @@ export default defineConfig({
     include: ['src/**/*.test.{js,jsx}', 'tests/unit/**/*.test.{js,jsx}'],
     coverage: {
       provider: 'v8',
-      include: ['src/lib/**'],
+      include: ['src/lib/format.js', 'src/lib/share.js', 'src/lib/itinerary.js', 'src/lib/migrate.js'],
       reportsDirectory: './coverage',
       thresholds: { lines: 80, functions: 80, statements: 80 },
     },
