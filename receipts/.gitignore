@@ -1,0 +1,4 @@
+# Personal booking documents — local staging for upload to Supabase Storage.
+# Do not commit personal data to git.
+*
+!.gitignore

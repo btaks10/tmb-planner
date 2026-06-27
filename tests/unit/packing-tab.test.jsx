@@ -70,7 +70,7 @@ describe('PackingTab', () => {
 
   it('renders filter pills', () => {
     renderTab()
-    expect(screen.getByText('All')).toBeInTheDocument()
+    expect(screen.getAllByText('All').length).toBeGreaterThanOrEqual(1)
     // "Need to Buy" appears as filter pill AND status pill
     const needToBuyElements = screen.getAllByText(/Need to Buy/)
     expect(needToBuyElements.length).toBeGreaterThanOrEqual(1)
@@ -164,13 +164,13 @@ describe('PackingTab', () => {
     // Click on "Hiking boots" to expand
     await user.click(screen.getByText('Hiking boots'))
 
-    // Should have a status dropdown
-    const select = screen.getByRole('combobox')
-    expect(select).toBeInTheDocument()
-    expect(select.value).toBe('Bought')
+    // Should have status and traveler dropdowns
+    const selects = screen.getAllByRole('combobox')
+    const statusSelect = selects.find(s => s.value === 'Bought')
+    expect(statusSelect).toBeInTheDocument()
 
     // Change status
-    await user.selectOptions(select, 'Packed')
+    await user.selectOptions(statusSelect, 'Packed')
     expect(props.onUpdateItem).toHaveBeenCalledWith('g1', { status: 'Packed' })
   })
 

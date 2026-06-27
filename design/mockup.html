@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TMB Planner — Design Concept v2 (Alpine Poster)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@500;600;700&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#f6eedd; --paper:#fffaef; --kraft:#e9d8b4; --ink:#2a2720; --muted:#7a6e52;
+    --pine:#1c3a2a; --forest:#2e5039; --moss:#6b8c54; --gold:#e3a93c; --amber:#cf7d2c;
+    --rust:#a83f24; --clay:#bf6334; --line:#dcc699; --line2:#ece0c2;
+    --disp:'Oswald',system-ui,sans-serif; --poster:'Anton',Impact,sans-serif; --body:'Archivo',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#b9a87f;font-family:var(--body);color:var(--ink);line-height:1.5;padding:26px 14px}
+  .wrap{max-width:1080px;margin:0 auto}
+  .caption{font-family:var(--disp);text-transform:uppercase;letter-spacing:.18em;font-size:11px;color:#594b2c;text-align:center;margin:6px 0 18px}
+  .sheet{background:var(--cream);border:1px solid #c2a877;border-radius:16px;overflow:hidden;box-shadow:0 26px 60px -28px rgba(0,0,0,.6)}
+  /* HERO */
+  .hero{position:relative;height:300px;overflow:hidden}
+  .hero svg{position:absolute;inset:0;width:100%;height:100%}
+  .hero .grain{position:absolute;inset:0;opacity:.07;mix-blend-mode:multiply;
+    background-image:radial-gradient(rgba(0,0,0,.5) .5px,transparent .6px);background-size:3px 3px}
+  .hero .cap{position:absolute;left:34px;bottom:26px;color:#fff7e6;text-shadow:0 2px 10px rgba(0,0,0,.45)}
+  .hero .kick{font-family:var(--disp);text-transform:uppercase;letter-spacing:.34em;font-size:12px;color:#f3dca6}
+  .hero h1{font-family:var(--poster);text-transform:uppercase;font-size:76px;line-height:.84;letter-spacing:.01em;margin:6px 0 0}
+  .hero h1 .sm{display:block;font-size:30px;letter-spacing:.06em;color:#f1c878}
+  .hero .sub{font-family:var(--disp);letter-spacing:.16em;text-transform:uppercase;font-size:13px;margin-top:10px;color:#f6e7c4}
+  .badge{position:absolute;right:30px;top:26px;width:118px;height:118px;border-radius:50%;
+    background:rgba(28,58,42,.55);border:2px solid var(--gold);backdrop-filter:blur(2px);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--gold);
+    transform:rotate(7deg);text-align:center;font-family:var(--disp);text-transform:uppercase}
+  .badge b{font-family:var(--poster);font-size:30px;line-height:.9;color:#f3d27e}
+  .badge span{font-size:9.5px;letter-spacing:.2em;margin-top:3px;color:#ecd49a}
+  .badge .ring{position:absolute;inset:8px;border:1px dashed var(--gold);border-radius:50%;opacity:.55}
+  /* metric ribbon */
+  .ribbon{display:grid;grid-template-columns:repeat(4,1fr);background:var(--pine);color:#f4ead2}
+  .met{padding:13px 10px;text-align:center;border-right:1px solid rgba(255,255,255,.1)}
+  .met:last-child{border:0}
+  .met b{font-family:var(--poster);font-size:26px;color:#fff;display:block;line-height:1}
+  .met span{font-family:var(--disp);text-transform:uppercase;letter-spacing:.16em;font-size:10px;color:#bcd0ad}
+  /* tabs */
+  .tabs{display:flex;gap:0;background:var(--kraft);border-bottom:2px solid #c8ad77}
+  .tab{flex:0 0 auto;font-family:var(--disp);text-transform:uppercase;letter-spacing:.13em;font-size:14px;color:#7d6b43;
+    padding:14px 26px;border-bottom:4px solid transparent;font-weight:600}
+  .tab.on{color:var(--pine);border-color:var(--rust);background:var(--cream)}
+  /* body + trail line */
+  .body{padding:22px 30px 30px;position:relative}
+  .trail{position:relative;padding-left:30px}
+  .trail:before{content:"";position:absolute;left:13px;top:14px;bottom:14px;width:3px;
+    background:repeating-linear-gradient(var(--clay) 0 7px,transparent 7px 14px)}
+  .sect{font-family:var(--disp);text-transform:uppercase;letter-spacing:.16em;font-size:11px;color:var(--rust);
+    margin:16px 0 10px;display:flex;align-items:center;gap:8px}
+  .sect .rule{height:2px;width:26px;background:var(--rust)}
+  /* medallion sits on the trail line */
+  .row{position:relative;margin-bottom:13px}
+  .med{position:absolute;left:-30px;top:16px;width:46px;height:46px;border-radius:50%;color:#fff;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;border:3px solid var(--cream);
+    box-shadow:0 4px 12px -3px rgba(0,0,0,.4);z-index:2}
+  .med .d{font-family:var(--disp);text-transform:uppercase;font-size:8px;letter-spacing:.1em;opacity:.85;margin-top:-1px}
+  .med .n{font-family:var(--poster);font-size:22px;line-height:.8}
+  .med .ico{font-size:18px}
+  /* card */
+  .card{margin-left:30px;background:var(--paper);border:1px solid var(--line);border-radius:13px;overflow:hidden;
+    box-shadow:0 8px 20px -16px rgba(0,0,0,.4)}
+  .chead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line2)}
+  .route{display:flex;align-items:center;gap:9px;flex-wrap:wrap;min-width:0}
+  .route .from{font-family:var(--disp);text-transform:uppercase;letter-spacing:.02em;font-weight:600;font-size:20px}
+  .route .arw{color:var(--clay)} .route .to{font-family:var(--disp);text-transform:uppercase;font-weight:600;font-size:20px;color:var(--pine)}
+  .date{font-family:var(--disp);letter-spacing:.13em;text-transform:uppercase;font-size:10.5px;color:var(--muted);white-space:nowrap}
+  .cbody{display:flex;align-items:center;gap:16px;padding:12px 16px}
+  .stats{display:flex;flex:1;gap:0;flex-wrap:wrap}
+  .stat{padding:0 16px;border-right:1px solid var(--line2)}
+  .stat:first-child{padding-left:0} .stat:last-child{border:0}
+  .stat .l{font-family:var(--disp);text-transform:uppercase;letter-spacing:.1em;font-size:9px;color:var(--muted)}
+  .stat .v{font-family:var(--disp);font-weight:600;font-size:18px;margin-top:1px}
+  .stat .v.up{color:var(--moss)} .stat .v.dn{color:var(--rust)}
+  .elev{flex:0 0 150px}
+  .stay{flex:0 0 auto;display:flex;align-items:center;gap:8px;background:#f1e7cf;border:1px solid var(--line);
+    border-radius:9px;padding:7px 11px}
+  .stay .hut{width:26px;height:26px;border-radius:6px;background:var(--forest);color:#f3e7c9;display:flex;align-items:center;justify-content:center;font-size:14px}
+  .stay .t{font-family:var(--disp);text-transform:uppercase;letter-spacing:.05em;font-size:8px;color:var(--muted)}
+  .stay .n{font-weight:600;font-size:12px;color:var(--pine);line-height:1.1}
+  /* logistics rows */
+  .card.logi .cbody{padding-top:10px;padding-bottom:12px}
+  .note{font-size:12.5px;color:var(--muted)}
+  .toadd{background:#f7e6cb;border-color:#e7c794}
+  .toadd .hut{background:var(--amber)} .toadd .n{color:#8a5618}
+  .ellipsis{margin-left:30px;text-align:center;font-family:var(--disp);letter-spacing:.4em;color:#a8916a;padding:2px 0 10px;font-size:13px}
+  /* legend */
+  .legend{display:grid;grid-template-columns:1.1fr 1fr;gap:24px;padding:20px 30px 26px;background:var(--kraft);border-top:2px solid #c8ad77}
+  .legend h4{font-family:var(--disp);text-transform:uppercase;letter-spacing:.16em;font-size:11px;color:var(--rust);margin-bottom:11px}
+  .sw{display:flex;gap:7px;flex-wrap:wrap}
+  .chip{width:50px;text-align:center}
+  .chip i{display:block;height:32px;border-radius:7px;border:1px solid rgba(0,0,0,.12)}
+  .chip span{font-family:var(--disp);font-size:8.5px;letter-spacing:.05em;color:var(--muted);margin-top:4px;display:block;text-transform:uppercase}
+  .type b{font-family:var(--poster);font-size:30px;color:var(--ink);display:block;line-height:.9}
+  .type .o{font-family:var(--disp);text-transform:uppercase;font-weight:600;font-size:18px;color:var(--ink);margin-top:7px}
+  .type small{font-family:var(--disp);letter-spacing:.14em;text-transform:uppercase;font-size:10px;color:var(--muted);display:block;margin-top:3px}
+  .type p{font-size:12.5px;margin-top:9px;max-width:36ch;color:#4a4129}
+  /* phone */
+  .phoneRow{display:flex;gap:24px;align-items:flex-start;margin-top:24px;flex-wrap:wrap;justify-content:center}
+  .phone{width:266px;background:var(--cream);border:9px solid #1d1d18;border-radius:36px;overflow:hidden;box-shadow:0 22px 46px -24px rgba(0,0,0,.65)}
+  .phero{position:relative;height:120px;overflow:hidden}
+  .phero svg{position:absolute;inset:0;width:100%;height:100%}
+  .phero .pc{position:absolute;left:14px;bottom:12px;color:#fff7e6;text-shadow:0 2px 8px rgba(0,0,0,.5)}
+  .phero .pk{font-family:var(--disp);text-transform:uppercase;letter-spacing:.22em;font-size:8px;color:#f1d6a0}
+  .phero h2{font-family:var(--poster);text-transform:uppercase;font-size:30px;line-height:.85;margin-top:3px}
+  .pbody{padding:11px}
+  .pcard{background:var(--paper);border:1px solid var(--line);border-radius:11px;margin-bottom:9px;display:flex;overflow:hidden}
+  .pcard .pp{flex:0 0 46px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff}
+  .pcard .pp .d{font-family:var(--disp);font-size:7px;letter-spacing:.1em}
+  .pcard .pp .n{font-family:var(--poster);font-size:19px;line-height:.8}
+  .pcard .pm{flex:1;padding:8px 9px}
+  .pcard .pr{font-family:var(--disp);text-transform:uppercase;font-weight:600;font-size:12.5px}
+  .pcard .ps{display:flex;gap:9px;margin-top:5px}
+  .pcard .ps span{font-family:var(--disp);font-size:10.5px}
+  .pnav{display:flex;border-top:1px solid var(--line);background:var(--kraft)}
+  .pnav a{flex:1;text-align:center;padding:9px 0 8px;color:#7d6b43;font-size:9px;font-family:var(--disp);letter-spacing:.05em;text-transform:uppercase}
+  .pnav a.on{color:var(--rust)} .pnav a .ic{display:block;font-size:17px;margin-bottom:2px}
+  @media(max-width:760px){.hero h1{font-size:48px}.hero h1 .sm{font-size:20px}.badge{display:none}.legend{grid-template-columns:1fr}.elev{display:none}.cbody{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="caption">Design concept v2 · Alpine poster · richer take</p>
+  <div class="sheet">
+
+    <div class="hero">
+      <svg viewBox="0 0 1080 300" preserveAspectRatio="xMidYMax slice">
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#16243a"/><stop offset="42%" stop-color="#2c4a44"/>
+            <stop offset="74%" stop-color="#c97f37"/><stop offset="100%" stop-color="#efc874"/>
+          </linearGradient>
+        </defs>
+        <rect width="1080" height="300" fill="url(#sky)"/>
+        <circle cx="800" cy="208" r="52" fill="#f4d98a" opacity=".9"/>
+        <path d="M0,300 L0,150 L150,205 L300,120 L470,210 L520,165 L640,225 L760,150 L900,215 L1080,140 L1080,300 Z" fill="#3a5a45" opacity=".75"/>
+        <path d="M0,300 L0,205 L120,235 L280,170 L300,120 L340,150 L470,210 L560,180 L700,240 L820,195 L960,245 L1080,205 L1080,300 Z" fill="#274536"/>
+        <polygon points="300,120 270,150 330,150" fill="#f3ecd9"/>
+        <polygon points="760,150 738,178 786,178" fill="#f3ecd9" opacity=".85"/>
+        <path d="M0,300 L0,255 L160,275 L340,225 L520,272 L680,235 L860,275 L1080,248 L1080,300 Z" fill="#1c3a2a"/>
+      </svg>
+      <div class="grain"></div>
+      <div class="badge"><span class="ring"></span><b>TMB</b><span>2026 · 7 days</span></div>
+      <div class="cap">
+        <div class="kick">France · Italy · Switzerland</div>
+        <h1>Tour du<span class="sm">Mont Blanc</span></h1>
+        <div class="sub">Aug 2–11 · the full loop</div>
+      </div>
+    </div>
+
+    <div class="ribbon">
+      <div class="met"><b>170</b><span>km</span></div>
+      <div class="met"><b>10K</b><span>m climb</span></div>
+      <div class="met"><b>7</b><span>trail days</span></div>
+      <div class="met"><b>8</b><span>refuges</span></div>
+    </div>
+
+    <div class="tabs"><div class="tab on">The Trail</div><div class="tab">Logistics &amp; Packing</div></div>
+
+    <div class="body">
+      <div class="trail">
+
+        <div class="sect"><span class="rule"></span>Getting there</div>
+
+        <div class="row">
+          <div class="med" style="background:var(--clay)"><span class="ico">✈</span></div>
+          <div class="card logi">
+            <div class="chead"><div class="route"><span class="from">Barcelona</span><span class="arw">→</span><span class="to">Chamonix</span></div><span class="date">Sun · Aug 2 · depart</span></div>
+            <div class="cbody"><div class="note" style="flex:1">Fly BCN → Geneva, transfer to Chamonix. <b style="font-weight:600;color:var(--rust)">The trip begins here.</b></div>
+              <div class="stay"><span class="hut">⌂</span><div><div class="t">Night</div><div class="n">Hôtel Le Chamonix</div></div></div></div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="med" style="background:var(--moss)"><span class="ico">☼</span></div>
+          <div class="card logi">
+            <div class="chead"><div class="route"><span class="from">Rest &amp; acclimatize</span></div><span class="date">Mon · Aug 3–4 · Chamonix</span></div>
+            <div class="cbody"><div class="note" style="flex:1">Gear check, short legs-loosener, fuel up before the climb.</div>
+              <div class="stay"><span class="hut">⌂</span><div><div class="t">Night</div><div class="n">Hôtel Le Chamonix</div></div></div></div>
+          </div>
+        </div>
+
+        <div class="sect"><span class="rule"></span>On the trail</div>
+
+        <div class="row">
+          <div class="med" style="background:var(--pine)"><span class="d">Day</span><span class="n">1</span></div>
+          <div class="card">
+            <div class="chead"><div class="route"><span class="from">Les Houches</span><span class="arw">→</span><span class="to">Refuge de la Balme</span></div><span class="date">Tue · Aug 4</span></div>
+            <div class="cbody">
+              <div class="stats">
+                <div class="stat"><div class="l">Dist</div><div class="v">13.9 mi</div></div>
+                <div class="stat"><div class="l">Ascent</div><div class="v up">↑ 3,150</div></div>
+                <div class="stat"><div class="l">Descent</div><div class="v dn">↓ 2,001</div></div>
+                <div class="stat"><div class="l">Time</div><div class="v">7h 15m</div></div>
+              </div>
+              <svg class="elev" width="150" height="40" viewBox="0 0 150 40"><path d="M0,34 L25,22 L50,27 L80,9 L105,24 L130,15 L150,28 L150,40 L0,40 Z" fill="#cfe0bf"/><path d="M0,34 L25,22 L50,27 L80,9 L105,24 L130,15 L150,28" fill="none" stroke="#5d7c4f" stroke-width="2"/></svg>
+              <div class="stay"><span class="hut">▲</span><div><div class="t">Night</div><div class="n">Refuge de la Balme</div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="med" style="background:var(--amber)"><span class="d">Day</span><span class="n">2</span></div>
+          <div class="card">
+            <div class="chead"><div class="route"><span class="from">Refuge de la Balme</span><span class="arw">→</span><span class="to">Les Chapieux</span></div><span class="date">Wed · Aug 5</span></div>
+            <div class="cbody">
+              <div class="stats">
+                <div class="stat"><div class="l">Dist</div><div class="v">6.2 mi</div></div>
+                <div class="stat"><div class="l">Ascent</div><div class="v up">↑ 3,609</div></div>
+                <div class="stat"><div class="l">Descent</div><div class="v dn">↓ 3,117</div></div>
+                <div class="stat"><div class="l">Time</div><div class="v">3h</div></div>
+              </div>
+              <svg class="elev" width="150" height="40" viewBox="0 0 150 40"><path d="M0,36 L35,12 L70,6 L100,16 L130,10 L150,24 L150,40 L0,40 Z" fill="#f1dcb0"/><path d="M0,36 L35,12 L70,6 L100,16 L130,10 L150,24" fill="none" stroke="#cf7d2c" stroke-width="2"/></svg>
+              <div class="stay"><span class="hut">⌂</span><div><div class="t">Night</div><div class="n">Base Camp Lodge</div></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ellipsis">· · ·  days 3–7  · · ·</div>
+
+        <div class="sect"><span class="rule"></span>Heading home</div>
+
+        <div class="row">
+          <div class="med" style="background:var(--rust)"><span class="ico">✈</span></div>
+          <div class="card logi">
+            <div class="chead"><div class="route"><span class="from">Chamonix</span><span class="arw">→</span><span class="to">Barcelona</span></div><span class="date">Tue · Aug 11 · return</span></div>
+            <div class="cbody"><div class="note" style="flex:1">Transfer to Geneva, fly home.</div>
+              <div class="stay toadd"><span class="hut">✈</span><div><div class="t">Flight</div><div class="n">GVA → BCN · to add</div></div></div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="legend">
+      <div>
+        <h4>The palette</h4>
+        <div class="sw">
+          <div class="chip"><i style="background:#1c3a2a"></i><span>Pine</span></div>
+          <div class="chip"><i style="background:#2e5039"></i><span>Forest</span></div>
+          <div class="chip"><i style="background:#6b8c54"></i><span>Moss</span></div>
+          <div class="chip"><i style="background:#e3a93c"></i><span>Gold</span></div>
+          <div class="chip"><i style="background:#cf7d2c"></i><span>Amber</span></div>
+          <div class="chip"><i style="background:#a83f24"></i><span>Rust</span></div>
+          <div class="chip"><i style="background:#f6eedd"></i><span>Cream</span></div>
+        </div>
+        <p style="font-size:12px;color:#4a4129;margin-top:12px">Sunrise-alpine palette — deep pine + dawn gold, with rust accents for action.</p>
+      </div>
+      <div class="type">
+        <h4>The type</h4>
+        <b>ANTON</b>
+        <div class="o">Oswald Condensed</div>
+        <small>poster headline + condensed routes/stats</small>
+        <p>Archivo for body. Big poster display carries the drama; condensed labels carry the data.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="phoneRow">
+    <div class="phone">
+      <div class="phero">
+        <svg viewBox="0 0 266 120" preserveAspectRatio="xMidYMax slice">
+          <defs><linearGradient id="psky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16243a"/><stop offset="60%" stop-color="#2c4a44"/><stop offset="100%" stop-color="#d88f43"/></linearGradient></defs>
+          <rect width="266" height="120" fill="url(#psky)"/><circle cx="205" cy="86" r="26" fill="#f4d98a" opacity=".9"/>
+          <path d="M0,120 L0,70 L70,92 L120,52 L170,90 L215,66 L266,94 L266,120 Z" fill="#274536"/>
+          <polygon points="120,52 104,74 138,74" fill="#f3ecd9"/>
+          <path d="M0,120 L0,98 L80,108 L150,88 L210,106 L266,96 L266,120 Z" fill="#1c3a2a"/>
+        </svg>
+        <div class="pc"><div class="pk">TMB · Aug 2–11</div><h2>The Trail</h2></div>
+      </div>
+      <div class="pbody">
+        <div class="pcard"><div class="pp" style="background:var(--clay)"><span style="font-size:15px">✈</span></div><div class="pm"><div class="pr">Barcelona → Chamonix</div><div class="ps"><span style="color:var(--muted)">Aug 2 · travel</span></div></div></div>
+        <div class="pcard"><div class="pp" style="background:var(--pine)"><div class="d">Day</div><div class="n">1</div></div><div class="pm"><div class="pr">Les Houches → Balme</div><div class="ps"><span>13.9mi</span><span style="color:var(--moss)">↑3150</span><span style="color:var(--rust)">↓2001</span></div></div></div>
+        <div class="pcard"><div class="pp" style="background:var(--amber)"><div class="d">Day</div><div class="n">2</div></div><div class="pm"><div class="pr">Balme → Chapieux</div><div class="ps"><span>6.2mi</span><span style="color:var(--moss)">↑3609</span><span style="color:var(--rust)">↓3117</span></div></div></div>
+      </div>
+      <div class="pnav"><a class="on"><span class="ic">▲</span>Trail</a><a><span class="ic">◔</span>Map</a><a><span class="ic">▣</span>Gear</a><a><span class="ic">≡</span>Logi</a></div>
+    </div>
+    <div style="max-width:290px">
+      <p class="caption" style="text-align:left;margin-bottom:8px">What changed from v1</p>
+      <p style="font-size:13px;color:#3f3722;background:var(--cream);border:1px solid #c2a877;border-radius:11px;padding:13px 15px">
+        Dramatic mountain hero, sunrise palette + depth, a dashed <b style="font-weight:600">trail line</b> threading day medallions, filled elevation profiles, refuge tags, and a bolder Anton poster headline.
+      </p>
+    </div>
+  </div>
+</div>
+</body>
+</html>

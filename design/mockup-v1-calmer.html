@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TMB Planner — Design Concept (Trail Guide)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#f4ebd8; --paper:#fbf5e7; --kraft:#e9dab9; --ink:#2c2a24; --muted:#6f6750;
+    --pine:#21402c; --moss:#5d7c4f; --amber:#cf8a3c; --rust:#a8442a; --clay:#b9683f;
+    --line:#d8c399; --line2:#e7d8b4;
+    --disp:'Oswald',system-ui,sans-serif; --body:'Archivo',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#cdbd97;font-family:var(--body);color:var(--ink);line-height:1.5;padding:28px 16px}
+  .wrap{max-width:1080px;margin:0 auto}
+  .disp{font-family:var(--disp);text-transform:uppercase;letter-spacing:.04em;font-weight:600;line-height:1}
+  .sheet{background:var(--cream);border:1px solid #c9b384;border-radius:14px;overflow:hidden;
+    box-shadow:0 18px 40px -22px rgba(0,0,0,.5)}
+  /* topo header */
+  .cover{position:relative;padding:30px 32px 26px;background:var(--pine);color:var(--cream);overflow:hidden}
+  .cover svg.topo{position:absolute;inset:0;width:100%;height:100%;opacity:.13}
+  .kicker{font-family:var(--disp);text-transform:uppercase;letter-spacing:.28em;font-size:12px;color:#cdd9bf;position:relative}
+  .cover h1{font-family:var(--disp);text-transform:uppercase;letter-spacing:.02em;font-weight:700;
+    font-size:54px;line-height:.92;margin:8px 0 10px;position:relative}
+  .cover .sub{position:relative;font-family:var(--disp);letter-spacing:.12em;text-transform:uppercase;font-size:14px;color:#e7dcc0}
+  .stamp{position:absolute;top:24px;right:28px;width:104px;height:104px;border:2px solid var(--amber);
+    border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    color:var(--amber);text-align:center;transform:rotate(-8deg);font-family:var(--disp);text-transform:uppercase;line-height:1.05}
+  .stamp b{font-size:26px;font-weight:700;letter-spacing:.02em}
+  .stamp span{font-size:10px;letter-spacing:.18em;margin-top:2px}
+  .stamp .ring{position:absolute;inset:7px;border:1px dashed var(--amber);border-radius:50%;opacity:.6}
+  /* tabs */
+  .tabs{display:flex;gap:26px;padding:0 32px;background:var(--kraft);border-bottom:1px solid #cbb482}
+  .tab{font-family:var(--disp);text-transform:uppercase;letter-spacing:.13em;font-size:14px;color:#7a6b46;
+    padding:15px 2px;border-bottom:3px solid transparent;font-weight:600}
+  .tab.on{color:var(--pine);border-color:var(--rust)}
+  /* body */
+  .body{padding:24px 32px 30px}
+  .legtag{display:inline-flex;align-items:center;gap:7px;font-family:var(--disp);text-transform:uppercase;
+    letter-spacing:.14em;font-size:11px;color:var(--rust);margin:18px 0 9px}
+  .legtag .rule{height:1px;width:30px;background:var(--rust);opacity:.5}
+  /* card */
+  .card{display:flex;align-items:stretch;gap:0;background:var(--paper);border:1px solid var(--line);
+    border-radius:12px;overflow:hidden;margin-bottom:12px}
+  .patch{flex:0 0 84px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    color:var(--cream);position:relative}
+  .patch .d{font-family:var(--disp);text-transform:uppercase;font-size:10px;letter-spacing:.16em;opacity:.85}
+  .patch .n{font-family:var(--disp);font-weight:700;font-size:30px;line-height:1;margin-top:1px}
+  .patch .ic{font-size:22px}
+  .cmid{flex:1;padding:14px 16px;border-left:1px dashed var(--line);min-width:0}
+  .route{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .route .from{font-family:var(--disp);text-transform:uppercase;letter-spacing:.03em;font-weight:600;font-size:19px;color:var(--ink)}
+  .route .arw{color:var(--clay);font-size:16px}
+  .route .to{font-family:var(--disp);text-transform:uppercase;letter-spacing:.03em;font-weight:600;font-size:19px;color:var(--pine)}
+  .date{font-family:var(--disp);letter-spacing:.14em;text-transform:uppercase;font-size:11px;color:var(--muted);margin-top:3px}
+  .stats{display:flex;gap:0;margin-top:11px;border-top:1px solid var(--line2);padding-top:9px}
+  .stat{padding-right:18px;margin-right:18px;border-right:1px solid var(--line2)}
+  .stat:last-child{border:0;margin:0;padding:0}
+  .stat .l{font-family:var(--disp);text-transform:uppercase;letter-spacing:.12em;font-size:9.5px;color:var(--muted)}
+  .stat .v{font-family:var(--disp);font-weight:600;font-size:17px;color:var(--ink);margin-top:1px}
+  .stat .v.up{color:var(--moss)} .stat .v.dn{color:var(--rust)}
+  .cright{flex:0 0 116px;border-left:1px dashed var(--line);padding:12px 12px;display:flex;flex-direction:column;justify-content:center;gap:5px;background:#f6eed7}
+  .cright .lbl{font-family:var(--disp);text-transform:uppercase;letter-spacing:.1em;font-size:9px;color:var(--muted)}
+  .cright .stay{font-weight:600;font-size:12px;color:var(--pine);line-height:1.2}
+  .pill{align-self:flex-start;font-family:var(--disp);text-transform:uppercase;letter-spacing:.08em;font-size:9px;
+    color:#3f5e34;background:#dfe7cf;border:1px solid #c3d3ad;border-radius:4px;padding:2px 6px}
+  .spark{margin-top:9px}
+  /* travel/rest cards (no stats) */
+  .card.logi .cmid{display:flex;flex-direction:column;justify-content:center}
+  .note{font-size:12.5px;color:var(--muted);margin-top:4px}
+  .ellipsis{text-align:center;font-family:var(--disp);letter-spacing:.3em;color:#a8916a;padding:4px 0 12px}
+  /* legend */
+  .legend{display:grid;grid-template-columns:1.2fr 1fr;gap:22px;margin-top:8px;padding:18px 32px 26px;background:var(--kraft);border-top:1px solid #cbb482}
+  .legend h4{font-family:var(--disp);text-transform:uppercase;letter-spacing:.16em;font-size:11px;color:var(--rust);margin-bottom:11px}
+  .sw{display:flex;gap:8px;flex-wrap:wrap}
+  .chip{width:54px;text-align:center}
+  .chip i{display:block;height:34px;border-radius:7px;border:1px solid rgba(0,0,0,.12)}
+  .chip span{font-family:var(--disp);font-size:9px;letter-spacing:.06em;color:var(--muted);margin-top:4px;display:block;text-transform:uppercase}
+  .type b{font-family:var(--disp);text-transform:uppercase;font-weight:700;font-size:26px;color:var(--ink);display:block;line-height:1}
+  .type small{font-family:var(--disp);letter-spacing:.18em;text-transform:uppercase;font-size:11px;color:var(--muted)}
+  .type p{font-size:13px;color:var(--ink);margin-top:10px;max-width:34ch}
+  /* phone */
+  .phoneRow{display:flex;gap:26px;align-items:flex-start;margin-top:26px;flex-wrap:wrap;justify-content:center}
+  .phone{width:264px;background:var(--cream);border:9px solid #20201c;border-radius:34px;overflow:hidden;
+    box-shadow:0 18px 40px -22px rgba(0,0,0,.6)}
+  .pcover{background:var(--pine);color:var(--cream);padding:16px 16px 14px;position:relative}
+  .pcover .kicker{font-size:9px;letter-spacing:.22em}
+  .pcover h2{font-family:var(--disp);text-transform:uppercase;font-weight:700;font-size:26px;line-height:.95;margin-top:5px}
+  .pcover .sub{font-size:10px}
+  .pbody{padding:12px}
+  .pcard{background:var(--paper);border:1px solid var(--line);border-radius:11px;overflow:hidden;margin-bottom:10px;display:flex}
+  .pcard .pp{flex:0 0 50px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--cream)}
+  .pcard .pp .d{font-family:var(--disp);font-size:8px;letter-spacing:.12em}
+  .pcard .pp .n{font-family:var(--disp);font-weight:700;font-size:20px;line-height:1}
+  .pcard .pm{flex:1;padding:9px 10px}
+  .pcard .pr{font-family:var(--disp);text-transform:uppercase;font-weight:600;font-size:13px;color:var(--ink)}
+  .pcard .ps{display:flex;gap:10px;margin-top:6px}
+  .pcard .ps span{font-family:var(--disp);font-size:11px}
+  .pnav{display:flex;border-top:1px solid var(--line);background:var(--kraft)}
+  .pnav a{flex:1;text-align:center;padding:9px 0 8px;color:#7a6b46;font-size:10px;font-family:var(--disp);letter-spacing:.06em;text-transform:uppercase}
+  .pnav a.on{color:var(--pine)} .pnav a .ic{display:block;font-size:18px;margin-bottom:2px}
+  .caption{font-family:var(--disp);text-transform:uppercase;letter-spacing:.16em;font-size:11px;color:#5a4d31;text-align:center;margin:8px 0 22px}
+  @media(max-width:760px){.cover h1{font-size:38px}.stamp{display:none}.legend{grid-template-columns:1fr}.cright{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="caption">Design concept · Trail-guide / vintage-parks · desktop + mobile</p>
+
+  <div class="sheet">
+    <div class="cover">
+      <svg class="topo" viewBox="0 0 1080 220" preserveAspectRatio="none">
+        <g fill="none" stroke="#f4ebd8" stroke-width="1.4">
+          <path d="M-20,150 C160,90 320,180 520,120 C700,70 860,150 1100,90"/>
+          <path d="M-20,175 C160,120 320,205 520,150 C700,100 860,178 1100,120"/>
+          <path d="M-20,120 C180,70 340,150 540,95 C720,45 880,120 1100,65"/>
+          <path d="M-20,200 C160,150 340,225 540,180 C720,135 880,205 1100,150"/>
+        </g>
+      </svg>
+      <div class="stamp"><span class="ring"></span><b>TMB</b><span>7 days · 2026</span></div>
+      <p class="kicker">Est. 2026 · France · Italy · Switzerland</p>
+      <h1>Tour du<br>Mont Blanc</h1>
+      <p class="sub">Aug 2–11 · 170 km · 10,000 m climb · 2 hikers</p>
+    </div>
+
+    <div class="tabs">
+      <div class="tab on">The Trail</div>
+      <div class="tab">Logistics &amp; Packing</div>
+    </div>
+
+    <div class="body">
+      <div class="legtag"><span class="rule"></span>Getting there</div>
+
+      <div class="card logi">
+        <div class="patch" style="background:var(--clay)"><i class="ic">✈</i><div class="d" style="margin-top:4px">Travel</div></div>
+        <div class="cmid">
+          <div class="route"><span class="from">Barcelona</span><span class="arw">→</span><span class="to">Chamonix</span></div>
+          <div class="date">Sun · Aug 2 · depart Barcelona</div>
+          <div class="note">Fly BCN → Geneva, transfer to Chamonix. The trip begins here.</div>
+        </div>
+        <div class="cright"><span class="lbl">Night</span><span class="stay">Hôtel Le Chamonix</span><span class="pill">Booked</span></div>
+      </div>
+
+      <div class="card logi">
+        <div class="patch" style="background:var(--moss)"><div class="n" style="font-size:22px">0</div><div class="d">Rest</div></div>
+        <div class="cmid">
+          <div class="route"><span class="from">Chamonix</span></div>
+          <div class="date">Mon · Aug 3–4 · acclimatize</div>
+          <div class="note">Rest, gear check, short legs-loosener before the climb.</div>
+        </div>
+        <div class="cright"><span class="lbl">Night</span><span class="stay">Hôtel Le Chamonix</span><span class="pill">Booked</span></div>
+      </div>
+
+      <div class="legtag"><span class="rule"></span>On the trail</div>
+
+      <div class="card">
+        <div class="patch" style="background:var(--pine)"><div class="d">Day</div><div class="n">1</div></div>
+        <div class="cmid">
+          <div class="route"><span class="from">Les Houches</span><span class="arw">→</span><span class="to">Refuge de la Balme</span></div>
+          <div class="date">Tue · Aug 4</div>
+          <div class="stats">
+            <div class="stat"><div class="l">Dist</div><div class="v">13.9 mi</div></div>
+            <div class="stat"><div class="l">Ascent</div><div class="v up">↑ 3,150</div></div>
+            <div class="stat"><div class="l">Descent</div><div class="v dn">↓ 2,001</div></div>
+            <div class="stat"><div class="l">Time</div><div class="v">7h 15m</div></div>
+          </div>
+          <svg class="spark" width="220" height="26" viewBox="0 0 220 26"><polyline fill="none" stroke="#5d7c4f" stroke-width="2" points="0,20 40,12 80,16 120,5 160,14 200,9 220,18"/></svg>
+        </div>
+        <div class="cright"><span class="lbl">Night</span><span class="stay">Refuge de la Balme</span><span class="pill">Booked</span></div>
+      </div>
+
+      <div class="card">
+        <div class="patch" style="background:var(--amber)"><div class="d">Day</div><div class="n">2</div></div>
+        <div class="cmid">
+          <div class="route"><span class="from">Refuge de la Balme</span><span class="arw">→</span><span class="to">Les Chapieux</span></div>
+          <div class="date">Wed · Aug 5</div>
+          <div class="stats">
+            <div class="stat"><div class="l">Dist</div><div class="v">6.2 mi</div></div>
+            <div class="stat"><div class="l">Ascent</div><div class="v up">↑ 3,609</div></div>
+            <div class="stat"><div class="l">Descent</div><div class="v dn">↓ 3,117</div></div>
+            <div class="stat"><div class="l">Time</div><div class="v">3h</div></div>
+          </div>
+          <svg class="spark" width="220" height="26" viewBox="0 0 220 26"><polyline fill="none" stroke="#5d7c4f" stroke-width="2" points="0,22 50,8 100,4 150,10 200,7 220,16"/></svg>
+        </div>
+        <div class="cright"><span class="lbl">Night</span><span class="stay">Base Camp Lodge</span><span class="pill">Booked</span></div>
+      </div>
+
+      <p class="ellipsis">· · ·  days 3–7  · · ·</p>
+
+      <div class="legtag"><span class="rule"></span>Heading home</div>
+
+      <div class="card logi">
+        <div class="patch" style="background:var(--rust)"><i class="ic">✈</i><div class="d" style="margin-top:4px">Return</div></div>
+        <div class="cmid">
+          <div class="route"><span class="from">Chamonix</span><span class="arw">→</span><span class="to">Barcelona</span></div>
+          <div class="date">Tue · Aug 11 · return home</div>
+          <div class="note">Transfer to Geneva, fly back to Barcelona.</div>
+        </div>
+        <div class="cright"><span class="lbl">Flight</span><span class="stay">GVA → BCN</span><span class="pill" style="background:#f6e3cf;border-color:#e6c79c;color:#8a5a1a">To add</span></div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <div>
+        <h4>The palette</h4>
+        <div class="sw">
+          <div class="chip"><i style="background:#21402c"></i><span>Pine</span></div>
+          <div class="chip"><i style="background:#5d7c4f"></i><span>Moss</span></div>
+          <div class="chip"><i style="background:#cf8a3c"></i><span>Amber</span></div>
+          <div class="chip"><i style="background:#a8442a"></i><span>Rust</span></div>
+          <div class="chip"><i style="background:#b9683f"></i><span>Clay</span></div>
+          <div class="chip"><i style="background:#f4ebd8"></i><span>Cream</span></div>
+          <div class="chip"><i style="background:#2c2a24"></i><span>Ink</span></div>
+        </div>
+      </div>
+      <div class="type">
+        <h4>The type</h4>
+        <b>Oswald Condensed</b>
+        <small>display · routes · stats · labels</small>
+        <p>Archivo for body copy and notes — clean, legible, and quiet so the condensed headers carry the character.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="phoneRow">
+    <div class="phone">
+      <div class="pcover">
+        <p class="kicker">TMB · Aug 2–11</p>
+        <h2>The Trail</h2>
+        <p class="sub">Day 2 of 7 · Refuge de la Balme</p>
+      </div>
+      <div class="pbody">
+        <div class="pcard"><div class="pp" style="background:var(--clay)"><span style="font-size:16px">✈</span></div><div class="pm"><div class="pr">Barcelona → Chamonix</div><div class="ps"><span style="color:var(--muted)">Aug 2 · travel</span></div></div></div>
+        <div class="pcard"><div class="pp" style="background:var(--pine)"><div class="d">Day</div><div class="n">1</div></div><div class="pm"><div class="pr">Les Houches → Balme</div><div class="ps"><span>13.9mi</span><span style="color:var(--moss)">↑3150</span><span style="color:var(--rust)">↓2001</span></div></div></div>
+        <div class="pcard"><div class="pp" style="background:var(--amber)"><div class="d">Day</div><div class="n">2</div></div><div class="pm"><div class="pr">Balme → Chapieux</div><div class="ps"><span>6.2mi</span><span style="color:var(--moss)">↑3609</span><span style="color:var(--rust)">↓3117</span></div></div></div>
+      </div>
+      <div class="pnav">
+        <a class="on"><span class="ic">▲</span>Trail</a>
+        <a><span class="ic">◔</span>Map</a>
+        <a><span class="ic">▣</span>Gear</a>
+        <a><span class="ic">≡</span>Logi</a>
+      </div>
+    </div>
+    <div style="max-width:300px">
+      <p class="caption" style="text-align:left">Mobile</p>
+      <p style="font-size:13px;color:#4a4029;background:var(--cream);border:1px solid #c9b384;border-radius:10px;padding:12px 14px">
+        Bottom tab bar (thumb-reach), full-bleed map, swipe between days, sticky day header, condensed stat chips, safe-area / notch handling, and an install prompt.
+      </p>
+    </div>
+  </div>
+</div>
+</body>
+</html>

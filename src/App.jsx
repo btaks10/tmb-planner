@@ -144,7 +144,7 @@ const DaySummaryTable = ({
     <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
       <table className="w-full text-sm min-w-[640px]">
         <thead>
-          <tr className="text-slate-500 text-xs uppercase tracking-wider">
+          <tr className="text-tmb-muted text-xs uppercase tracking-wider">
             <th className="text-left py-2 px-3 font-medium whitespace-nowrap">Day</th>
             <th className="text-left py-2 px-3 font-medium whitespace-nowrap">Date</th>
             <th className="text-left py-2 px-3 font-medium whitespace-nowrap">Route</th>
@@ -169,14 +169,14 @@ const DaySummaryTable = ({
             return (
               <tr
                 key={i}
-                className={`border-t border-white/5 transition-colors ${
+                className={`border-t border-tmb-line2 transition-colors ${
                   onRowClick ? 'cursor-pointer' : ''
                 } ${
                   isSelected
-                    ? 'bg-white/15 ring-1 ring-inset ring-white/20'
+                    ? 'bg-tmb-kraft ring-1 ring-inset ring-white/20'
                     : isHovered
                       ? 'bg-white/10'
-                      : 'hover:bg-white/5'
+                      : 'hover:bg-tmb-cream/60'
                 }`}
                 onClick={() => onRowClick?.(i)}
                 onMouseEnter={() => onRowHover?.(i)}
@@ -185,128 +185,128 @@ const DaySummaryTable = ({
                 <td className="py-3 px-3 whitespace-nowrap">
                   <div className="flex items-center gap-2">
                     <div className="w-1 h-6 rounded-full" style={{ backgroundColor: DAY_COLORS[i % DAY_COLORS.length].main }} />
-                    <span className="font-semibold text-white">{d.day}</span>
+                    <span className="font-semibold text-tmb-ink">{d.day}</span>
                   </div>
                 </td>
-                <td className="py-3 px-3 text-slate-400 whitespace-nowrap">{formatDate(d.date)}</td>
+                <td className="py-3 px-3 text-tmb-muted whitespace-nowrap">{formatDate(d.date)}</td>
                 <td className="py-3 px-3 whitespace-nowrap">
-                  <span className="text-slate-300">{d.startWp.name}</span>
-                  <span className="text-slate-600 mx-1.5">→</span>
-                  <span className="text-slate-200">{d.endWp.name}</span>
+                  <span className="text-tmb-ink">{d.startWp.name}</span>
+                  <span className="text-tmb-muted/70 mx-1.5">→</span>
+                  <span className="text-tmb-ink">{d.endWp.name}</span>
                 </td>
                 <td className="py-3 px-3 text-right font-medium whitespace-nowrap w-20">
                   {hasDaySavings ? (
                     daySavings.distanceSaved > 0 ? (
-                      <div className="text-slate-500 text-xs">{formatDistanceValue(d.distance, useImperial)}</div>
+                      <div className="text-tmb-muted text-xs">{formatDistanceValue(d.distance, useImperial)}</div>
                     ) : (
                       <div className="text-xs invisible">-</div>
                     )
                   ) : null}
-                  <div className="text-slate-200">{formatDistanceValue(hasDaySavings ? adjustedDistance : d.distance, useImperial)} {distUnit}</div>
+                  <div className="text-tmb-ink">{formatDistanceValue(hasDaySavings ? adjustedDistance : d.distance, useImperial)} {distUnit}</div>
                 </td>
                 <td className="py-3 px-3 text-right font-medium whitespace-nowrap w-20">
                   {hasDaySavings ? (
                     daySavings.ascentSaved > 0 ? (
-                      <div className="text-slate-500 text-xs">↑{formatElevationValue(d.ascent, useImperial)}</div>
+                      <div className="text-tmb-muted text-xs">↑{formatElevationValue(d.ascent, useImperial)}</div>
                     ) : (
                       <div className="text-xs invisible">-</div>
                     )
                   ) : null}
-                  <div className="text-emerald-400">↑{formatElevationValue(hasDaySavings ? adjustedAscent : d.ascent, useImperial)}{elevUnit}</div>
+                  <div className="text-tmb-moss">↑{formatElevationValue(hasDaySavings ? adjustedAscent : d.ascent, useImperial)}{elevUnit}</div>
                 </td>
                 <td className="py-3 px-3 text-right font-medium whitespace-nowrap w-20">
                   {hasDaySavings ? (
                     daySavings.descentSaved > 0 ? (
-                      <div className="text-slate-500 text-xs">↓{formatElevationValue(d.descent, useImperial)}</div>
+                      <div className="text-tmb-muted text-xs">↓{formatElevationValue(d.descent, useImperial)}</div>
                     ) : (
                       <div className="text-xs invisible">-</div>
                     )
                   ) : null}
-                  <div className="text-rose-400">↓{formatElevationValue(hasDaySavings ? adjustedDescent : d.descent, useImperial)}{elevUnit}</div>
+                  <div className="text-tmb-rust">↓{formatElevationValue(hasDaySavings ? adjustedDescent : d.descent, useImperial)}{elevUnit}</div>
                 </td>
                 <td className="py-3 px-3 text-right font-medium whitespace-nowrap w-20">
                   {hasDaySavings ? (
                     daySavings.timeSaved > 0 ? (
-                      <div className="text-slate-500 text-xs">{formatTime(d.time)}</div>
+                      <div className="text-tmb-muted text-xs">{formatTime(d.time)}</div>
                     ) : (
                       <div className="text-xs invisible">-</div>
                     )
                   ) : null}
-                  <div className="text-slate-200">{formatTime(hasDaySavings ? adjustedTime : d.time)}</div>
+                  <div className="text-tmb-ink">{formatTime(hasDaySavings ? adjustedTime : d.time)}</div>
                 </td>
                 {showEndAltitude && (
-                  <td className="py-3 px-3 text-right text-slate-400">{formatElevationValue(d.endWp.altitude, useImperial)}{elevUnit}</td>
+                  <td className="py-3 px-3 text-right text-tmb-muted">{formatElevationValue(d.endWp.altitude, useImperial)}{elevUnit}</td>
                 )}
               </tr>
             );
           })}
         </tbody>
         <tfoot>
-          <tr className="border-t border-white/10 bg-white/5">
-            <td className="py-3 px-3 font-semibold text-white" colSpan="3">Total</td>
+          <tr className="border-t border-tmb-line2 bg-tmb-cream/60">
+            <td className="py-3 px-3 font-semibold text-tmb-ink" colSpan="3">Total</td>
             <td className="py-3 px-3 text-right font-semibold whitespace-nowrap w-20">
               {hasAnySavings ? (
                 activeShortcuts.totalDistanceSaved > 0 ? (
-                  <div className="text-slate-500 text-xs">{formatDistanceValue(totals.distance, useImperial)}</div>
+                  <div className="text-tmb-muted text-xs">{formatDistanceValue(totals.distance, useImperial)}</div>
                 ) : (
                   <div className="text-xs invisible">-</div>
                 )
               ) : null}
-              <div className="text-white">{formatDistanceValue(totals.distance - (activeShortcuts.totalDistanceSaved || 0), useImperial)} {distUnit}</div>
+              <div className="text-tmb-ink">{formatDistanceValue(totals.distance - (activeShortcuts.totalDistanceSaved || 0), useImperial)} {distUnit}</div>
             </td>
             <td className="py-3 px-3 text-right font-semibold whitespace-nowrap w-20">
               {hasAnySavings ? (
                 activeShortcuts.totalAscentSaved > 0 ? (
-                  <div className="text-slate-500 text-xs">↑{formatElevationValue(totals.ascent, useImperial)}</div>
+                  <div className="text-tmb-muted text-xs">↑{formatElevationValue(totals.ascent, useImperial)}</div>
                 ) : (
                   <div className="text-xs invisible">-</div>
                 )
               ) : null}
-              <div className="text-emerald-400">↑{formatElevationValue(totals.ascent - (activeShortcuts.totalAscentSaved || 0), useImperial)}{elevUnit}</div>
+              <div className="text-tmb-moss">↑{formatElevationValue(totals.ascent - (activeShortcuts.totalAscentSaved || 0), useImperial)}{elevUnit}</div>
             </td>
             <td className="py-3 px-3 text-right font-semibold whitespace-nowrap w-20">
               {hasAnySavings ? (
                 activeShortcuts.totalDescentSaved > 0 ? (
-                  <div className="text-slate-500 text-xs">↓{formatElevationValue(totals.descent, useImperial)}</div>
+                  <div className="text-tmb-muted text-xs">↓{formatElevationValue(totals.descent, useImperial)}</div>
                 ) : (
                   <div className="text-xs invisible">-</div>
                 )
               ) : null}
-              <div className="text-rose-400">↓{formatElevationValue(totals.descent - (activeShortcuts.totalDescentSaved || 0), useImperial)}{elevUnit}</div>
+              <div className="text-tmb-rust">↓{formatElevationValue(totals.descent - (activeShortcuts.totalDescentSaved || 0), useImperial)}{elevUnit}</div>
             </td>
             <td className="py-3 px-3 text-right font-semibold whitespace-nowrap w-20">
               {hasAnySavings ? (
                 totalTimeSaved > 0 ? (
-                  <div className="text-slate-500 text-xs">{formatTime(totals.time)}</div>
+                  <div className="text-tmb-muted text-xs">{formatTime(totals.time)}</div>
                 ) : (
                   <div className="text-xs invisible">-</div>
                 )
               ) : null}
-              <div className="text-white">{formatTime(totals.time - totalTimeSaved)}</div>
+              <div className="text-tmb-ink">{formatTime(totals.time - totalTimeSaved)}</div>
             </td>
             {showEndAltitude && <td className="py-3 px-3"></td>}
           </tr>
           {hasAnySavings && (
             <tr className="border-t border-cyan-500/20 bg-cyan-500/5">
-              <td className="py-3 px-3 text-cyan-400" colSpan="2">
+              <td className="py-3 px-3 text-tmb-gold" colSpan="2">
                 <div className="flex items-center gap-2">
                   <Zap className="w-4 h-4" />
                   <span>Shortcuts Active</span>
                 </div>
               </td>
-              <td className="py-3 px-3 text-right text-amber-400">
+              <td className="py-3 px-3 text-right text-tmb-amber">
                 €{activeShortcuts.totalCost}
               </td>
-              <td className="py-3 px-3 text-right text-cyan-400">
+              <td className="py-3 px-3 text-right text-tmb-gold">
                 {activeShortcuts.totalDistanceSaved > 0 ? `-${formatDistanceValue(activeShortcuts.totalDistanceSaved, useImperial)} ${distUnit}` : ''}
               </td>
-              <td className="py-3 px-3 text-right text-cyan-400">
+              <td className="py-3 px-3 text-right text-tmb-gold">
                 {activeShortcuts.totalAscentSaved > 0 ? `-${formatElevationValue(activeShortcuts.totalAscentSaved, useImperial)}${elevUnit}` : ''}
               </td>
-              <td className="py-3 px-3 text-right text-cyan-400">
+              <td className="py-3 px-3 text-right text-tmb-gold">
                 {activeShortcuts.totalDescentSaved > 0 ? `-${formatElevationValue(activeShortcuts.totalDescentSaved, useImperial)}${elevUnit}` : ''}
               </td>
-              <td className="py-3 px-3 text-right text-cyan-400">
+              <td className="py-3 px-3 text-right text-tmb-gold">
                 {totalTimeSaved > 0 ? `-${formatTime(totalTimeSaved)}` : ''}
               </td>
               {showEndAltitude && <td className="py-3 px-3"></td>}
@@ -379,21 +379,21 @@ const SubSegment = ({ fromWp, toWp, segmentKey, selectedShortcuts, onShortcutTog
   const hasShortcuts = segment.shortcuts?.length > 0;
 
   return (
-    <div className="border-l-2 border-white/10 ml-4 pl-4 py-2">
+    <div className="border-l-2 border-tmb-line2 ml-4 pl-4 py-2">
       <button
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center gap-3 text-left group"
       >
-        <div className="text-slate-500 group-hover:text-slate-300 transition-colors">
+        <div className="text-tmb-muted group-hover:text-tmb-ink transition-colors">
           {expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 text-sm">
-            <span className="text-slate-400">{fromWp.name}</span>
-            <span className="text-slate-600">→</span>
-            <span className="text-slate-200">{toWp.name}</span>
+            <span className="text-tmb-muted">{fromWp.name}</span>
+            <span className="text-tmb-muted/70">→</span>
+            <span className="text-tmb-ink">{toWp.name}</span>
           </div>
-          <div className="flex gap-4 text-xs text-slate-500 mt-1">
+          <div className="flex gap-4 text-xs text-tmb-muted mt-1">
             <span>{distance} km</span>
             <span className="text-emerald-500/70">↑{ascent}m</span>
             <span className="text-rose-500/70">↓{descent}m</span>
@@ -406,17 +406,17 @@ const SubSegment = ({ fromWp, toWp, segmentKey, selectedShortcuts, onShortcutTog
         <div className="mt-3 space-y-2">
           {/* Sights Section */}
           {hasSights && (
-            <div className="rounded-xl bg-white/5 overflow-hidden">
+            <div className="rounded-xl bg-tmb-cream/60 overflow-hidden">
               <button
                 onClick={() => setExpandedSection(expandedSection === 'sights' ? null : 'sights')}
-                className="w-full px-4 py-3 flex items-center justify-between text-sm hover:bg-white/5 transition-colors"
+                className="w-full px-4 py-3 flex items-center justify-between text-sm hover:bg-tmb-cream/60 transition-colors"
               >
                 <div className="flex items-center gap-2">
-                  <Eye className="w-4 h-4 text-amber-400" />
-                  <span className="text-slate-300">Sights</span>
-                  <span className="text-slate-500 text-xs">({segment.sights.length})</span>
+                  <Eye className="w-4 h-4 text-tmb-amber" />
+                  <span className="text-tmb-ink">Sights</span>
+                  <span className="text-tmb-muted text-xs">({segment.sights.length})</span>
                 </div>
-                {expandedSection === 'sights' ? <ChevronDown className="w-4 h-4 text-slate-500" /> : <ChevronRight className="w-4 h-4 text-slate-500" />}
+                {expandedSection === 'sights' ? <ChevronDown className="w-4 h-4 text-tmb-muted" /> : <ChevronRight className="w-4 h-4 text-tmb-muted" />}
               </button>
 
               {expandedSection === 'sights' && (
@@ -424,27 +424,27 @@ const SubSegment = ({ fromWp, toWp, segmentKey, selectedShortcuts, onShortcutTog
                   {Object.entries(sightGroups).map(([label, sights]) =>
                     sights.length > 0 && (
                       <div key={label}>
-                        <div className="text-xs text-slate-500 uppercase tracking-wider mb-2">{label}</div>
+                        <div className="text-xs text-tmb-muted font-display uppercase tracking-[.12em] mb-2">{label}</div>
                         {sights.map((sight, idx) => (
                           <div key={idx} className="mb-2">
                             <button
                               onClick={() => setExpandedSight(expandedSight === `${segmentKey}-${idx}` ? null : `${segmentKey}-${idx}`)}
-                              className="w-full text-left flex items-start gap-2 p-2 rounded-lg hover:bg-white/5 transition-colors"
+                              className="w-full text-left flex items-start gap-2 p-2 rounded-lg hover:bg-tmb-cream/60 transition-colors"
                             >
-                              <SightIcon type={sight.type} className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
+                              <SightIcon type={sight.type} className="w-4 h-4 text-tmb-amber mt-0.5 shrink-0" />
                               <div className="flex-1 min-w-0">
-                                <div className="text-sm text-slate-200">{sight.name}</div>
-                                <div className="text-xs text-slate-500">{sight.description}</div>
+                                <div className="text-sm text-tmb-ink">{sight.name}</div>
+                                <div className="text-xs text-tmb-muted">{sight.description}</div>
                               </div>
                               {sight.photoRating >= 4 && (
-                                <div className="text-xs text-amber-400">★{sight.photoRating}</div>
+                                <div className="text-xs text-tmb-amber">★{sight.photoRating}</div>
                               )}
                             </button>
                             {expandedSight === `${segmentKey}-${idx}` && (
-                              <div className="ml-6 mt-2 p-3 rounded-lg bg-white/5 text-xs text-slate-400">
+                              <div className="ml-6 mt-2 p-3 rounded-lg bg-tmb-cream/60 text-xs text-tmb-muted">
                                 {sight.detailedDescription}
                                 {sight.timeToVisit > 0 && (
-                                  <div className="mt-2 text-slate-500">
+                                  <div className="mt-2 text-tmb-muted">
                                     Time to visit: ~{sight.timeToVisit} min
                                     {sight.distanceOffTrail > 0 && ` • ${sight.distanceOffTrail}km off trail`}
                                   </div>
@@ -463,17 +463,17 @@ const SubSegment = ({ fromWp, toWp, segmentKey, selectedShortcuts, onShortcutTog
 
           {/* Food & Refuges Section */}
           {hasFood && (
-            <div className="rounded-xl bg-white/5 overflow-hidden">
+            <div className="rounded-xl bg-tmb-cream/60 overflow-hidden">
               <button
                 onClick={() => setExpandedSection(expandedSection === 'food' ? null : 'food')}
-                className="w-full px-4 py-3 flex items-center justify-between text-sm hover:bg-white/5 transition-colors"
+                className="w-full px-4 py-3 flex items-center justify-between text-sm hover:bg-tmb-cream/60 transition-colors"
               >
                 <div className="flex items-center gap-2">
                   <Utensils className="w-4 h-4 text-orange-400" />
-                  <span className="text-slate-300">Food & Refuges</span>
-                  <span className="text-slate-500 text-xs">({segment.foodStops.length})</span>
+                  <span className="text-tmb-ink">Food & Refuges</span>
+                  <span className="text-tmb-muted text-xs">({segment.foodStops.length})</span>
                 </div>
-                {expandedSection === 'food' ? <ChevronDown className="w-4 h-4 text-slate-500" /> : <ChevronRight className="w-4 h-4 text-slate-500" />}
+                {expandedSection === 'food' ? <ChevronDown className="w-4 h-4 text-tmb-muted" /> : <ChevronRight className="w-4 h-4 text-tmb-muted" />}
               </button>
 
               {expandedSection === 'food' && (
@@ -481,9 +481,9 @@ const SubSegment = ({ fromWp, toWp, segmentKey, selectedShortcuts, onShortcutTog
                   {Object.entries(foodGroups).map(([label, foods]) =>
                     foods.length > 0 && (
                       <div key={label}>
-                        <div className="text-xs text-slate-500 uppercase tracking-wider mb-2">{label}</div>
+                        <div className="text-xs text-tmb-muted font-display uppercase tracking-[.12em] mb-2">{label}</div>
                         {foods.map((food, idx) => (
-                          <div key={idx} className="flex items-start gap-2 p-2 rounded-lg hover:bg-white/5 transition-colors">
+                          <div key={idx} className="flex items-start gap-2 p-2 rounded-lg hover:bg-tmb-cream/60 transition-colors">
                             {food.type === 'refuge' ? (
                               <Home className="w-4 h-4 text-orange-400 mt-0.5 shrink-0" />
                             ) : (
@@ -491,10 +491,10 @@ const SubSegment = ({ fromWp, toWp, segmentKey, selectedShortcuts, onShortcutTog
                             )}
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2">
-                                <span className="text-sm text-slate-200">{food.name}</span>
-                                <span className="text-xs text-slate-500">{food.priceRange}</span>
+                                <span className="text-sm text-tmb-ink">{food.name}</span>
+                                <span className="text-xs text-tmb-muted">{food.priceRange}</span>
                               </div>
-                              <div className="text-xs text-slate-500">{food.description}</div>
+                              <div className="text-xs text-tmb-muted">{food.description}</div>
                               {food.specialty && (
                                 <div className="text-xs text-orange-400/70 mt-1">★ {food.specialty}</div>
                               )}
@@ -511,17 +511,17 @@ const SubSegment = ({ fromWp, toWp, segmentKey, selectedShortcuts, onShortcutTog
 
           {/* Shortcuts Section */}
           {hasShortcuts && (
-            <div className="rounded-xl bg-white/5 overflow-hidden">
+            <div className="rounded-xl bg-tmb-cream/60 overflow-hidden">
               <button
                 onClick={() => setExpandedSection(expandedSection === 'shortcuts' ? null : 'shortcuts')}
-                className="w-full px-4 py-3 flex items-center justify-between text-sm hover:bg-white/5 transition-colors"
+                className="w-full px-4 py-3 flex items-center justify-between text-sm hover:bg-tmb-cream/60 transition-colors"
               >
                 <div className="flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-cyan-400" />
-                  <span className="text-slate-300">Shortcuts</span>
-                  <span className="text-slate-500 text-xs">({segment.shortcuts.length})</span>
+                  <Zap className="w-4 h-4 text-tmb-gold" />
+                  <span className="text-tmb-ink">Shortcuts</span>
+                  <span className="text-tmb-muted text-xs">({segment.shortcuts.length})</span>
                 </div>
-                {expandedSection === 'shortcuts' ? <ChevronDown className="w-4 h-4 text-slate-500" /> : <ChevronRight className="w-4 h-4 text-slate-500" />}
+                {expandedSection === 'shortcuts' ? <ChevronDown className="w-4 h-4 text-tmb-muted" /> : <ChevronRight className="w-4 h-4 text-tmb-muted" />}
               </button>
 
               {expandedSection === 'shortcuts' && (
@@ -529,55 +529,55 @@ const SubSegment = ({ fromWp, toWp, segmentKey, selectedShortcuts, onShortcutTog
                   {Object.entries(shortcutGroups).map(([label, shortcuts]) =>
                     shortcuts.length > 0 && (
                       <div key={label}>
-                        <div className="text-xs text-slate-500 uppercase tracking-wider mb-2">{label}</div>
+                        <div className="text-xs text-tmb-muted font-display uppercase tracking-[.12em] mb-2">{label}</div>
                         {shortcuts.map((shortcut, idx) => {
                           const shortcutId = `${segmentKey}-${shortcut.name}`;
                           const isSelected = selectedShortcuts[shortcutId];
 
                           return (
-                            <div key={idx} className={`p-3 rounded-lg transition-colors ${isSelected ? 'bg-cyan-500/20 border border-cyan-500/30' : 'bg-white/5'}`}>
+                            <div key={idx} className={`p-3 rounded-lg transition-colors ${isSelected ? 'bg-cyan-500/20 border border-cyan-500/30' : 'bg-tmb-cream/60'}`}>
                               <div className="flex items-start gap-3">
                                 <button
                                   onClick={() => onShortcutToggle(shortcutId, shortcut.timeSaved)}
                                   className={`mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
                                     isSelected
                                       ? 'bg-cyan-500 border-cyan-500'
-                                      : 'border-slate-500 hover:border-cyan-400'
+                                      : 'border-tmb-muted hover:border-tmb-gold'
                                   }`}
                                 >
-                                  {isSelected && <Check className="w-3 h-3 text-white" />}
+                                  {isSelected && <Check className="w-3 h-3 text-tmb-ink" />}
                                 </button>
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2">
-                                    <ShortcutIcon type={shortcut.type} className="w-4 h-4 text-cyan-400" />
-                                    <span className="text-sm text-slate-200">{shortcut.name}</span>
+                                    <ShortcutIcon type={shortcut.type} className="w-4 h-4 text-tmb-gold" />
+                                    <span className="text-sm text-tmb-ink">{shortcut.name}</span>
                                   </div>
-                                  <div className="text-xs text-slate-500 mt-1">{shortcut.description}</div>
+                                  <div className="text-xs text-tmb-muted mt-1">{shortcut.description}</div>
                                   <div className="flex flex-wrap gap-2 mt-2 text-xs">
                                     {shortcut.timeSaved > 0 && (
-                                      <span className="text-cyan-400">-{formatTime(shortcut.timeSaved)}</span>
+                                      <span className="text-tmb-gold">-{formatTime(shortcut.timeSaved)}</span>
                                     )}
                                     {shortcut.distanceSaved > 0 && (
-                                      <span className="text-cyan-400">-{shortcut.distanceSaved}km</span>
+                                      <span className="text-tmb-gold">-{shortcut.distanceSaved}km</span>
                                     )}
                                     {shortcut.ascentSaved > 0 && (
-                                      <span className="text-cyan-400">-↑{shortcut.ascentSaved}m</span>
+                                      <span className="text-tmb-gold">-↑{shortcut.ascentSaved}m</span>
                                     )}
                                     {shortcut.descentSaved > 0 && (
-                                      <span className="text-cyan-400">-↓{shortcut.descentSaved}m</span>
+                                      <span className="text-tmb-gold">-↓{shortcut.descentSaved}m</span>
                                     )}
                                     {shortcut.cost > 0 && (
-                                      <span className="text-amber-400">€{shortcut.cost}</span>
+                                      <span className="text-tmb-amber">€{shortcut.cost}</span>
                                     )}
                                   </div>
                                   {shortcut.skipsToWaypoint && (
-                                    <div className="flex items-center gap-1 mt-2 text-xs text-amber-400">
+                                    <div className="flex items-center gap-1 mt-2 text-xs text-tmb-amber">
                                       <AlertTriangle className="w-3 h-3" />
                                       <span>Skips to {WAYPOINTS[shortcut.skipsToWaypoint]?.name}</span>
                                     </div>
                                   )}
                                   {shortcut.considerations && (
-                                    <div className="text-xs text-slate-500 mt-2 italic">{shortcut.considerations}</div>
+                                    <div className="text-xs text-tmb-muted mt-2 italic">{shortcut.considerations}</div>
                                   )}
                                 </div>
                               </div>
@@ -636,12 +636,12 @@ const EndpointDropdown = ({ value, options, onChange, formatTime }) => {
       <button
         ref={buttonRef}
         onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); }}
-        className={`w-full bg-white/5 border px-3 py-2.5 sm:py-1.5 min-h-[44px] sm:min-h-0 rounded-lg text-sm font-medium text-slate-200 hover:bg-white/10 transition-colors flex items-center justify-between gap-2 ${
-          isOpen ? 'border-emerald-500/50' : 'border-white/10'
+        className={`w-full bg-tmb-cream/60 border px-3 py-2.5 sm:py-1.5 min-h-[44px] sm:min-h-0 rounded-lg text-sm font-medium text-tmb-ink hover:bg-tmb-kraft transition-colors flex items-center justify-between gap-2 ${
+          isOpen ? 'border-emerald-500/50' : 'border-tmb-line2'
         }`}
       >
         <span className="truncate">{selectedOption?.name || 'Select...'}</span>
-        <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-4 h-4 text-tmb-muted shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {/* Open state - portal dropdown menu */}
@@ -668,12 +668,12 @@ const EndpointDropdown = ({ value, options, onChange, formatTime }) => {
               }}
               className={`w-full px-4 py-3 sm:py-2.5 min-h-[44px] sm:min-h-0 text-left text-sm transition-colors flex items-center justify-between gap-3 ${
                 opt.id === value
-                  ? 'bg-emerald-500/20 text-emerald-400'
-                  : 'text-slate-200 hover:bg-white/10'
+                  ? 'bg-emerald-500/20 text-tmb-moss'
+                  : 'text-tmb-ink hover:bg-tmb-kraft'
               } ${index === 0 ? 'rounded-t-xl' : ''} ${index === options.length - 1 ? 'rounded-b-xl' : ''}`}
             >
               <span className="font-medium truncate">{opt.name}</span>
-              <span className="text-xs text-slate-400 shrink-0">
+              <span className="text-xs text-tmb-muted shrink-0">
                 {opt.dist}km · {formatTime(opt.time)}
               </span>
             </button>
@@ -807,22 +807,22 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
         {/* Row 1: Day badge + Date + Expand/Delete */}
         <div className="flex items-center gap-3">
           <div
-            className={`w-11 h-11 rounded-xl flex flex-col items-center justify-center shrink-0 bg-gradient-to-br ${color.gradient} shadow-lg`}
-            style={{ boxShadow: `0 8px 24px -8px ${color.main}50` }}
+            className={`w-11 h-11 rounded-full flex flex-col items-center justify-center shrink-0 ${color.gradient} shadow-lg border-3 border-tmb-cream`}
+            style={{ boxShadow: `0 4px 12px -3px rgba(0,0,0,.4)` }}
           >
-            <span className="text-[8px] uppercase tracking-wider opacity-80">Day</span>
-            <span className="text-base font-bold -mt-0.5">{day.day}</span>
+            <span className="text-[7px] font-display uppercase tracking-[.1em] text-white/85">Day</span>
+            <span className="text-base font-poster text-white leading-none">{day.day}</span>
           </div>
           <div className="flex-1">
-            <div className="text-xs text-slate-500">{formatDate(day.date)}</div>
+            <div className="text-xs text-tmb-muted">{formatDate(day.date)}</div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="text-slate-500">
+            <div className="text-tmb-muted">
               {expanded ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
             </div>
             <button
               onClick={(e) => { e.stopPropagation(); removeDay(dayIndex); }}
-              className="w-10 h-10 min-h-[44px] min-w-[44px] rounded-full text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-all flex items-center justify-center text-xl"
+              className="w-10 h-10 min-h-[44px] min-w-[44px] rounded-full text-tmb-muted hover:text-tmb-rust hover:bg-rose-500/10 transition-all flex items-center justify-center text-xl"
             >
               ×
             </button>
@@ -831,8 +831,8 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
 
         {/* Row 2: Start → End */}
         <div className="flex items-center gap-2 pl-1">
-          <span className="font-medium text-slate-200 text-sm truncate max-w-[120px]">{day.startWp.name}</span>
-          <svg className="w-4 h-4 text-slate-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <span className="font-medium text-tmb-ink text-sm truncate max-w-[120px]">{day.startWp.name}</span>
+          <svg className="w-4 h-4 text-tmb-muted/70 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
           </svg>
           <div className="flex-1" onClick={(e) => e.stopPropagation()}>
@@ -854,66 +854,66 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
         {(() => {
           const hasAnyShortcut = daySavings.timeSaved > 0 || daySavings.distanceSaved > 0 || daySavings.ascentSaved > 0 || daySavings.descentSaved > 0;
           return (
-            <div className="flex items-center justify-between px-1 py-2 bg-white/5 rounded-lg">
+            <div className="flex items-center justify-between px-1 py-2 bg-tmb-cream/60 rounded-lg">
               <div className="text-center flex-1">
                 {hasAnyShortcut ? (
                   <>
                     {daySavings.distanceSaved > 0 ? (
-                      <div className="text-slate-500 text-[10px]">{formatDistanceValue(day.distance, useImperial)}</div>
+                      <div className="text-tmb-muted text-[10px]">{formatDistanceValue(day.distance, useImperial)}</div>
                     ) : (
                       <div className="text-[10px] invisible">-</div>
                     )}
-                    <div className="font-semibold text-slate-200 text-sm">{formatDistanceValue(adjustedDistance, useImperial)}</div>
+                    <div className="font-semibold text-tmb-ink text-sm">{formatDistanceValue(adjustedDistance, useImperial)}</div>
                   </>
                 ) : (
-                  <div className="font-semibold text-slate-200 text-sm">{formatDistanceValue(day.distance, useImperial)}</div>
+                  <div className="font-semibold text-tmb-ink text-sm">{formatDistanceValue(day.distance, useImperial)}</div>
                 )}
-                <div className="text-[10px] text-slate-500">{getDistanceUnit(useImperial)}</div>
+                <div className="text-[10px] text-tmb-muted">{getDistanceUnit(useImperial)}</div>
               </div>
-              <div className="text-center flex-1 border-l border-white/10">
+              <div className="text-center flex-1 border-l border-tmb-line2">
                 {hasAnyShortcut ? (
                   <>
                     {daySavings.ascentSaved > 0 ? (
-                      <div className="text-slate-500 text-[10px]">↑{formatElevationValue(day.ascent, useImperial)}</div>
+                      <div className="text-tmb-muted text-[10px]">↑{formatElevationValue(day.ascent, useImperial)}</div>
                     ) : (
                       <div className="text-[10px] invisible">-</div>
                     )}
-                    <div className="font-semibold text-emerald-400 text-sm">↑{formatElevationValue(adjustedAscent, useImperial)}</div>
+                    <div className="font-semibold text-tmb-moss text-sm">↑{formatElevationValue(adjustedAscent, useImperial)}</div>
                   </>
                 ) : (
-                  <div className="font-semibold text-emerald-400 text-sm">↑{formatElevationValue(day.ascent, useImperial)}</div>
+                  <div className="font-semibold text-tmb-moss text-sm">↑{formatElevationValue(day.ascent, useImperial)}</div>
                 )}
-                <div className="text-[10px] text-slate-500">{getElevationUnit(useImperial)}</div>
+                <div className="text-[10px] text-tmb-muted">{getElevationUnit(useImperial)}</div>
               </div>
-              <div className="text-center flex-1 border-l border-white/10">
+              <div className="text-center flex-1 border-l border-tmb-line2">
                 {hasAnyShortcut ? (
                   <>
                     {daySavings.descentSaved > 0 ? (
-                      <div className="text-slate-500 text-[10px]">↓{formatElevationValue(day.descent, useImperial)}</div>
+                      <div className="text-tmb-muted text-[10px]">↓{formatElevationValue(day.descent, useImperial)}</div>
                     ) : (
                       <div className="text-[10px] invisible">-</div>
                     )}
-                    <div className="font-semibold text-rose-400 text-sm">↓{formatElevationValue(adjustedDescent, useImperial)}</div>
+                    <div className="font-semibold text-tmb-rust text-sm">↓{formatElevationValue(adjustedDescent, useImperial)}</div>
                   </>
                 ) : (
-                  <div className="font-semibold text-rose-400 text-sm">↓{formatElevationValue(day.descent, useImperial)}</div>
+                  <div className="font-semibold text-tmb-rust text-sm">↓{formatElevationValue(day.descent, useImperial)}</div>
                 )}
-                <div className="text-[10px] text-slate-500">{getElevationUnit(useImperial)}</div>
+                <div className="text-[10px] text-tmb-muted">{getElevationUnit(useImperial)}</div>
               </div>
-              <div className="text-center flex-1 border-l border-white/10">
+              <div className="text-center flex-1 border-l border-tmb-line2">
                 {hasAnyShortcut ? (
                   <>
                     {daySavings.timeSaved > 0 ? (
-                      <div className="text-slate-500 text-[10px]">{formatTime(day.time)}</div>
+                      <div className="text-tmb-muted text-[10px]">{formatTime(day.time)}</div>
                     ) : (
                       <div className="text-[10px] invisible">-</div>
                     )}
-                    <div className="font-semibold text-slate-200 text-sm">{formatTime(adjustedTime)}</div>
+                    <div className="font-semibold text-tmb-ink text-sm">{formatTime(adjustedTime)}</div>
                   </>
                 ) : (
-                  <div className="font-semibold text-slate-200 text-sm">{formatTime(day.time)}</div>
+                  <div className="font-semibold text-tmb-ink text-sm">{formatTime(day.time)}</div>
                 )}
-                <div className="text-[10px] text-slate-500">hike</div>
+                <div className="text-[10px] text-tmb-muted">hike</div>
               </div>
             </div>
           );
@@ -928,24 +928,24 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
       >
         {/* Column 1: Day badge */}
         <div
-          className={`w-12 h-12 rounded-xl flex flex-col items-center justify-center shrink-0 bg-gradient-to-br ${color.gradient} shadow-lg`}
-          style={{ boxShadow: `0 8px 24px -8px ${color.main}50` }}
+          className={`w-12 h-12 rounded-full flex flex-col items-center justify-center shrink-0 ${color.gradient} shadow-lg border-3 border-tmb-cream`}
+          style={{ boxShadow: `0 4px 12px -3px rgba(0,0,0,.4)` }}
         >
-          <span className="text-[9px] uppercase tracking-wider opacity-80">Day</span>
-          <span className="text-lg font-bold -mt-0.5">{day.day}</span>
+          <span className="text-[8px] font-display uppercase tracking-[.1em] text-white/85">Day</span>
+          <span className="text-xl font-poster text-white leading-none">{day.day}</span>
         </div>
 
         {/* Column 2: Date */}
-        <div className="text-xs text-slate-500">{formatDate(day.date)}</div>
+        <div className="text-xs text-tmb-muted">{formatDate(day.date)}</div>
 
         {/* Column 3: Start location (fixed width) */}
         <div className="flex items-center">
-          <span className="font-medium text-slate-200 truncate">{day.startWp.name}</span>
+          <span className="font-medium text-tmb-ink truncate">{day.startWp.name}</span>
         </div>
 
         {/* Arrow between start and end */}
         <div className="flex items-center justify-center">
-          <svg className="w-4 h-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-4 h-4 text-tmb-muted/70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
           </svg>
         </div>
@@ -973,16 +973,16 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                 {hasAnyShortcut ? (
                   <>
                     {daySavings.distanceSaved > 0 ? (
-                      <div className="text-slate-500 text-[10px]">{formatDistanceValue(day.distance, useImperial)}</div>
+                      <div className="text-tmb-muted text-[10px]">{formatDistanceValue(day.distance, useImperial)}</div>
                     ) : (
                       <div className="text-[10px] invisible">-</div>
                     )}
-                    <div className="font-semibold text-slate-200 text-sm">{formatDistanceValue(adjustedDistance, useImperial)}</div>
+                    <div className="font-semibold text-tmb-ink text-sm">{formatDistanceValue(adjustedDistance, useImperial)}</div>
                   </>
                 ) : (
-                  <div className="font-semibold text-slate-200 text-sm">{formatDistanceValue(day.distance, useImperial)}</div>
+                  <div className="font-semibold text-tmb-ink text-sm">{formatDistanceValue(day.distance, useImperial)}</div>
                 )}
-                <div className="text-[10px] text-slate-500">{getDistanceUnit(useImperial)}</div>
+                <div className="text-[10px] text-tmb-muted">{getDistanceUnit(useImperial)}</div>
               </div>
 
               {/* Column 6: Elevation up */}
@@ -990,16 +990,16 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                 {hasAnyShortcut ? (
                   <>
                     {daySavings.ascentSaved > 0 ? (
-                      <div className="text-slate-500 text-[10px]">↑{formatElevationValue(day.ascent, useImperial)}</div>
+                      <div className="text-tmb-muted text-[10px]">↑{formatElevationValue(day.ascent, useImperial)}</div>
                     ) : (
                       <div className="text-[10px] invisible">-</div>
                     )}
-                    <div className="font-semibold text-emerald-400 text-sm">↑{formatElevationValue(adjustedAscent, useImperial)}</div>
+                    <div className="font-semibold text-tmb-moss text-sm">↑{formatElevationValue(adjustedAscent, useImperial)}</div>
                   </>
                 ) : (
-                  <div className="font-semibold text-emerald-400 text-sm">↑{formatElevationValue(day.ascent, useImperial)}</div>
+                  <div className="font-semibold text-tmb-moss text-sm">↑{formatElevationValue(day.ascent, useImperial)}</div>
                 )}
-                <div className="text-[10px] text-slate-500">{getElevationUnit(useImperial)}</div>
+                <div className="text-[10px] text-tmb-muted">{getElevationUnit(useImperial)}</div>
               </div>
 
               {/* Column 7: Elevation down */}
@@ -1007,16 +1007,16 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                 {hasAnyShortcut ? (
                   <>
                     {daySavings.descentSaved > 0 ? (
-                      <div className="text-slate-500 text-[10px]">↓{formatElevationValue(day.descent, useImperial)}</div>
+                      <div className="text-tmb-muted text-[10px]">↓{formatElevationValue(day.descent, useImperial)}</div>
                     ) : (
                       <div className="text-[10px] invisible">-</div>
                     )}
-                    <div className="font-semibold text-rose-400 text-sm">↓{formatElevationValue(adjustedDescent, useImperial)}</div>
+                    <div className="font-semibold text-tmb-rust text-sm">↓{formatElevationValue(adjustedDescent, useImperial)}</div>
                   </>
                 ) : (
-                  <div className="font-semibold text-rose-400 text-sm">↓{formatElevationValue(day.descent, useImperial)}</div>
+                  <div className="font-semibold text-tmb-rust text-sm">↓{formatElevationValue(day.descent, useImperial)}</div>
                 )}
-                <div className="text-[10px] text-slate-500">{getElevationUnit(useImperial)}</div>
+                <div className="text-[10px] text-tmb-muted">{getElevationUnit(useImperial)}</div>
               </div>
 
               {/* Column 8: Time */}
@@ -1024,16 +1024,16 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                 {hasAnyShortcut ? (
                   <>
                     {daySavings.timeSaved > 0 ? (
-                      <div className="text-slate-500 text-[10px]">{formatTime(day.time)}</div>
+                      <div className="text-tmb-muted text-[10px]">{formatTime(day.time)}</div>
                     ) : (
                       <div className="text-[10px] invisible">-</div>
                     )}
-                    <div className="font-semibold text-slate-200 text-sm">{formatTime(adjustedTime)}</div>
+                    <div className="font-semibold text-tmb-ink text-sm">{formatTime(adjustedTime)}</div>
                   </>
                 ) : (
-                  <div className="font-semibold text-slate-200 text-sm">{formatTime(day.time)}</div>
+                  <div className="font-semibold text-tmb-ink text-sm">{formatTime(day.time)}</div>
                 )}
-                <div className="text-[10px] text-slate-500">hike</div>
+                <div className="text-[10px] text-tmb-muted">hike</div>
               </div>
             </>
           );
@@ -1041,12 +1041,12 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
 
         {/* Column 9: Expand arrow + delete */}
         <div className="flex items-center gap-1 justify-end">
-          <div className="text-slate-500">
+          <div className="text-tmb-muted">
             {expanded ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
           </div>
           <button
             onClick={(e) => { e.stopPropagation(); removeDay(dayIndex); }}
-            className="w-8 h-8 min-h-[44px] min-w-[44px] rounded-full text-slate-600 hover:text-rose-400 hover:bg-rose-500/10 transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center"
+            className="w-8 h-8 min-h-[44px] min-w-[44px] rounded-full text-tmb-muted/70 hover:text-tmb-rust hover:bg-rose-500/10 transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center"
           >
             ×
           </button>
@@ -1063,15 +1063,15 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
         if (/meal\s+\d{2}:\d{2}/i.test(notes)) importantNotes.push(notes.match(/meal\s+\d{2}:\d{2}[^.;]*/i)?.[0] || 'Fixed meal time');
         if (/receipt\s+missing|⚠️/i.test(notes)) importantNotes.push('Receipt missing — verify reservation');
         return (
-          <div className="mt-2 px-3 py-2 rounded-lg bg-white/5 border border-white/5">
+          <div className="mt-2 px-3 py-2 rounded-lg bg-tmb-cream/60 border border-tmb-line2">
             <div className="flex items-center gap-2 flex-wrap">
-              <Home className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              <span className="text-xs font-medium text-slate-200">{booking.place_name}</span>
-              {booking.type && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/10 text-slate-400">{booking.type}</span>}
-              {booking.status && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">{booking.status}</span>}
-              <span className="text-[10px] text-slate-500 ml-auto">{booking.check_in} → {booking.check_out}</span>
+              <Home className="w-3.5 h-3.5 text-tmb-amber shrink-0" />
+              <span className="text-xs font-medium text-tmb-ink">{booking.place_name}</span>
+              {booking.type && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/10 text-tmb-muted">{booking.type}</span>}
+              {booking.status && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-tmb-moss border border-emerald-500/20">{booking.status}</span>}
+              <span className="text-[10px] text-tmb-muted ml-auto">{booking.check_in} → {booking.check_out}</span>
               {booking.cost && (
-                <span className="text-[10px] font-medium text-emerald-400">
+                <span className="text-[10px] font-medium text-tmb-moss">
                   {booking.currency === 'CHF' ? 'CHF ' : '€'}{Number(booking.cost).toFixed(2)}
                 </span>
               )}
@@ -1091,9 +1091,9 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
       })()}
 
       {expanded && (
-        <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-white/10">
+        <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-tmb-line2">
           {/* Tab bar - scrollable on mobile */}
-          <div className="flex gap-1 mb-3 sm:mb-4 pb-3 border-b border-white/5 overflow-x-auto">
+          <div className="flex gap-1 mb-3 sm:mb-4 pb-3 border-b border-tmb-line2 overflow-x-auto">
             {[
               { id: 'segments', label: 'Segments', labelFull: 'By Segment' },
               { id: 'sights', label: 'Sights', labelFull: 'All Sights', count: dayData.allSights.length },
@@ -1105,14 +1105,14 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                 onClick={(e) => { e.stopPropagation(); setActiveTab(tab.id); }}
                 className={`px-3 sm:px-4 py-2 sm:py-1.5 min-h-[44px] sm:min-h-0 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${
                   activeTab === tab.id
-                    ? 'bg-white/15 text-white'
-                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    ? 'bg-tmb-kraft text-tmb-ink'
+                    : 'text-tmb-muted hover:text-tmb-ink hover:bg-tmb-cream/60'
                 }`}
               >
                 <span className="sm:hidden">{tab.label}</span>
                 <span className="hidden sm:inline">{tab.labelFull}</span>
                 {tab.count !== undefined && tab.count > 0 && (
-                  <span className="ml-1.5 text-slate-500">({tab.count})</span>
+                  <span className="ml-1.5 text-tmb-muted">({tab.count})</span>
                 )}
               </button>
             ))}
@@ -1137,41 +1137,41 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
           {activeTab === 'sights' && (
             <div className="space-y-4">
               {dayData.allSights.length === 0 ? (
-                <div className="text-sm text-slate-500 text-center py-4">No sights on this day</div>
+                <div className="text-sm text-tmb-muted text-center py-4">No sights on this day</div>
               ) : (
                 Object.entries(groupByDayPosition(dayData.allSights)).map(([label, sights]) =>
                   sights.length > 0 && (
                     <div key={label}>
-                      <div className="text-xs text-slate-500 uppercase tracking-wider mb-2">{label}</div>
+                      <div className="text-xs text-tmb-muted font-display uppercase tracking-[.12em] mb-2">{label}</div>
                       <div className="space-y-2">
                         {sights.map((sight, idx) => {
                           const sightId = `${sight.segmentKey}-${sight.name}`;
                           const isExpanded = expandedSightId === sightId;
                           return (
-                            <div key={idx} className="rounded-xl bg-white/5 overflow-hidden">
+                            <div key={idx} className="rounded-xl bg-tmb-cream/60 overflow-hidden">
                               <button
                                 onClick={(e) => { e.stopPropagation(); setExpandedSightId(isExpanded ? null : sightId); }}
-                                className="w-full p-3 flex items-start gap-3 text-left hover:bg-white/5 transition-colors"
+                                className="w-full p-3 flex items-start gap-3 text-left hover:bg-tmb-cream/60 transition-colors"
                               >
-                                <SightIcon type={sight.type} className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
+                                <SightIcon type={sight.type} className="w-4 h-4 text-tmb-amber mt-0.5 shrink-0" />
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2">
-                                    <span className="text-sm font-medium text-slate-200">{sight.name}</span>
+                                    <span className="text-sm font-medium text-tmb-ink">{sight.name}</span>
                                     {sight.photoRating >= 4 && (
-                                      <span className="text-xs text-amber-400">★{sight.photoRating}</span>
+                                      <span className="text-xs text-tmb-amber">★{sight.photoRating}</span>
                                     )}
                                   </div>
-                                  <div className="text-xs text-slate-500 mt-0.5">{sight.description}</div>
-                                  <div className="text-[10px] text-slate-600 mt-1">{sight.segmentLabel}</div>
+                                  <div className="text-xs text-tmb-muted mt-0.5">{sight.description}</div>
+                                  <div className="text-[10px] text-tmb-muted/70 mt-1">{sight.segmentLabel}</div>
                                 </div>
-                                <ChevronDown className={`w-4 h-4 text-slate-500 shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                                <ChevronDown className={`w-4 h-4 text-tmb-muted shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                               </button>
                               {isExpanded && (
                                 <div className="px-3 pb-3 pt-0">
-                                  <div className="p-3 rounded-lg bg-white/5 text-xs text-slate-400">
+                                  <div className="p-3 rounded-lg bg-tmb-cream/60 text-xs text-tmb-muted">
                                     {sight.detailedDescription}
                                     {sight.timeToVisit > 0 && (
-                                      <div className="mt-2 text-slate-500">
+                                      <div className="mt-2 text-tmb-muted">
                                         Time to visit: ~{sight.timeToVisit} min
                                         {sight.distanceOffTrail > 0 && ` • ${sight.distanceOffTrail}km off trail`}
                                       </div>
@@ -1193,10 +1193,10 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
           {activeTab === 'food' && (
             <div className="space-y-2">
               {dayData.allFood.length === 0 ? (
-                <div className="text-sm text-slate-500 text-center py-4">No food stops on this day</div>
+                <div className="text-sm text-tmb-muted text-center py-4">No food stops on this day</div>
               ) : (
                 dayData.allFood.map((food, idx) => (
-                  <div key={idx} className="flex items-start gap-3 p-3 rounded-xl bg-white/5">
+                  <div key={idx} className="flex items-start gap-3 p-3 rounded-xl bg-tmb-cream/60">
                     {food.type === 'refuge' ? (
                       <Home className="w-4 h-4 text-orange-400 mt-0.5 shrink-0" />
                     ) : (
@@ -1204,21 +1204,21 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                     )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-medium text-slate-200">{food.name}</span>
+                        <span className="text-sm font-medium text-tmb-ink">{food.name}</span>
                         <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
                           food.type === 'refuge' ? 'bg-orange-500/20 text-orange-400' :
-                          food.type === 'restaurant' ? 'bg-emerald-500/20 text-emerald-400' :
+                          food.type === 'restaurant' ? 'bg-emerald-500/20 text-tmb-moss' :
                           'bg-blue-500/20 text-blue-400'
                         }`}>
                           {food.type}
                         </span>
-                        <span className="text-xs text-slate-500">{food.priceRange}</span>
+                        <span className="text-xs text-tmb-muted">{food.priceRange}</span>
                       </div>
-                      <div className="text-xs text-slate-500 mt-0.5">{food.description}</div>
+                      <div className="text-xs text-tmb-muted mt-0.5">{food.description}</div>
                       {food.specialty && (
                         <div className="text-xs text-orange-400/70 mt-1">★ {food.specialty}</div>
                       )}
-                      <div className="text-[10px] text-slate-600 mt-1">{food.segmentLabel}</div>
+                      <div className="text-[10px] text-tmb-muted/70 mt-1">{food.segmentLabel}</div>
                     </div>
                   </div>
                 ))
@@ -1229,20 +1229,20 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
           {activeTab === 'shortcuts' && (
             <div className="space-y-3">
               {dayData.allShortcuts.length === 0 ? (
-                <div className="text-sm text-slate-500 text-center py-4">No shortcuts available on this day</div>
+                <div className="text-sm text-tmb-muted text-center py-4">No shortcuts available on this day</div>
               ) : (
                 <>
                   {timeSaved > 0 && (
                     <div className="flex items-center justify-between p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
-                      <span className="text-sm text-cyan-400">Time saved with selected shortcuts</span>
-                      <span className="text-sm font-semibold text-cyan-400">{formatTime(timeSaved)}</span>
+                      <span className="text-sm text-tmb-gold">Time saved with selected shortcuts</span>
+                      <span className="text-sm font-semibold text-tmb-gold">{formatTime(timeSaved)}</span>
                     </div>
                   )}
                   {dayData.allShortcuts.map((shortcut, idx) => (
                     <div
                       key={idx}
                       className={`p-3 rounded-xl transition-colors ${
-                        shortcut.isSelected ? 'bg-cyan-500/20 border border-cyan-500/30' : 'bg-white/5'
+                        shortcut.isSelected ? 'bg-cyan-500/20 border border-cyan-500/30' : 'bg-tmb-cream/60'
                       }`}
                     >
                       <div className="flex items-start gap-3">
@@ -1251,41 +1251,41 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                           className={`mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
                             shortcut.isSelected
                               ? 'bg-cyan-500 border-cyan-500'
-                              : 'border-slate-500 hover:border-cyan-400'
+                              : 'border-tmb-muted hover:border-tmb-gold'
                           }`}
                         >
-                          {shortcut.isSelected && <Check className="w-3 h-3 text-white" />}
+                          {shortcut.isSelected && <Check className="w-3 h-3 text-tmb-ink" />}
                         </button>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <ShortcutIcon type={shortcut.type} className="w-4 h-4 text-cyan-400" />
-                            <span className="text-sm font-medium text-slate-200">{shortcut.name}</span>
+                            <ShortcutIcon type={shortcut.type} className="w-4 h-4 text-tmb-gold" />
+                            <span className="text-sm font-medium text-tmb-ink">{shortcut.name}</span>
                           </div>
-                          <div className="text-xs text-slate-500 mt-1">{shortcut.description}</div>
+                          <div className="text-xs text-tmb-muted mt-1">{shortcut.description}</div>
                           <div className="flex flex-wrap gap-2 mt-2 text-xs">
                             {shortcut.timeSaved > 0 && (
-                              <span className="text-cyan-400">-{formatTime(shortcut.timeSaved)}</span>
+                              <span className="text-tmb-gold">-{formatTime(shortcut.timeSaved)}</span>
                             )}
                             {shortcut.distanceSaved > 0 && (
-                              <span className="text-cyan-400">-{shortcut.distanceSaved}km</span>
+                              <span className="text-tmb-gold">-{shortcut.distanceSaved}km</span>
                             )}
                             {shortcut.ascentSaved > 0 && (
-                              <span className="text-cyan-400">-↑{shortcut.ascentSaved}m</span>
+                              <span className="text-tmb-gold">-↑{shortcut.ascentSaved}m</span>
                             )}
                             {shortcut.descentSaved > 0 && (
-                              <span className="text-cyan-400">-↓{shortcut.descentSaved}m</span>
+                              <span className="text-tmb-gold">-↓{shortcut.descentSaved}m</span>
                             )}
                             {shortcut.cost > 0 && (
-                              <span className="text-amber-400">€{shortcut.cost}</span>
+                              <span className="text-tmb-amber">€{shortcut.cost}</span>
                             )}
                           </div>
                           {shortcut.skipsToWaypoint && (
-                            <div className="flex items-center gap-1 mt-2 text-xs text-amber-400">
+                            <div className="flex items-center gap-1 mt-2 text-xs text-tmb-amber">
                               <AlertTriangle className="w-3 h-3" />
                               <span>Skips to {WAYPOINTS[shortcut.skipsToWaypoint]?.name}</span>
                             </div>
                           )}
-                          <div className="text-[10px] text-slate-600 mt-1">{shortcut.segmentLabel}</div>
+                          <div className="text-[10px] text-tmb-muted/70 mt-1">{shortcut.segmentLabel}</div>
                         </div>
                       </div>
                     </div>
@@ -1299,66 +1299,66 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
           {(() => {
             const hasAnyShortcut = daySavings.timeSaved > 0 || daySavings.distanceSaved > 0 || daySavings.ascentSaved > 0 || daySavings.descentSaved > 0;
             return (
-              <div className="sm:hidden grid grid-cols-4 gap-2 mt-4 pt-4 border-t border-white/10">
+              <div className="sm:hidden grid grid-cols-4 gap-2 mt-4 pt-4 border-t border-tmb-line2">
                 <div className="text-center">
                   {hasAnyShortcut ? (
                     <>
                       {daySavings.distanceSaved > 0 ? (
-                        <div className="text-slate-500 text-[10px]">{day.distance}</div>
+                        <div className="text-tmb-muted text-[10px]">{day.distance}</div>
                       ) : (
                         <div className="text-[10px] invisible">-</div>
                       )}
-                      <div className="font-semibold text-slate-200">{adjustedDistance.toFixed(1)}</div>
+                      <div className="font-semibold text-tmb-ink">{adjustedDistance.toFixed(1)}</div>
                     </>
                   ) : (
-                    <div className="font-semibold text-slate-200">{day.distance}</div>
+                    <div className="font-semibold text-tmb-ink">{day.distance}</div>
                   )}
-                  <div className="text-xs text-slate-500">{getDistanceUnit(useImperial)}</div>
+                  <div className="text-xs text-tmb-muted">{getDistanceUnit(useImperial)}</div>
                 </div>
                 <div className="text-center">
                   {hasAnyShortcut ? (
                     <>
                       {daySavings.ascentSaved > 0 ? (
-                        <div className="text-slate-500 text-[10px]">↑{day.ascent}</div>
+                        <div className="text-tmb-muted text-[10px]">↑{day.ascent}</div>
                       ) : (
                         <div className="text-[10px] invisible">-</div>
                       )}
-                      <div className="font-semibold text-emerald-400">↑{adjustedAscent}</div>
+                      <div className="font-semibold text-tmb-moss">↑{adjustedAscent}</div>
                     </>
                   ) : (
-                    <div className="font-semibold text-emerald-400">↑{day.ascent}</div>
+                    <div className="font-semibold text-tmb-moss">↑{day.ascent}</div>
                   )}
-                  <div className="text-xs text-slate-500">{getElevationUnit(useImperial)}</div>
+                  <div className="text-xs text-tmb-muted">{getElevationUnit(useImperial)}</div>
                 </div>
                 <div className="text-center">
                   {hasAnyShortcut ? (
                     <>
                       {daySavings.descentSaved > 0 ? (
-                        <div className="text-slate-500 text-[10px]">↓{day.descent}</div>
+                        <div className="text-tmb-muted text-[10px]">↓{day.descent}</div>
                       ) : (
                         <div className="text-[10px] invisible">-</div>
                       )}
-                      <div className="font-semibold text-rose-400">↓{adjustedDescent}</div>
+                      <div className="font-semibold text-tmb-rust">↓{adjustedDescent}</div>
                     </>
                   ) : (
-                    <div className="font-semibold text-rose-400">↓{day.descent}</div>
+                    <div className="font-semibold text-tmb-rust">↓{day.descent}</div>
                   )}
-                  <div className="text-xs text-slate-500">{getElevationUnit(useImperial)}</div>
+                  <div className="text-xs text-tmb-muted">{getElevationUnit(useImperial)}</div>
                 </div>
                 <div className="text-center">
                   {hasAnyShortcut ? (
                     <>
                       {daySavings.timeSaved > 0 ? (
-                        <div className="text-slate-500 text-[10px]">{formatTime(day.time)}</div>
+                        <div className="text-tmb-muted text-[10px]">{formatTime(day.time)}</div>
                       ) : (
                         <div className="text-[10px] invisible">-</div>
                       )}
-                      <div className="font-semibold text-slate-200">{formatTime(adjustedTime)}</div>
+                      <div className="font-semibold text-tmb-ink">{formatTime(adjustedTime)}</div>
                     </>
                   ) : (
-                    <div className="font-semibold text-slate-200">{formatTime(day.time)}</div>
+                    <div className="font-semibold text-tmb-ink">{formatTime(day.time)}</div>
                   )}
-                  <div className="text-xs text-slate-500">hike</div>
+                  <div className="text-xs text-tmb-muted">hike</div>
                 </div>
               </div>
             );
@@ -1393,26 +1393,26 @@ const DeleteConfirmModal = ({ isOpen, dayNumber, startName, endName, onCancel, o
 
       {/* Modal */}
       <div
-        className={`relative max-w-md w-full p-6 rounded-2xl border border-white/10 shadow-2xl transition-all duration-200 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
-        style={{ backgroundColor: 'rgba(30, 41, 59, 0.95)', backdropFilter: 'blur(24px)' }}
+        className={`relative max-w-md w-full p-6 rounded-2xl border border-tmb-line shadow-2xl transition-all duration-200 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+        style={{ backgroundColor: 'rgba(42, 39, 32, 0.96)', backdropFilter: 'blur(24px)' }}
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="text-lg font-semibold text-white mb-2">
+        <h3 className="text-lg font-display uppercase text-white mb-2">
           Delete Day {dayNumber}?
         </h3>
-        <p className="text-slate-400 text-sm mb-6">
-          This will remove <span className="text-slate-200">{startName}</span> → <span className="text-slate-200">{endName}</span> from your itinerary. The segments will be merged with the next day.
+        <p className="text-tmb-muted text-sm mb-6">
+          This will remove <span className="text-tmb-ink">{startName}</span> → <span className="text-tmb-ink">{endName}</span> from your itinerary. The segments will be merged with the next day.
         </p>
         <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
           <button
             onClick={onCancel}
-            className="px-4 py-3 sm:py-2 min-h-[44px] rounded-lg bg-white/10 hover:bg-white/15 text-white text-sm font-medium transition-colors order-2 sm:order-1"
+            className="px-4 py-3 sm:py-2 min-h-[44px] rounded-lg bg-white/10 hover:bg-tmb-kraft text-tmb-ink text-sm font-medium transition-colors order-2 sm:order-1"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-3 sm:py-2 min-h-[44px] rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors order-1 sm:order-2"
+            className="px-4 py-3 sm:py-2 min-h-[44px] rounded-lg bg-red-500 hover:bg-red-600 text-tmb-ink text-sm font-medium transition-colors order-1 sm:order-2"
           >
             Delete
           </button>
@@ -1469,39 +1469,39 @@ const ShareModal = ({ isOpen, shareUrl, onClose, onCopy }) => {
 
       {/* Modal */}
       <div
-        className={`relative max-w-lg w-full p-6 rounded-2xl border border-white/10 shadow-2xl transition-all duration-200 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
-        style={{ backgroundColor: 'rgba(30, 41, 59, 0.95)', backdropFilter: 'blur(24px)' }}
+        className={`relative max-w-lg w-full p-6 rounded-2xl border border-tmb-line2 shadow-2xl transition-all duration-200 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+        style={{ backgroundColor: 'rgba(42, 39, 32, 0.96)', backdropFilter: 'blur(24px)' }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 w-10 h-10 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-white/10"
+          className="absolute top-3 right-3 w-10 h-10 min-h-[44px] min-w-[44px] flex items-center justify-center text-tmb-muted hover:text-tmb-ink transition-colors rounded-lg hover:bg-tmb-kraft"
         >
           <X className="w-5 h-5" />
         </button>
 
         <div className="flex items-center gap-3 mb-4 pr-8">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center shrink-0">
-            <Share2 className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 rounded-xl bg-tmb-forest flex items-center justify-center shrink-0">
+            <Share2 className="w-5 h-5 text-tmb-ink" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-white">Share Itinerary</h3>
-            <p className="text-slate-400 text-xs">Anyone with this link can view this trip</p>
+            <h3 className="text-lg font-semibold text-tmb-ink">Share Itinerary</h3>
+            <p className="text-tmb-muted text-xs">Anyone with this link can view this trip</p>
           </div>
         </div>
 
         <div className="mb-4">
-          <label className="text-xs text-slate-500 uppercase tracking-wider block mb-2">Shareable Link</label>
+          <label className="text-xs text-tmb-muted font-display uppercase tracking-[.12em] block mb-2">Shareable Link</label>
           <div className="flex flex-col sm:flex-row gap-2">
             <div className="flex-1 relative">
-              <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-tmb-muted" />
               <input
                 ref={inputRef}
                 type="text"
                 value={shareUrl}
                 readOnly
-                className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-3 sm:py-2.5 text-sm text-slate-300 focus:outline-none focus:border-cyan-500/50"
+                className="w-full bg-tmb-cream border border-tmb-line rounded-lg pl-10 pr-4 py-3 sm:py-2.5 text-sm text-tmb-ink focus:outline-none focus:border-cyan-500/50"
                 onClick={(e) => e.target.select()}
               />
             </div>
@@ -1509,8 +1509,8 @@ const ShareModal = ({ isOpen, shareUrl, onClose, onCopy }) => {
               onClick={handleCopy}
               className={`px-4 py-3 sm:py-2.5 min-h-[44px] rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
                 copied
-                  ? 'bg-emerald-500 text-white'
-                  : 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:shadow-lg hover:shadow-cyan-500/25'
+                  ? 'bg-emerald-500 text-tmb-ink'
+                  : 'bg-tmb-pine text-white hover:shadow-lg'
               }`}
             >
               {copied ? (
@@ -1528,8 +1528,8 @@ const ShareModal = ({ isOpen, shareUrl, onClose, onCopy }) => {
           </div>
         </div>
 
-        <div className="p-3 rounded-lg bg-white/5 border border-white/5">
-          <p className="text-xs text-slate-400">
+        <div className="p-3 rounded-lg bg-tmb-cream/60 border border-tmb-line2">
+          <p className="text-xs text-tmb-muted">
             This is a live link — anyone with it can view and edit the same trip in real time. Changes sync automatically between devices.
           </p>
         </div>
@@ -1543,15 +1543,15 @@ const Toast = ({ message, type = 'info', isVisible, icon }) => {
   if (!isVisible) return null;
 
   const colors = {
-    success: 'from-emerald-500/20 to-emerald-500/5 border-emerald-500/30 text-emerald-400',
-    error: 'from-red-500/20 to-red-500/5 border-red-500/30 text-red-400',
-    info: 'from-cyan-500/20 to-cyan-500/5 border-cyan-500/30 text-cyan-400',
+    success: 'bg-tmb-pine border-tmb-moss text-white',
+    error: 'bg-tmb-rust border-tmb-clay text-white',
+    info: 'bg-tmb-forest border-tmb-moss text-white',
   };
 
   return createPortal(
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-slide-up">
       <div
-        className={`px-4 py-3 rounded-xl border backdrop-blur-xl shadow-2xl flex items-center gap-3 bg-gradient-to-r ${colors[type]}`}
+        className={`px-4 py-3 rounded-xl border shadow-2xl flex items-center gap-3 ${colors[type]}`}
       >
         {icon}
         <span className="text-sm font-medium">{message}</span>
@@ -1617,7 +1617,7 @@ const MapControls = ({ onFitRoute }) => {
       <div className="leaflet-control">
         <button
           onClick={handleFitRoute}
-          className="w-11 h-11 sm:w-8 sm:h-8 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg flex items-center justify-center text-slate-600 hover:bg-white hover:text-slate-900 transition-colors"
+          className="w-11 h-11 sm:w-8 sm:h-8 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg flex items-center justify-center text-tmb-muted/70 hover:bg-white hover:text-tmb-ink transition-colors"
           title="Fit entire route"
         >
           <Maximize2 className="w-5 h-5 sm:w-4 sm:h-4" />
@@ -1659,31 +1659,31 @@ const OfflineMapButton = ({ tileUrl }) => {
   return (
     <div className="absolute bottom-4 right-4 z-[1000]">
       <div
-        className="rounded-xl border border-white/10 shadow-xl overflow-hidden"
-        style={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(12px)' }}
+        className="rounded-xl border border-tmb-line2 shadow-xl overflow-hidden"
+        style={{ backgroundColor: 'rgba(42, 39, 32, 0.92)', backdropFilter: 'blur(12px)' }}
       >
         {state === 'downloading' ? (
           <div className="px-3 py-2 min-w-[160px]">
-            <div className="text-[10px] text-slate-400 mb-1">Downloading tiles...</div>
-            <div className="w-full h-1.5 bg-slate-700 rounded-full overflow-hidden">
+            <div className="text-[10px] text-tmb-muted mb-1">Downloading tiles...</div>
+            <div className="w-full h-1.5 bg-tmb-line rounded-full overflow-hidden">
               <div className="h-full bg-emerald-500 transition-all duration-300 rounded-full" style={{ width: `${pct}%` }} />
             </div>
-            <div className="text-[10px] text-slate-500 mt-1">{progress.done}/{progress.total} ({pct}%)</div>
+            <div className="text-[10px] text-tmb-muted mt-1">{progress.done}/{progress.total} ({pct}%)</div>
           </div>
         ) : state === 'done' ? (
           <div className="px-3 py-2 flex items-center gap-1.5">
-            <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="text-[11px] text-emerald-400">Map cached</span>
+            <CheckCircle className="w-3.5 h-3.5 text-tmb-moss" />
+            <span className="text-[11px] text-tmb-moss">Map cached</span>
           </div>
         ) : (
           <button
             onClick={handleDownload}
-            className="px-3 py-2 flex items-center gap-1.5 hover:bg-white/5 transition-colors min-h-[44px]"
+            className="px-3 py-2 flex items-center gap-1.5 hover:bg-tmb-cream/60 transition-colors min-h-[44px]"
           >
-            <Download className="w-3.5 h-3.5 text-slate-400" />
+            <Download className="w-3.5 h-3.5 text-tmb-muted" />
             <div className="text-left">
-              <div className="text-[11px] text-slate-300">Offline Map</div>
-              <div className="text-[9px] text-slate-500">~{tiles.total} tiles · ~25MB</div>
+              <div className="text-[11px] text-tmb-ink">Offline Map</div>
+              <div className="text-[9px] text-tmb-muted">~{tiles.total} tiles · ~25MB</div>
             </div>
           </button>
         )}
@@ -1765,13 +1765,13 @@ const SegmentDetailModal = ({ isOpen, dayIndex, dayData, scenario, formatTime, f
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
 
       <div
-        className={`relative max-w-lg w-full max-h-[85vh] sm:max-h-[80vh] overflow-y-auto p-4 sm:p-6 rounded-2xl border border-white/10 shadow-2xl transition-all duration-200 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
-        style={{ backgroundColor: 'rgba(30, 41, 59, 0.95)', backdropFilter: 'blur(24px)' }}
+        className={`relative max-w-lg w-full max-h-[85vh] sm:max-h-[80vh] overflow-y-auto p-4 sm:p-6 rounded-2xl border border-tmb-line2 shadow-2xl transition-all duration-200 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
+        style={{ backgroundColor: 'rgba(42, 39, 32, 0.96)', backdropFilter: 'blur(24px)' }}
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 w-10 h-10 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-white transition-colors rounded-lg hover:bg-white/10"
+          className="absolute top-3 right-3 w-10 h-10 min-h-[44px] min-w-[44px] flex items-center justify-center text-tmb-muted hover:text-tmb-ink transition-colors rounded-lg hover:bg-tmb-kraft"
         >
           <X className="w-5 h-5" />
         </button>
@@ -1779,14 +1779,14 @@ const SegmentDetailModal = ({ isOpen, dayIndex, dayData, scenario, formatTime, f
         {/* Header */}
         <div className="flex items-center gap-3 mb-4 pr-8">
           <div
-            className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-white text-lg sm:text-xl font-bold shrink-0"
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-tmb-ink text-lg sm:text-xl font-bold shrink-0"
             style={{ backgroundColor: color }}
           >
             {d.day}
           </div>
           <div>
-            <h3 className="text-base sm:text-lg font-semibold text-white">Day {d.day}</h3>
-            <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-400">
+            <h3 className="text-base sm:text-lg font-semibold text-tmb-ink">Day {d.day}</h3>
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-tmb-muted">
               <span>{formatDate(d.date)}</span>
               <span>·</span>
               <span>{countries.join(' ')}</span>
@@ -1795,39 +1795,39 @@ const SegmentDetailModal = ({ isOpen, dayIndex, dayData, scenario, formatTime, f
         </div>
 
         {/* Route */}
-        <div className="mb-4 p-3 rounded-lg bg-white/5">
-          <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">Route</div>
-          <div className="text-slate-200 text-sm sm:text-base">
-            {d.startWp.name} <span className="text-slate-500">→</span> {d.endWp.name}
+        <div className="mb-4 p-3 rounded-lg bg-tmb-cream/60">
+          <div className="text-xs text-tmb-muted font-display uppercase tracking-[.12em] mb-1">Route</div>
+          <div className="text-tmb-ink text-sm sm:text-base">
+            {d.startWp.name} <span className="text-tmb-muted">→</span> {d.endWp.name}
           </div>
         </div>
 
         {/* Stats Grid - 2x2 on mobile, 4 col on tablet+ */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4">
-          <div className="p-3 rounded-lg bg-white/5 text-center">
-            <div className="text-base sm:text-lg font-semibold text-white">{d.distance}</div>
-            <div className="text-xs text-slate-500">km</div>
+          <div className="p-3 rounded-lg bg-tmb-cream/60 text-center">
+            <div className="text-base sm:text-lg font-semibold text-tmb-ink">{d.distance}</div>
+            <div className="text-xs text-tmb-muted">km</div>
           </div>
-          <div className="p-3 rounded-lg bg-white/5 text-center">
-            <div className="text-base sm:text-lg font-semibold text-emerald-400">↑{d.ascent}</div>
-            <div className="text-xs text-slate-500">m gain</div>
+          <div className="p-3 rounded-lg bg-tmb-cream/60 text-center">
+            <div className="text-base sm:text-lg font-semibold text-tmb-moss">↑{d.ascent}</div>
+            <div className="text-xs text-tmb-muted">m gain</div>
           </div>
-          <div className="p-3 rounded-lg bg-white/5 text-center">
-            <div className="text-base sm:text-lg font-semibold text-rose-400">↓{d.descent}</div>
-            <div className="text-xs text-slate-500">m loss</div>
+          <div className="p-3 rounded-lg bg-tmb-cream/60 text-center">
+            <div className="text-base sm:text-lg font-semibold text-tmb-rust">↓{d.descent}</div>
+            <div className="text-xs text-tmb-muted">m loss</div>
           </div>
-          <div className="p-3 rounded-lg bg-white/5 text-center">
-            <div className="text-base sm:text-lg font-semibold text-white">{formatTime(d.time)}</div>
-            <div className="text-xs text-slate-500">time</div>
+          <div className="p-3 rounded-lg bg-tmb-cream/60 text-center">
+            <div className="text-base sm:text-lg font-semibold text-tmb-ink">{formatTime(d.time)}</div>
+            <div className="text-xs text-tmb-muted">time</div>
           </div>
         </div>
 
         {/* Waypoints */}
         <div className="mb-4">
-          <div className="text-xs text-slate-500 uppercase tracking-wider mb-2">Waypoints ({waypoints.length})</div>
+          <div className="text-xs text-tmb-muted font-display uppercase tracking-[.12em] mb-2">Waypoints ({waypoints.length})</div>
           <div className="flex flex-wrap gap-1.5">
             {waypoints.map((wp, i) => (
-              <span key={i} className="text-xs px-2 py-1 rounded-full bg-white/5 text-slate-300">
+              <span key={i} className="text-xs px-2 py-1 rounded-full bg-tmb-cream/60 text-tmb-ink">
                 {wp.name} ({wp.altitude}m)
               </span>
             ))}
@@ -1837,12 +1837,12 @@ const SegmentDetailModal = ({ isOpen, dayIndex, dayData, scenario, formatTime, f
         {/* Sights */}
         {allSights.length > 0 && (
           <div className="mb-4">
-            <div className="text-xs text-slate-500 uppercase tracking-wider mb-2">Highlights</div>
+            <div className="text-xs text-tmb-muted font-display uppercase tracking-[.12em] mb-2">Highlights</div>
             <div className="space-y-2">
               {allSights.map((sight, i) => (
                 <div key={i} className="flex items-center gap-2 text-sm">
                   <span className="text-lg">{sight.icon}</span>
-                  <span className="text-slate-300">{sight.name}</span>
+                  <span className="text-tmb-ink">{sight.name}</span>
                 </div>
               ))}
             </div>
@@ -1852,13 +1852,13 @@ const SegmentDetailModal = ({ isOpen, dayIndex, dayData, scenario, formatTime, f
         {/* Food Stops */}
         {allFood.length > 0 && (
           <div className="mb-4">
-            <div className="text-xs text-slate-500 uppercase tracking-wider mb-2">Food & Refuges</div>
+            <div className="text-xs text-tmb-muted font-display uppercase tracking-[.12em] mb-2">Food & Refuges</div>
             <div className="space-y-2">
               {allFood.map((food, i) => (
                 <div key={i} className="flex items-center gap-2 text-sm">
                   <span className="text-lg">{food.type === 'refuge' ? '🏠' : '🍽️'}</span>
-                  <span className="text-slate-300">{food.name}</span>
-                  {food.altitude && <span className="text-xs text-slate-500">{food.altitude}m</span>}
+                  <span className="text-tmb-ink">{food.name}</span>
+                  {food.altitude && <span className="text-xs text-tmb-muted">{food.altitude}m</span>}
                 </div>
               ))}
             </div>
@@ -1868,7 +1868,7 @@ const SegmentDetailModal = ({ isOpen, dayIndex, dayData, scenario, formatTime, f
         {/* Shortcuts */}
         {allShortcuts.length > 0 && (
           <div>
-            <div className="text-xs text-slate-500 uppercase tracking-wider mb-2">Shortcuts Available</div>
+            <div className="text-xs text-tmb-muted font-display uppercase tracking-[.12em] mb-2">Shortcuts Available</div>
             <div className="space-y-2">
               {allShortcuts.map((shortcut, i) => {
                 const shortcutId = `${shortcut.segmentFromId}-${shortcut.name}`;
@@ -1884,25 +1884,25 @@ const SegmentDetailModal = ({ isOpen, dayIndex, dayData, scenario, formatTime, f
                     className={`w-full flex items-center justify-between p-3 rounded-lg border transition-all ${
                       isSelected
                         ? 'bg-white/10 border-white/20'
-                        : 'bg-white/5 border-transparent hover:bg-white/10'
+                        : 'bg-tmb-cream/60 border-transparent hover:bg-tmb-kraft'
                     }`}
                   >
                     <div className="flex items-center gap-2">
                       <span className="text-lg">{isCableCar ? '🚡' : isBus ? '🚌' : '↗️'}</span>
                       <div className="text-left">
-                        <div className="text-sm text-slate-200">{shortcut.name}</div>
-                        <div className="text-xs text-slate-500">{shortcut.description}</div>
+                        <div className="text-sm text-tmb-ink">{shortcut.name}</div>
+                        <div className="text-xs text-tmb-muted">{shortcut.description}</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="text-right">
                         <div className="text-sm" style={{ color: scColor }}>-{formatTime(shortcut.timeSaved)}</div>
-                        {shortcut.cost > 0 && <div className="text-xs text-amber-400">€{shortcut.cost}</div>}
+                        {shortcut.cost > 0 && <div className="text-xs text-tmb-amber">€{shortcut.cost}</div>}
                       </div>
                       <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
-                        isSelected ? 'bg-emerald-500 border-emerald-500' : 'border-slate-500'
+                        isSelected ? 'bg-tmb-pine border-tmb-pine' : 'border-tmb-muted'
                       }`}>
-                        {isSelected && <Check className="w-3 h-3 text-white" />}
+                        {isSelected && <Check className="w-3 h-3 text-tmb-ink" />}
                       </div>
                     </div>
                   </button>
@@ -2294,10 +2294,10 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
       {/* Map Legend Overlay */}
       <div className="absolute bottom-4 left-4 z-[1000]">
         <div
-          className="p-3 rounded-xl border border-white/10 shadow-xl"
-          style={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(12px)' }}
+          className="p-3 rounded-xl border border-tmb-line2 shadow-xl"
+          style={{ backgroundColor: 'rgba(42, 39, 32, 0.92)', backdropFilter: 'blur(12px)' }}
         >
-          <div className="text-xs text-slate-400 uppercase tracking-wider mb-2">Legend</div>
+          <div className="text-xs text-tmb-muted uppercase tracking-wider mb-2">Legend</div>
           <div className="space-y-1.5">
             {dayData.slice(0, Math.min(dayData.length, 8)).map((d, i) => (
               <div
@@ -2308,25 +2308,25 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
                   className="w-4 h-1 rounded-full"
                   style={{ backgroundColor: DAY_COLORS[i % DAY_COLORS.length].main }}
                 />
-                <span className="text-slate-300">Day {d.day}</span>
+                <span className="text-tmb-ink">Day {d.day}</span>
               </div>
             ))}
             {dayData.length > 8 && (
-              <div className="text-xs text-slate-500">+{dayData.length - 8} more</div>
+              <div className="text-xs text-tmb-muted">+{dayData.length - 8} more</div>
             )}
           </div>
 
           {activeShortcuts?.shortcuts?.length > 0 && (
-            <div className="mt-3 pt-3 border-t border-white/10">
-              <div className="text-xs text-slate-400 uppercase tracking-wider mb-2">Shortcuts</div>
+            <div className="mt-3 pt-3 border-t border-tmb-line2">
+              <div className="text-xs text-tmb-muted uppercase tracking-wider mb-2">Shortcuts</div>
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2 text-xs">
                   <div className="w-4 h-0.5 border-t-2 border-dashed border-cyan-400" />
-                  <span className="text-slate-300">Cable Car</span>
+                  <span className="text-tmb-ink">Cable Car</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs">
                   <div className="w-4 h-0.5 border-t-2 border-dashed border-amber-400" />
-                  <span className="text-slate-300">Bus</span>
+                  <span className="text-tmb-ink">Bus</span>
                 </div>
               </div>
             </div>
@@ -2338,13 +2338,13 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
       <div className="absolute top-4 left-4 z-[1000]">
         <div
           className="px-3 py-2 rounded-xl text-xs font-medium"
-          style={{ backgroundColor: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(8px)' }}
+          style={{ backgroundColor: 'rgba(42, 39, 32, 0.85)', backdropFilter: 'blur(8px)' }}
         >
-          <span className="text-slate-300">🇫🇷 France</span>
-          <span className="text-slate-500 mx-2">·</span>
-          <span className="text-slate-300">🇮🇹 Italy</span>
-          <span className="text-slate-500 mx-2">·</span>
-          <span className="text-slate-300">🇨🇭 Switzerland</span>
+          <span className="text-tmb-ink">🇫🇷 France</span>
+          <span className="text-tmb-muted mx-2">·</span>
+          <span className="text-tmb-ink">🇮🇹 Italy</span>
+          <span className="text-tmb-muted mx-2">·</span>
+          <span className="text-tmb-ink">🇨🇭 Switzerland</span>
         </div>
       </div>
 
@@ -2352,10 +2352,10 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
       <div className="absolute top-4 right-4 z-[1000]">
         <div
           className="px-3 py-2 rounded-xl"
-          style={{ backgroundColor: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(8px)' }}
+          style={{ backgroundColor: 'rgba(42, 39, 32, 0.85)', backdropFilter: 'blur(8px)' }}
         >
-          <div className="text-xs text-slate-400">Tour du Mont Blanc</div>
-          <div className="text-sm font-semibold text-white">
+          <div className="text-xs text-tmb-muted">Tour du Mont Blanc</div>
+          <div className="text-sm font-semibold text-tmb-ink">
             {WAYPOINTS[WAYPOINTS.length - 1].cumDist.toFixed(0)} km Circuit
           </div>
         </div>
@@ -2364,7 +2364,7 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
 
       {/* Journey Summary Table */}
       <GlassCard className="p-6 mt-6">
-        <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wider mb-4">Daily Breakdown</h3>
+        <h3 className="text-sm font-medium text-tmb-muted uppercase tracking-wider mb-4">Daily Breakdown</h3>
         <DaySummaryTable
           dayData={dayData}
           totals={totals}
@@ -2432,21 +2432,21 @@ const BookingCard = ({ booking, getFileUrl }) => {
     <GlassCard className="overflow-hidden" hover>
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full p-4 flex items-start gap-3 text-left hover:bg-white/5 transition-colors"
+        className="w-full p-4 flex items-start gap-3 text-left hover:bg-tmb-cream/60 transition-colors"
       >
-        <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center shrink-0 text-sm font-bold text-white">
+        <div className="w-9 h-9 rounded-lg bg-tmb-forest flex items-center justify-center shrink-0 text-sm font-bold text-tmb-ink">
           {booking.day_index || '—'}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm font-medium text-white">{booking.place_name}</span>
-            {booking.type && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/10 text-slate-400">{booking.type}</span>}
-            {booking.status && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">{booking.status}</span>}
+            <span className="text-sm font-medium text-tmb-ink">{booking.place_name}</span>
+            {booking.type && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/10 text-tmb-muted">{booking.type}</span>}
+            {booking.status && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-tmb-moss border border-emerald-500/20">{booking.status}</span>}
           </div>
-          <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">
+          <div className="flex items-center gap-3 mt-1 text-xs text-tmb-muted">
             <span>{booking.check_in} → {booking.check_out}</span>
             {booking.cost && (
-              <span className="text-emerald-400 font-medium">
+              <span className="text-tmb-moss font-medium">
                 {booking.currency === 'CHF' ? 'CHF ' : '€'}{Number(booking.cost).toFixed(2)}
               </span>
             )}
@@ -2458,50 +2458,50 @@ const BookingCard = ({ booking, getFileUrl }) => {
             </div>
           )}
         </div>
-        <ChevronDown className={`w-4 h-4 text-slate-500 shrink-0 mt-1 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-4 h-4 text-tmb-muted shrink-0 mt-1 transition-transform ${expanded ? 'rotate-180' : ''}`} />
       </button>
 
       {expanded && (
-        <div className="px-4 pb-4 border-t border-white/5 pt-3 space-y-3">
+        <div className="px-4 pb-4 border-t border-tmb-line2 pt-3 space-y-3">
           <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
             {booking.confirmation_no && (
               <>
-                <span className="text-slate-500">Confirmation</span>
-                <span className="text-slate-200 font-mono">{booking.confirmation_no}</span>
+                <span className="text-tmb-muted">Confirmation</span>
+                <span className="text-tmb-ink font-mono">{booking.confirmation_no}</span>
               </>
             )}
             {booking.guests && (
               <>
-                <span className="text-slate-500">Room</span>
-                <span className="text-slate-200">{booking.guests}</span>
+                <span className="text-tmb-muted">Room</span>
+                <span className="text-tmb-ink">{booking.guests}</span>
               </>
             )}
             {booking.phone && (
               <>
-                <span className="text-slate-500">Phone</span>
-                <a href={`tel:${booking.phone}`} className="text-cyan-400 hover:text-cyan-300 flex items-center gap-1">
+                <span className="text-tmb-muted">Phone</span>
+                <a href={`tel:${booking.phone}`} className="text-tmb-gold hover:text-cyan-300 flex items-center gap-1">
                   <Phone className="w-3 h-3" />{booking.phone}
                 </a>
               </>
             )}
             {booking.booking_url && (
               <>
-                <span className="text-slate-500">Booking</span>
-                <a href={booking.booking_url} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 flex items-center gap-1">
+                <span className="text-tmb-muted">Booking</span>
+                <a href={booking.booking_url} target="_blank" rel="noopener noreferrer" className="text-tmb-gold hover:text-cyan-300 flex items-center gap-1">
                   <ExternalLink className="w-3 h-3" />View booking
                 </a>
               </>
             )}
             {booking.location && (
               <>
-                <span className="text-slate-500">Address</span>
-                <span className="text-slate-300">{booking.location}</span>
+                <span className="text-tmb-muted">Address</span>
+                <span className="text-tmb-ink">{booking.location}</span>
               </>
             )}
           </div>
 
           {booking.notes && (
-            <div className="text-xs text-slate-400 bg-white/5 rounded-lg p-2.5">
+            <div className="text-xs text-tmb-muted bg-tmb-cream/60 rounded-lg p-2.5">
               {booking.notes}
             </div>
           )}
@@ -2519,7 +2519,7 @@ const BookingCard = ({ booking, getFileUrl }) => {
 
           {booking.documents?.length > 0 && (
             <div>
-              <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-2">Documents</div>
+              <div className="text-[10px] uppercase tracking-wider text-tmb-muted mb-2">Documents</div>
               <div className="flex flex-wrap gap-2">
                 {booking.documents.map((doc) => (
                   <a
@@ -2527,7 +2527,7 @@ const BookingCard = ({ booking, getFileUrl }) => {
                     href={fileUrls[doc.storage_path] || '#'}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs hover:bg-white/10 transition-colors ${fileUrls[doc.storage_path] ? 'text-cyan-400' : 'text-slate-500'}`}
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-tmb-cream border border-tmb-line text-xs hover:bg-tmb-kraft transition-colors ${fileUrls[doc.storage_path] ? 'text-tmb-gold' : 'text-tmb-muted'}`}
                     onClick={(e) => { if (!fileUrls[doc.storage_path]) e.preventDefault(); }}
                   >
                     <FileText className="w-3.5 h-3.5" />
@@ -2548,8 +2548,8 @@ const BookingsPanel = ({ bookings, arrivalBooking, totals, gaps, getFileUrl, loa
   if (loading) {
     return (
       <GlassCard className="p-8 text-center">
-        <LoaderCircle className="w-6 h-6 animate-spin text-emerald-400 mx-auto mb-2" />
-        <p className="text-slate-400 text-sm">Loading bookings...</p>
+        <LoaderCircle className="w-6 h-6 animate-spin text-tmb-moss mx-auto mb-2" />
+        <p className="text-tmb-muted text-sm">Loading bookings...</p>
       </GlassCard>
     );
   }
@@ -2558,8 +2558,8 @@ const BookingsPanel = ({ bookings, arrivalBooking, totals, gaps, getFileUrl, loa
     return (
       <GlassCard className="p-8 text-center">
         <div className="text-4xl mb-4">📋</div>
-        <h3 className="text-lg font-semibold text-white mb-2">No Bookings Yet</h3>
-        <p className="text-slate-400 text-sm">Run the ingest script to load bookings from the manifest.</p>
+        <h3 className="text-lg font-semibold text-tmb-ink mb-2">No Bookings Yet</h3>
+        <p className="text-tmb-muted text-sm">Run the ingest script to load bookings from the manifest.</p>
       </GlassCard>
     );
   }
@@ -2577,10 +2577,10 @@ const BookingsPanel = ({ bookings, arrivalBooking, totals, gaps, getFileUrl, loa
           <div className="space-y-2">
             {gaps.map((gap, i) => (
               <div key={i} className="flex items-start gap-2 text-xs">
-                <span className="text-amber-400 mt-0.5">•</span>
+                <span className="text-tmb-amber mt-0.5">•</span>
                 <div>
-                  <span className="text-slate-200">{gap.label}</span>
-                  <span className="text-slate-500 ml-2">— {gap.action}</span>
+                  <span className="text-tmb-ink">{gap.label}</span>
+                  <span className="text-tmb-muted ml-2">— {gap.action}</span>
                 </div>
               </div>
             ))}
@@ -2590,18 +2590,18 @@ const BookingsPanel = ({ bookings, arrivalBooking, totals, gaps, getFileUrl, loa
 
       {/* Cost Summary */}
       <GlassCard className="p-4">
-        <h4 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+        <h4 className="text-sm font-semibold text-tmb-ink mb-3 flex items-center gap-2">
           <span className="text-lg">💰</span> Cost Summary
         </h4>
         <div className="flex gap-6">
           <div>
-            <div className="text-2xl font-bold text-emerald-400">€{totals.eur.toFixed(2)}</div>
-            <div className="text-[10px] text-slate-500 uppercase tracking-wider">EUR</div>
+            <div className="text-2xl font-bold text-tmb-moss">€{totals.eur.toFixed(2)}</div>
+            <div className="text-[10px] text-tmb-muted font-display uppercase tracking-[.12em]">EUR</div>
           </div>
           {totals.chf > 0 && (
             <div>
-              <div className="text-2xl font-bold text-cyan-400">CHF {totals.chf.toFixed(2)}</div>
-              <div className="text-[10px] text-slate-500 uppercase tracking-wider">CHF</div>
+              <div className="text-2xl font-bold text-tmb-gold">CHF {totals.chf.toFixed(2)}</div>
+              <div className="text-[10px] text-tmb-muted font-display uppercase tracking-[.12em]">CHF</div>
             </div>
           )}
         </div>
@@ -2610,7 +2610,7 @@ const BookingsPanel = ({ bookings, arrivalBooking, totals, gaps, getFileUrl, loa
       {/* Arrival Booking */}
       {arrivalBooking && (
         <div>
-          <div className="text-xs text-slate-500 uppercase tracking-wider mb-2 px-1">Arrival</div>
+          <div className="text-xs text-tmb-muted font-display uppercase tracking-[.12em] mb-2 px-1">Arrival</div>
           <BookingCard booking={arrivalBooking} getFileUrl={getFileUrl} />
         </div>
       )}
@@ -2618,7 +2618,7 @@ const BookingsPanel = ({ bookings, arrivalBooking, totals, gaps, getFileUrl, loa
       {/* Stage Bookings */}
       {stageBookings.length > 0 && (
         <div>
-          <div className="text-xs text-slate-500 uppercase tracking-wider mb-2 px-1">Stages (Days 1–{stageBookings.length})</div>
+          <div className="text-xs text-tmb-muted font-display uppercase tracking-[.12em] mb-2 px-1">Stages (Days 1–{stageBookings.length})</div>
           <div className="space-y-2">
             {stageBookings.map((b) => (
               <BookingCard key={b.id} booking={b} getFileUrl={getFileUrl} />
@@ -3016,75 +3016,108 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white p-6 relative overflow-hidden">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 -left-40 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 right-1/3 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
+    <div className="min-h-screen bg-tmb-cream text-tmb-ink font-body relative">
+      {/* Faint topographic contour texture */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.04]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20,100 Q50,60 100,80 T180,70' fill='none' stroke='%232a2720' stroke-width='0.8'/%3E%3Cpath d='M10,140 Q60,100 120,120 T190,110' fill='none' stroke='%232a2720' stroke-width='0.6'/%3E%3Cpath d='M0,60 Q40,30 80,50 T160,40 T200,55' fill='none' stroke='%232a2720' stroke-width='0.5'/%3E%3Cpath d='M30,170 Q70,150 110,160 T200,145' fill='none' stroke='%232a2720' stroke-width='0.7'/%3E%3C/svg%3E")`, backgroundSize: '200px 200px' }} />
+
+      {/* Alpine Hero Header */}
+      <div className="relative overflow-hidden" style={{ height: 'clamp(200px, 30vw, 300px)' }}>
+        <svg viewBox="0 0 1080 300" preserveAspectRatio="xMidYMax slice" className="absolute inset-0 w-full h-full">
+          <defs>
+            <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#16243a"/><stop offset="42%" stopColor="#2c4a44"/>
+              <stop offset="74%" stopColor="#c97f37"/><stop offset="100%" stopColor="#efc874"/>
+            </linearGradient>
+          </defs>
+          <rect width="1080" height="300" fill="url(#sky)"/>
+          <circle cx="800" cy="208" r="52" fill="#f4d98a" opacity=".9"/>
+          <path d="M0,300 L0,150 L150,205 L300,120 L470,210 L520,165 L640,225 L760,150 L900,215 L1080,140 L1080,300 Z" fill="#3a5a45" opacity=".75"/>
+          <path d="M0,300 L0,205 L120,235 L280,170 L300,120 L340,150 L470,210 L560,180 L700,240 L820,195 L960,245 L1080,205 L1080,300 Z" fill="#274536"/>
+          <polygon points="300,120 270,150 330,150" fill="#f3ecd9"/>
+          <polygon points="760,150 738,178 786,178" fill="#f3ecd9" opacity=".85"/>
+          <path d="M0,300 L0,255 L160,275 L340,225 L520,272 L680,235 L860,275 L1080,248 L1080,300 Z" fill="#1c3a2a"/>
+        </svg>
+        {/* Grain overlay */}
+        <div className="absolute inset-0 opacity-[0.07] mix-blend-multiply" style={{ backgroundImage: 'radial-gradient(rgba(0,0,0,.5) .5px, transparent .6px)', backgroundSize: '3px 3px' }} />
+        {/* Route stamp badge */}
+        <div className="absolute right-4 sm:right-8 top-4 sm:top-6 w-20 h-20 sm:w-[118px] sm:h-[118px] rounded-full flex flex-col items-center justify-center text-center rotate-[7deg]" style={{ background: 'rgba(28,58,42,.55)', border: '2px solid #e3a93c', backdropFilter: 'blur(2px)' }}>
+          <span className="absolute inset-2 border border-dashed border-tmb-gold rounded-full opacity-55" />
+          <span className="font-poster text-xl sm:text-3xl leading-none text-[#f3d27e]">TMB</span>
+          <span className="font-display text-[8px] sm:text-[9.5px] uppercase tracking-[.2em] mt-0.5 text-[#ecd49a]">2026 · 7 days</span>
+        </div>
+        {/* Hero caption */}
+        <div className="absolute left-4 sm:left-8 bottom-4 sm:bottom-6 text-[#fff7e6]" style={{ textShadow: '0 2px 10px rgba(0,0,0,.45)' }}>
+          <div className="font-display uppercase tracking-[.34em] text-[10px] sm:text-xs text-[#f3dca6]">France · Italy · Switzerland</div>
+          <h1 className="font-poster uppercase text-4xl sm:text-7xl leading-[.84] tracking-[.01em] mt-1">Tour du<span className="block text-xl sm:text-3xl tracking-[.06em] text-[#f1c878]">Mont Blanc</span></h1>
+          <div className="font-display uppercase tracking-[.16em] text-[10px] sm:text-[13px] mt-2 text-[#f6e7c4]">Aug 2–11 · the full loop</div>
+        </div>
+        {/* Sync status badge */}
+        {trip?.id && (
+          <div className="absolute top-3 left-4 sm:left-8">
+            <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-black/20 backdrop-blur-sm text-tmb-ink/80" title={connected ? 'Live sync active' : syncing ? 'Syncing...' : !online ? `Offline${pendingCount ? ` (${pendingCount} pending)` : ''}` : 'Offline'}>
+              {syncing ? (
+                <><LoaderCircle className="w-3 h-3 animate-spin" /><span>Syncing</span></>
+              ) : connected ? (
+                <><Wifi className="w-3 h-3" /><span>Live</span></>
+              ) : !online ? (
+                <><CloudOff className="w-3 h-3" /><span>Offline{pendingCount > 0 && ` (${pendingCount})`}</span></>
+              ) : (
+                <><CloudOff className="w-3 h-3 opacity-50" /><span className="opacity-50">Offline</span></>
+              )}
+            </span>
+          </div>
+        )}
       </div>
 
-      <div className="max-w-5xl mx-auto relative px-4 sm:px-0">
-        {/* Header */}
-        <div className="mb-6 sm:mb-8">
-          <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center text-lg sm:text-xl">⛰️</div>
-            <h1 className="text-xl sm:text-3xl font-light tracking-tight">Tour du Mont Blanc</h1>
+      {/* Stat ribbon */}
+      <div className="grid grid-cols-4 bg-tmb-pine text-[#f4ead2]">
+        {[
+          { value: Math.round(totals.distance), label: 'km' },
+          { value: `${(totals.ascent / 1000).toFixed(0)}K`, label: 'm climb' },
+          { value: dayData.length, label: 'trail days' },
+          { value: bookings?.filter(b => b.phase === 'stage')?.length || dayData.length, label: 'refuges' },
+        ].map((m, i) => (
+          <div key={i} className={`py-3 px-2 text-center ${i < 3 ? 'border-r border-tmb-line2' : ''}`}>
+            <span className="font-poster text-xl sm:text-2xl text-tmb-ink block leading-none">{m.value}</span>
+            <span className="font-display uppercase tracking-[.16em] text-[9px] sm:text-[10px] text-[#bcd0ad]">{m.label}</span>
           </div>
-          <div className="flex items-center gap-2 flex-wrap ml-10 sm:ml-13">
-            <p className="text-slate-400 text-xs sm:text-sm">Plan your journey around the roof of Europe</p>
-            <a href="https://www.autourdumontblanc.com/en/information/trails-conditions" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors">
-              <Route className="w-3 h-3" />Trail Conditions
-            </a>
-            {trip?.id && (
-              <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full" title={connected ? 'Live sync active' : syncing ? 'Syncing...' : !online ? `Offline${pendingCount ? ` (${pendingCount} pending)` : ''}` : 'Offline'}>
-                {syncing ? (
-                  <><LoaderCircle className="w-3 h-3 animate-spin text-amber-400" /><span className="text-amber-400">Syncing</span></>
-                ) : connected ? (
-                  <><Wifi className="w-3 h-3 text-emerald-400" /><span className="text-emerald-400">Live</span></>
-                ) : !online ? (
-                  <><CloudOff className="w-3 h-3 text-orange-400" /><span className="text-orange-400">Offline{pendingCount > 0 && ` (${pendingCount})`}</span></>
-                ) : (
-                  <><CloudOff className="w-3 h-3 text-slate-500" /><span className="text-slate-500">Offline</span></>
-                )}
-              </span>
-            )}
-          </div>
-        </div>
+        ))}
+      </div>
 
-        {/* Section nav */}
-        <GlassCard className="p-1 sm:p-1.5 mb-4 sm:mb-6 flex gap-1 w-full sm:w-auto sm:inline-flex">
-          {[
-            { id: 'trail', label: 'Trail & Plan', icon: '⛰️' },
-            { id: 'logistics', label: 'Logistics & Packing', icon: '🎒' }
-          ].map(s => (
-            <button
-              key={s.id}
-              onClick={() => navigate(urlToken ? `/t/${urlToken}/${s.id}` : `/${s.id}`, { replace: false })}
-              className={`flex-1 sm:flex-initial px-4 sm:px-6 py-3 sm:py-2.5 min-h-[48px] sm:min-h-[44px] rounded-xl text-sm font-semibold transition-all duration-300 flex items-center justify-center sm:justify-start gap-2.5 ${
-                section === s.id
-                  ? 'bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 text-white border border-emerald-500/30 shadow-lg shadow-emerald-500/10'
-                  : 'text-slate-400 hover:text-white hover:bg-white/5 active:bg-white/10'
-              }`}
-            >
-              <span className="text-lg">{s.icon}</span>
-              <span>{s.label}</span>
-            </button>
-          ))}
-        </GlassCard>
+      {/* Section nav — letterpress tabs */}
+      <div className="flex bg-tmb-kraft border-b-2 border-[#c8ad77]">
+        {[
+          { id: 'trail', label: 'The Trail' },
+          { id: 'logistics', label: 'Logistics & Packing' }
+        ].map(s => (
+          <button
+            key={s.id}
+            onClick={() => navigate(urlToken ? `/t/${urlToken}/${s.id}` : `/${s.id}`, { replace: false })}
+            className={`font-display uppercase tracking-[.13em] text-sm font-semibold px-5 sm:px-7 py-3.5 border-b-4 transition-colors min-h-[48px] ${
+              section === s.id
+                ? 'text-tmb-pine border-tmb-rust bg-tmb-cream'
+                : 'text-[#7d6b43] border-transparent hover:text-tmb-pine'
+            }`}
+          >
+            {s.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="max-w-5xl mx-auto relative px-4 sm:px-6 py-5 sm:py-8">
 
         {section === 'trail' && (<>
         {/* Scenario tabs and action buttons */}
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-2 mb-4 sm:mb-6">
-          {/* Scenario pills - horizontal scroll on mobile */}
           <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide flex-wrap sm:flex-nowrap items-center">
             {scenarios.map(s => (
               <button
                 key={s.id}
                 onClick={() => setActiveScenarioId(s.id)}
-                className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-sm font-medium transition-all duration-300 whitespace-nowrap min-h-[44px] ${
+                className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-sm font-display uppercase tracking-wider transition-all duration-300 whitespace-nowrap min-h-[44px] ${
                   activeScenarioId === s.id
-                    ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white shadow-lg shadow-emerald-500/25'
-                    : 'bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10 active:bg-white/15'
+                    ? 'bg-tmb-pine text-tmb-ink shadow-md'
+                    : 'bg-tmb-paper text-tmb-muted hover:bg-tmb-kraft border border-tmb-line'
                 }`}
               >
                 {s.name}
@@ -3092,43 +3125,41 @@ export default function App() {
             ))}
             <button
               onClick={createScenario}
-              className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full bg-white/5 border border-dashed border-white/20 text-slate-400 hover:bg-white/10 hover:border-white/30 active:bg-white/15 transition-all duration-300 flex items-center justify-center shrink-0"
+              className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full bg-tmb-paper border border-dashed border-tmb-line text-tmb-muted hover:bg-tmb-kraft hover:border-tmb-gold transition-all duration-300 flex items-center justify-center shrink-0"
             >
               +
             </button>
           </div>
 
-          {/* Action buttons */}
           <div className="flex items-center gap-2 sm:ml-auto justify-end">
             {showSaved && (
-              <span className="text-emerald-400 text-sm animate-pulse">Saved!</span>
+              <span className="text-tmb-moss text-sm animate-pulse font-display uppercase tracking-wider">Saved!</span>
             )}
-            {/* Unit Toggle */}
             <button
               onClick={() => {
                 setUseImperial(!useImperial);
                 setIsDirty(true);
               }}
-              className="px-3 py-2 min-h-[44px] rounded-full text-xs font-medium transition-all duration-300 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 active:bg-white/15 flex items-center gap-1.5"
+              className="px-3 py-2 min-h-[44px] rounded-full text-xs font-display uppercase tracking-wider transition-all duration-300 bg-tmb-paper border border-tmb-line hover:bg-tmb-kraft flex items-center gap-1.5"
               title={useImperial ? 'Switch to metric (km/m)' : 'Switch to imperial (mi/ft)'}
             >
-              <span className={useImperial ? 'text-slate-500' : 'text-emerald-400'}>km</span>
-              <span className="text-slate-600">/</span>
-              <span className={useImperial ? 'text-amber-400' : 'text-slate-500'}>mi</span>
+              <span className={useImperial ? 'text-tmb-muted' : 'text-tmb-moss font-bold'}>km</span>
+              <span className="text-tmb-line">/</span>
+              <span className={useImperial ? 'text-tmb-amber font-bold' : 'text-tmb-muted'}>mi</span>
             </button>
             <button
               onClick={handleShare}
-              className="px-3 sm:px-4 py-2 sm:py-2.5 min-h-[44px] rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 bg-white/5 text-slate-300 hover:bg-white/10 active:bg-white/15 border border-white/10 hover:border-cyan-500/30 hover:text-cyan-400"
+              className="px-3 sm:px-4 py-2 sm:py-2.5 min-h-[44px] rounded-full text-sm font-display uppercase tracking-wider transition-all duration-300 flex items-center gap-2 bg-tmb-paper text-tmb-muted hover:bg-tmb-kraft border border-tmb-line hover:border-tmb-gold hover:text-tmb-ink"
             >
               <Share2 className="w-4 h-4" />
               <span className="hidden sm:inline">Share</span>
             </button>
             <button
               onClick={saveToLocalStorage}
-              className={`px-3 sm:px-4 py-2 sm:py-2.5 min-h-[44px] rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
+              className={`px-3 sm:px-4 py-2 sm:py-2.5 min-h-[44px] rounded-full text-sm font-display uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${
                 isDirty
-                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/25'
-                  : 'bg-white/5 text-slate-300 hover:bg-white/10 active:bg-white/15 border border-white/10'
+                  ? 'bg-tmb-rust text-tmb-ink shadow-md'
+                  : 'bg-tmb-paper text-tmb-muted hover:bg-tmb-kraft border border-tmb-line'
               }`}
             >
               <Save className="w-4 h-4" />
@@ -3138,26 +3169,25 @@ export default function App() {
           </div>
         </div>
 
-        {/* View tabs - full width on mobile */}
-        <GlassCard className="p-1 sm:p-1.5 mb-4 sm:mb-6 flex sm:inline-flex gap-1 w-full sm:w-auto">
+        {/* View tabs */}
+        <div className="flex gap-1 mb-4 sm:mb-6 bg-tmb-kraft border border-tmb-line rounded-[13px] p-1 sm:inline-flex w-full sm:w-auto">
           {[
-            { id: 'plan', label: 'Itinerary', icon: '📋' },
-            { id: 'map', label: 'Route Map', icon: '🗺️' },
-            { id: 'elevation', label: 'Elevation', icon: '📈' },
-            { id: 'compare', label: 'Compare', icon: '⚖️' }
+            { id: 'plan', label: 'Itinerary' },
+            { id: 'map', label: 'Route Map' },
+            { id: 'elevation', label: 'Elevation' },
+            { id: 'compare', label: 'Compare' }
           ].map(tab => (
             <button
               key={tab.id}
               onClick={() => setView(tab.id)}
-              className={`flex-1 sm:flex-initial px-3 sm:px-4 py-2.5 sm:py-2 min-h-[44px] rounded-xl text-sm transition-all duration-300 flex items-center justify-center sm:justify-start gap-2 ${
-                view === tab.id ? 'bg-white/15 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5 active:bg-white/10'
+              className={`flex-1 sm:flex-initial px-3 sm:px-5 py-2.5 sm:py-2 min-h-[44px] rounded-[9px] text-sm font-display uppercase tracking-[.08em] transition-all duration-300 ${
+                view === tab.id ? 'bg-tmb-cream text-tmb-pine shadow-sm border border-tmb-line' : 'text-tmb-muted hover:text-tmb-ink hover:bg-tmb-cream/50'
               }`}
             >
-              <span>{tab.icon}</span>
-              <span className="hidden sm:inline">{tab.label}</span>
+              {tab.label}
             </button>
           ))}
-        </GlassCard>
+        </div>
 
         {view === 'compare' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -3173,22 +3203,22 @@ export default function App() {
                 <GlassCard key={s.id} className="p-5" hover>
                   <h4 className="font-semibold text-lg mb-4">{s.name}</h4>
                   <div className="grid grid-cols-2 gap-3 mb-4">
-                    <div className="bg-white/5 rounded-xl p-3 text-center">
-                      <div className="text-2xl font-bold text-emerald-400">{s.days.length}</div>
-                      <div className="text-xs text-slate-400">days</div>
+                    <div className="bg-tmb-cream/60 rounded-xl p-3 text-center">
+                      <div className="text-2xl font-bold text-tmb-moss">{s.days.length}</div>
+                      <div className="text-xs text-tmb-muted">days</div>
                     </div>
-                    <div className="bg-white/5 rounded-xl p-3 text-center">
-                      <div className="text-2xl font-bold text-slate-200">{tots.distance.toFixed(0)}</div>
-                      <div className="text-xs text-slate-400">km</div>
+                    <div className="bg-tmb-cream/60 rounded-xl p-3 text-center">
+                      <div className="text-2xl font-bold text-tmb-ink">{tots.distance.toFixed(0)}</div>
+                      <div className="text-xs text-tmb-muted">km</div>
                     </div>
                   </div>
                   <div className="space-y-1.5">
                     {data.map((d, i) => (
-                      <div key={i} className="flex items-center gap-2 text-xs py-1.5 px-2 rounded-lg bg-white/5">
+                      <div key={i} className="flex items-center gap-2 text-xs py-1.5 px-2 rounded-lg bg-tmb-cream/60">
                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: DAY_COLORS[i % DAY_COLORS.length].main }} />
-                        <span className="text-slate-500 w-6">D{d.day}</span>
-                        <span className="text-slate-300 flex-1 truncate">{d.endWp.name}</span>
-                        <span className="text-slate-500">{d.distance}km</span>
+                        <span className="text-tmb-muted w-6">D{d.day}</span>
+                        <span className="text-tmb-ink flex-1 truncate">{d.endWp.name}</span>
+                        <span className="text-tmb-muted">{d.distance}km</span>
                       </div>
                     ))}
                   </div>
@@ -3203,19 +3233,18 @@ export default function App() {
             <GlassCard className="p-4 sm:p-6 mb-4 sm:mb-6">
               {/* Mobile layout: stacked */}
               <div className="md:hidden space-y-4">
-                {/* Row 1: Scenario name and date */}
                 <div className="flex flex-col sm:flex-row gap-4">
                   <div className="flex-1">
-                    <label className="text-xs text-slate-500 uppercase tracking-wider block mb-2">Scenario</label>
+                    <label className="text-[10px] font-display uppercase tracking-[.16em] text-tmb-muted block mb-2">Scenario</label>
                     <input
                       type="text"
                       value={activeScenario.name}
                       onChange={(e) => renameScenario(activeScenario.id, e.target.value)}
-                      className="bg-transparent text-lg font-light border-b border-white/20 focus:border-emerald-500 outline-none pb-1 w-full transition-colors"
+                      className="bg-transparent text-lg font-display text-tmb-ink border-b border-tmb-line focus:border-tmb-rust outline-none pb-1 w-full transition-colors"
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-slate-500 uppercase tracking-wider block mb-2">Start Date</label>
+                    <label className="text-[10px] font-display uppercase tracking-[.16em] text-tmb-muted block mb-2">Start Date</label>
                     <input
                       type="date"
                       value={activeScenario.startDate}
@@ -3225,46 +3254,46 @@ export default function App() {
                         ));
                         setIsDirty(true);
                       }}
-                      className="bg-white/5 border border-white/10 px-4 py-3 min-h-[44px] rounded-xl text-sm focus:border-emerald-500 outline-none transition-colors w-full"
+                      className="bg-tmb-cream border border-tmb-line px-4 py-3 min-h-[44px] rounded-[9px] text-sm text-tmb-ink focus:border-tmb-rust outline-none transition-colors w-full"
                     />
                   </div>
                 </div>
                 {/* Row 2: Stats */}
-                <div className="flex items-center justify-between px-2 py-3 bg-white/5 rounded-xl">
+                <div className="flex items-center justify-between px-2 py-3 bg-tmb-cream/60 rounded-xl">
                   <div className="flex items-center gap-3">
                     <button
                       onClick={mergeShortestDay}
                       disabled={dayData.length <= 1}
-                      className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-lg bg-white/5 border border-white/10 text-slate-400 hover:bg-rose-500/20 hover:border-rose-500/30 hover:text-rose-400 disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+                      className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-lg bg-tmb-cream border border-tmb-line text-tmb-muted hover:bg-rose-500/20 hover:border-rose-500/30 hover:text-tmb-rust disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center justify-center"
                       title="Remove day (merge shortest)"
                     >
                       <Minus className="w-5 h-5" />
                     </button>
                     <div className="text-center min-w-[2.5rem]">
                       <div className="text-xl font-bold">{dayData.length}</div>
-                      <div className="text-[10px] text-slate-500 uppercase tracking-wider">Days</div>
+                      <div className="text-[10px] text-tmb-muted font-display uppercase tracking-[.12em]">Days</div>
                     </div>
                     <button
                       onClick={splitLongestDay}
-                      className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-lg bg-white/5 border border-white/10 text-slate-400 hover:bg-emerald-500/20 hover:border-emerald-500/30 hover:text-emerald-400 transition-all flex items-center justify-center"
+                      className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-lg bg-tmb-cream border border-tmb-line text-tmb-muted hover:bg-emerald-500/20 hover:border-emerald-500/30 hover:text-tmb-moss transition-all flex items-center justify-center"
                       title="Add day (split longest)"
                     >
                       <Plus className="w-5 h-5" />
                     </button>
                   </div>
                   <div className="text-center">
-                    <div className="text-lg font-bold text-slate-200">
+                    <div className="text-lg font-bold text-tmb-ink">
                       {formatDistanceValue(totals.distance - shortcutSavings.distanceSaved, useImperial)}{getDistanceUnit(useImperial)}
                     </div>
-                    <div className="text-[10px] text-slate-500 uppercase tracking-wider">
+                    <div className="text-[10px] text-tmb-muted font-display uppercase tracking-[.12em]">
                       {shortcutSavings.distanceSaved > 0 ? `−${formatDistanceValue(shortcutSavings.distanceSaved, useImperial)}` : 'Distance'}
                     </div>
                   </div>
                   <div className="text-center">
-                    <div className="text-lg font-bold text-slate-200">
+                    <div className="text-lg font-bold text-tmb-ink">
                       {formatTime(totals.time - totalTimeSaved)}
                     </div>
-                    <div className="text-[10px] text-slate-500 uppercase tracking-wider">
+                    <div className="text-[10px] text-tmb-muted font-display uppercase tracking-[.12em]">
                       {totalTimeSaved > 0 ? `−${formatTime(totalTimeSaved)}` : 'Hiking'}
                     </div>
                   </div>
@@ -3275,7 +3304,7 @@ export default function App() {
               <div className="hidden md:flex flex-wrap gap-6 items-center justify-between">
                 <div className="flex gap-6 items-center">
                   <div>
-                    <label className="text-xs text-slate-500 uppercase tracking-wider block mb-2">Scenario</label>
+                    <label className="text-xs text-tmb-muted font-display uppercase tracking-[.12em] block mb-2">Scenario</label>
                     <input
                       type="text"
                       value={activeScenario.name}
@@ -3284,7 +3313,7 @@ export default function App() {
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-slate-500 uppercase tracking-wider block mb-2">Start Date</label>
+                    <label className="text-xs text-tmb-muted font-display uppercase tracking-[.12em] block mb-2">Start Date</label>
                     <input
                       type="date"
                       value={activeScenario.startDate}
@@ -3294,7 +3323,7 @@ export default function App() {
                         ));
                         setIsDirty(true);
                       }}
-                      className="bg-white/5 border border-white/10 px-4 py-2 rounded-xl text-sm focus:border-emerald-500 outline-none transition-colors"
+                      className="bg-tmb-cream border border-tmb-line px-4 py-2 rounded-xl text-sm focus:border-emerald-500 outline-none transition-colors"
                     />
                   </div>
                 </div>
@@ -3304,18 +3333,18 @@ export default function App() {
                     <button
                       onClick={mergeShortestDay}
                       disabled={dayData.length <= 1}
-                      className="w-10 h-10 min-h-[44px] min-w-[44px] rounded-lg bg-white/5 border border-white/10 text-slate-400 hover:bg-rose-500/20 hover:border-rose-500/30 hover:text-rose-400 disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+                      className="w-10 h-10 min-h-[44px] min-w-[44px] rounded-lg bg-tmb-cream border border-tmb-line text-tmb-muted hover:bg-rose-500/20 hover:border-rose-500/30 hover:text-tmb-rust disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center justify-center"
                       title="Remove day (merge shortest)"
                     >
                       <Minus className="w-4 h-4" />
                     </button>
                     <div className="text-center min-w-[3rem]">
                       <div className="text-2xl font-bold">{dayData.length}</div>
-                      <div className="text-xs text-slate-500 uppercase tracking-wider">Days</div>
+                      <div className="text-xs text-tmb-muted font-display uppercase tracking-[.12em]">Days</div>
                     </div>
                     <button
                       onClick={splitLongestDay}
-                      className="w-10 h-10 min-h-[44px] min-w-[44px] rounded-lg bg-white/5 border border-white/10 text-slate-400 hover:bg-emerald-500/20 hover:border-emerald-500/30 hover:text-emerald-400 transition-all flex items-center justify-center"
+                      className="w-10 h-10 min-h-[44px] min-w-[44px] rounded-lg bg-tmb-cream border border-tmb-line text-tmb-muted hover:bg-emerald-500/20 hover:border-emerald-500/30 hover:text-tmb-moss transition-all flex items-center justify-center"
                       title="Add day (split longest)"
                     >
                       <Plus className="w-4 h-4" />
@@ -3326,20 +3355,20 @@ export default function App() {
 
                   {/* Distance */}
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-slate-200">
+                    <div className="text-2xl font-bold text-tmb-ink">
                       {formatDistanceValue(totals.distance - shortcutSavings.distanceSaved, useImperial)}{getDistanceUnit(useImperial)}
                     </div>
-                    <div className="text-xs text-slate-500 uppercase tracking-wider">
+                    <div className="text-xs text-tmb-muted font-display uppercase tracking-[.12em]">
                       {shortcutSavings.distanceSaved > 0 ? `Distance (-${formatDistanceValue(shortcutSavings.distanceSaved, useImperial)})` : 'Distance'}
                     </div>
                   </div>
 
                   {/* Hiking time */}
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-slate-200">
+                    <div className="text-2xl font-bold text-tmb-ink">
                       {formatTime(totals.time - totalTimeSaved)}
                     </div>
-                    <div className="text-xs text-slate-500 uppercase tracking-wider">
+                    <div className="text-xs text-tmb-muted font-display uppercase tracking-[.12em]">
                       {totalTimeSaved > 0 ? `Hiking (-${formatTime(totalTimeSaved)})` : 'Hiking'}
                     </div>
                   </div>
@@ -3351,20 +3380,20 @@ export default function App() {
             {arrivalBooking && (
               <GlassCard className="p-4 mb-4 border-l-4 border-l-amber-500/60">
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shrink-0 shadow-lg">
-                    <Bed className="w-5 h-5 text-white" />
+                  <div className="w-10 h-10 rounded-xl bg-tmb-amber flex items-center justify-center shrink-0 shadow-lg">
+                    <Bed className="w-5 h-5 text-tmb-ink" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-sm font-semibold text-white">{arrivalBooking.place_name}</span>
+                      <span className="text-sm font-semibold text-tmb-ink">{arrivalBooking.place_name}</span>
                       <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">Pre-hike</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-slate-300 border border-white/10">{arrivalBooking.type}</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-tmb-ink border border-tmb-line2">{arrivalBooking.type}</span>
                     </div>
-                    <div className="text-xs text-slate-400 mt-1">
+                    <div className="text-xs text-tmb-muted mt-1">
                       {arrivalBooking.check_in} → {arrivalBooking.check_out}
                     </div>
                     {arrivalBooking.cost && (
-                      <div className="text-xs text-emerald-400 mt-0.5">
+                      <div className="text-xs text-tmb-moss mt-0.5">
                         {arrivalBooking.currency === 'CHF' ? 'CHF' : '€'}{Number(arrivalBooking.cost).toFixed(2)}
                       </div>
                     )}
@@ -3393,21 +3422,20 @@ export default function App() {
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                { value: formatDistanceValue(totals.distance - shortcutSavings.distanceSaved, useImperial), unit: getDistanceUnit(useImperial), label: 'Total Distance', icon: '🥾', gradient: 'from-emerald-500 to-teal-500', savings: shortcutSavings.distanceSaved, savingsFormatted: `-${formatDistanceValue(shortcutSavings.distanceSaved, useImperial)}${getDistanceUnit(useImperial)} saved` },
-                { value: formatTime(totals.time - totalTimeSaved), unit: '', label: 'Hiking Time', icon: '⏱️', gradient: 'from-blue-500 to-indigo-500', savings: totalTimeSaved, savingsFormatted: `-${formatTime(totalTimeSaved)} saved` },
-                { value: formatElevationValue(totals.ascent - shortcutSavings.ascentSaved, useImperial).toLocaleString(), unit: getElevationUnit(useImperial), label: 'Total Ascent', icon: '⬆️', gradient: 'from-amber-500 to-orange-500', savings: shortcutSavings.ascentSaved, savingsFormatted: `-${formatElevationValue(shortcutSavings.ascentSaved, useImperial)}${getElevationUnit(useImperial)} saved` },
-                { value: formatElevationValue(totals.descent - shortcutSavings.descentSaved, useImperial).toLocaleString(), unit: getElevationUnit(useImperial), label: 'Total Descent', icon: '⬇️', gradient: 'from-rose-500 to-pink-500', savings: shortcutSavings.descentSaved, savingsFormatted: `-${formatElevationValue(shortcutSavings.descentSaved, useImperial)}${getElevationUnit(useImperial)} saved` },
+                { value: formatDistanceValue(totals.distance - shortcutSavings.distanceSaved, useImperial), unit: getDistanceUnit(useImperial), label: 'Total Distance', accent: 'text-tmb-pine', border: 'bg-tmb-pine', savings: shortcutSavings.distanceSaved, savingsFormatted: `-${formatDistanceValue(shortcutSavings.distanceSaved, useImperial)}${getDistanceUnit(useImperial)} saved` },
+                { value: formatTime(totals.time - totalTimeSaved), unit: '', label: 'Hiking Time', accent: 'text-tmb-forest', border: 'bg-tmb-forest', savings: totalTimeSaved, savingsFormatted: `-${formatTime(totalTimeSaved)} saved` },
+                { value: formatElevationValue(totals.ascent - shortcutSavings.ascentSaved, useImperial).toLocaleString(), unit: getElevationUnit(useImperial), label: 'Total Ascent', accent: 'text-tmb-moss', border: 'bg-tmb-moss', savings: shortcutSavings.ascentSaved, savingsFormatted: `-${formatElevationValue(shortcutSavings.ascentSaved, useImperial)}${getElevationUnit(useImperial)} saved` },
+                { value: formatElevationValue(totals.descent - shortcutSavings.descentSaved, useImperial).toLocaleString(), unit: getElevationUnit(useImperial), label: 'Total Descent', accent: 'text-tmb-rust', border: 'bg-tmb-rust', savings: shortcutSavings.descentSaved, savingsFormatted: `-${formatElevationValue(shortcutSavings.descentSaved, useImperial)}${getElevationUnit(useImperial)} saved` },
               ].map((stat, i) => (
                 <GlassCard key={i} className="p-5 text-center relative overflow-hidden" hover>
-                  <div className="text-2xl mb-2">{stat.icon}</div>
-                  <div className="text-3xl font-bold">
-                    {stat.value}<span className="text-lg text-slate-400">{stat.unit}</span>
+                  <div className={`text-3xl font-poster ${stat.accent}`}>
+                    {stat.value}<span className="text-lg text-tmb-muted font-display">{stat.unit}</span>
                   </div>
                   {stat.savings > 0 && (
-                    <div className="text-sm text-emerald-400 mt-1">{stat.savingsFormatted}</div>
+                    <div className="text-sm text-tmb-moss mt-1 font-display">{stat.savingsFormatted}</div>
                   )}
-                  <div className="text-xs text-slate-500 uppercase tracking-wider mt-1">{stat.label}</div>
-                  <div className={`absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r ${stat.gradient}`} />
+                  <div className="text-[10px] text-tmb-muted font-display uppercase tracking-[.12em] mt-1">{stat.label}</div>
+                  <div className={`absolute inset-x-0 bottom-0 h-1 ${stat.border}`} />
                 </GlassCard>
               ))}
             </div>
@@ -3577,29 +3605,29 @@ export default function App() {
                       }}
                     >
                       <div
-                        className="px-4 py-3 rounded-xl border border-white/10 shadow-xl text-sm min-w-[200px]"
-                        style={{ backgroundColor: 'rgba(30, 41, 59, 0.95)', backdropFilter: 'blur(12px)' }}
+                        className="px-4 py-3 rounded-xl border border-tmb-line2 shadow-xl text-sm min-w-[200px]"
+                        style={{ backgroundColor: 'rgba(42, 39, 32, 0.96)', backdropFilter: 'blur(12px)' }}
                       >
                         <div className="flex items-center gap-2 mb-2">
                           <div className="w-3 h-3 rounded-full" style={{ backgroundColor: DAY_COLORS[i % DAY_COLORS.length].main }} />
-                          <span className="font-semibold text-white">Day {d.day}</span>
-                          <span className="text-slate-500">·</span>
-                          <span className="text-slate-400 text-xs">{formatDate(d.date)}</span>
+                          <span className="font-semibold text-tmb-ink">Day {d.day}</span>
+                          <span className="text-tmb-muted">·</span>
+                          <span className="text-tmb-muted text-xs">{formatDate(d.date)}</span>
                         </div>
-                        <div className="text-slate-300 text-xs mb-2">
+                        <div className="text-tmb-ink text-xs mb-2">
                           {d.startWp.name} → {d.endWp.name}
                         </div>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-                          <div className="text-slate-500">Distance</div>
-                          <div className="text-right text-slate-200">{d.distance} km</div>
-                          <div className="text-slate-500">Ascent</div>
-                          <div className="text-right text-emerald-400">↑{d.ascent}m</div>
-                          <div className="text-slate-500">Descent</div>
-                          <div className="text-right text-rose-400">↓{d.descent}m</div>
-                          <div className="text-slate-500">Time</div>
-                          <div className="text-right text-slate-200">{formatTime(d.time)}</div>
-                          <div className="text-slate-500">End altitude</div>
-                          <div className="text-right text-slate-200">{d.endWp.altitude}m</div>
+                          <div className="text-tmb-muted">Distance</div>
+                          <div className="text-right text-tmb-ink">{d.distance} km</div>
+                          <div className="text-tmb-muted">Ascent</div>
+                          <div className="text-right text-tmb-moss">↑{d.ascent}m</div>
+                          <div className="text-tmb-muted">Descent</div>
+                          <div className="text-right text-tmb-rust">↓{d.descent}m</div>
+                          <div className="text-tmb-muted">Time</div>
+                          <div className="text-right text-tmb-ink">{formatTime(d.time)}</div>
+                          <div className="text-tmb-muted">End altitude</div>
+                          <div className="text-right text-tmb-ink">{d.endWp.altitude}m</div>
                         </div>
                       </div>
                     </div>
@@ -3630,44 +3658,44 @@ export default function App() {
                     >
                       <div
                         className="px-4 py-3 rounded-xl border shadow-xl text-sm min-w-[220px]"
-                        style={{ backgroundColor: 'rgba(30, 41, 59, 0.95)', backdropFilter: 'blur(12px)', borderColor: `${color}40` }}
+                        style={{ backgroundColor: 'rgba(42, 39, 32, 0.96)', backdropFilter: 'blur(12px)', borderColor: `${color}40` }}
                       >
                         <div className="flex items-center gap-2 mb-2">
                           <span className="text-lg">{isCableCar ? '🚡' : isBus ? '🚌' : '↗️'}</span>
-                          <span className="font-semibold text-white">{shortcut.name}</span>
+                          <span className="font-semibold text-tmb-ink">{shortcut.name}</span>
                         </div>
-                        <div className="text-xs text-slate-400 mb-2">{shortcut.description}</div>
+                        <div className="text-xs text-tmb-muted mb-2">{shortcut.description}</div>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-                          <div className="text-slate-500">Type</div>
+                          <div className="text-tmb-muted">Type</div>
                           <div className="text-right" style={{ color }}>{shortcut.type.replace('_', ' ')}</div>
                           {shortcut.timeSaved > 0 && (
                             <>
-                              <div className="text-slate-500">Time saved</div>
-                              <div className="text-right text-cyan-400">{formatTime(shortcut.timeSaved)}</div>
+                              <div className="text-tmb-muted">Time saved</div>
+                              <div className="text-right text-tmb-gold">{formatTime(shortcut.timeSaved)}</div>
                             </>
                           )}
                           {shortcut.distanceSaved > 0 && (
                             <>
-                              <div className="text-slate-500">Distance saved</div>
-                              <div className="text-right text-cyan-400">{shortcut.distanceSaved}km</div>
+                              <div className="text-tmb-muted">Distance saved</div>
+                              <div className="text-right text-tmb-gold">{shortcut.distanceSaved}km</div>
                             </>
                           )}
                           {shortcut.ascentSaved > 0 && (
                             <>
-                              <div className="text-slate-500">Ascent saved</div>
-                              <div className="text-right text-cyan-400">↑{shortcut.ascentSaved}m</div>
+                              <div className="text-tmb-muted">Ascent saved</div>
+                              <div className="text-right text-tmb-gold">↑{shortcut.ascentSaved}m</div>
                             </>
                           )}
                           {shortcut.descentSaved > 0 && (
                             <>
-                              <div className="text-slate-500">Descent saved</div>
-                              <div className="text-right text-cyan-400">↓{shortcut.descentSaved}m</div>
+                              <div className="text-tmb-muted">Descent saved</div>
+                              <div className="text-right text-tmb-gold">↓{shortcut.descentSaved}m</div>
                             </>
                           )}
                           {shortcut.cost > 0 && (
                             <>
-                              <div className="text-slate-500">Cost</div>
-                              <div className="text-right text-amber-400">€{shortcut.cost}</div>
+                              <div className="text-tmb-muted">Cost</div>
+                              <div className="text-right text-tmb-amber">€{shortcut.cost}</div>
                             </>
                           )}
                         </div>
@@ -3680,35 +3708,35 @@ export default function App() {
               {/* Day Legend */}
               <div className="flex flex-wrap gap-2 mt-6 justify-center">
                 {dayData.map((d, i) => (
-                  <div key={i} className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-white/5 hover:bg-white/10 transition-colors">
+                  <div key={i} className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-tmb-cream/60 hover:bg-tmb-kraft transition-colors">
                     <div className="w-2 h-2 rounded-full" style={{ backgroundColor: DAY_COLORS[i % DAY_COLORS.length].main }} />
-                    <span className="text-slate-400">D{d.day}</span>
-                    <span className="text-slate-500">·</span>
-                    <span className="text-slate-300">{d.endWp.name}</span>
+                    <span className="text-tmb-muted">D{d.day}</span>
+                    <span className="text-tmb-muted">·</span>
+                    <span className="text-tmb-ink">{d.endWp.name}</span>
                   </div>
                 ))}
               </div>
 
               {/* Shortcuts Legend (when shortcuts are active) */}
               {activeShortcuts.shortcuts.length > 0 && (
-                <div className="mt-4 pt-4 border-t border-white/10">
+                <div className="mt-4 pt-4 border-t border-tmb-line2">
                   <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-                    <span className="text-xs text-slate-500 uppercase tracking-wider">Active Shortcuts</span>
+                    <span className="text-xs text-tmb-muted font-display uppercase tracking-[.12em]">Active Shortcuts</span>
                     <div className="flex items-center gap-2 text-xs flex-wrap">
                       {activeShortcuts.totalTimeSaved > 0 && (
-                        <span className="text-cyan-400">-{formatTime(activeShortcuts.totalTimeSaved)}</span>
+                        <span className="text-tmb-gold">-{formatTime(activeShortcuts.totalTimeSaved)}</span>
                       )}
                       {activeShortcuts.totalDistanceSaved > 0 && (
-                        <span className="text-cyan-400">-{activeShortcuts.totalDistanceSaved.toFixed(1)}km</span>
+                        <span className="text-tmb-gold">-{activeShortcuts.totalDistanceSaved.toFixed(1)}km</span>
                       )}
                       {activeShortcuts.totalAscentSaved > 0 && (
-                        <span className="text-cyan-400">-↑{activeShortcuts.totalAscentSaved}m</span>
+                        <span className="text-tmb-gold">-↑{activeShortcuts.totalAscentSaved}m</span>
                       )}
                       {activeShortcuts.totalDescentSaved > 0 && (
-                        <span className="text-cyan-400">-↓{activeShortcuts.totalDescentSaved}m</span>
+                        <span className="text-tmb-gold">-↓{activeShortcuts.totalDescentSaved}m</span>
                       )}
                       {activeShortcuts.totalCost > 0 && (
-                        <span className="text-amber-400">€{activeShortcuts.totalCost}</span>
+                        <span className="text-tmb-amber">€{activeShortcuts.totalCost}</span>
                       )}
                     </div>
                   </div>
@@ -3720,12 +3748,12 @@ export default function App() {
                       return (
                         <div
                           key={i}
-                          className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full hover:bg-white/10 transition-colors"
+                          className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full hover:bg-tmb-kraft transition-colors"
                           style={{ backgroundColor: `${color}15`, border: `1px solid ${color}30` }}
                         >
                           <span>{isCableCar ? '🚡' : isBus ? '🚌' : '↗️'}</span>
-                          <span className="text-slate-300">{shortcut.name}</span>
-                          <span className="text-slate-500">·</span>
+                          <span className="text-tmb-ink">{shortcut.name}</span>
+                          <span className="text-tmb-muted">·</span>
                           <span style={{ color }}>-{formatTime(shortcut.timeSaved)}</span>
                         </div>
                       );
@@ -3737,7 +3765,7 @@ export default function App() {
 
             {/* Day Summary Table */}
             <GlassCard className="p-6">
-              <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wider mb-4">Daily Breakdown</h3>
+              <h3 className="text-sm font-medium text-tmb-muted uppercase tracking-wider mb-4">Daily Breakdown</h3>
               <DaySummaryTable
                 dayData={dayData}
                 totals={totals}
@@ -3774,25 +3802,24 @@ export default function App() {
         {section === 'logistics' && (
           <>
             {/* Logistics sub-tabs */}
-            <GlassCard className="p-1 sm:p-1.5 mb-4 sm:mb-6 flex sm:inline-flex gap-1 w-full sm:w-auto">
+            <div className="flex gap-1 mb-4 sm:mb-6 bg-tmb-kraft border border-tmb-line rounded-[13px] p-1 sm:inline-flex w-full sm:w-auto">
               {[
-                { id: 'bookings', label: 'Bookings', icon: '📋' },
-                { id: 'packing', label: 'Packing', icon: '✅' },
-                { id: 'transport', label: 'Transport', icon: '🚌' },
-                { id: 'documents', label: 'Documents & Safety', icon: '📄' }
+                { id: 'bookings', label: 'Bookings' },
+                { id: 'packing', label: 'Packing' },
+                { id: 'transport', label: 'Transport' },
+                { id: 'documents', label: 'Docs & Safety' }
               ].map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setLogisticsView(tab.id)}
-                  className={`flex-1 sm:flex-initial px-3 sm:px-4 py-2.5 sm:py-2 min-h-[44px] rounded-xl text-sm transition-all duration-300 flex items-center justify-center sm:justify-start gap-2 ${
-                    logisticsView === tab.id ? 'bg-white/15 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5 active:bg-white/10'
+                  className={`flex-1 sm:flex-initial px-3 sm:px-5 py-2.5 sm:py-2 min-h-[44px] rounded-[9px] text-sm font-display uppercase tracking-[.08em] transition-all duration-300 ${
+                    logisticsView === tab.id ? 'bg-tmb-cream text-tmb-pine shadow-sm border border-tmb-line' : 'text-tmb-muted hover:text-tmb-ink hover:bg-tmb-cream/50'
                   }`}
                 >
-                  <span>{tab.icon}</span>
-                  <span className="hidden sm:inline">{tab.label}</span>
+                  {tab.label}
                 </button>
               ))}
-            </GlassCard>
+            </div>
 
             {logisticsView === 'bookings' ? (
               <BookingsPanel
@@ -3866,28 +3893,28 @@ export default function App() {
       {showMigration && createPortal(
         <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-          <div className="relative max-w-md w-full p-6 rounded-2xl border border-white/10 shadow-2xl" style={{ backgroundColor: 'rgba(30, 41, 59, 0.95)', backdropFilter: 'blur(24px)' }}>
+          <div className="relative max-w-md w-full p-6 rounded-2xl border border-tmb-line2 shadow-2xl" style={{ backgroundColor: 'rgba(42, 39, 32, 0.96)', backdropFilter: 'blur(24px)' }}>
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center text-xl">⛰️</div>
+              <div className="w-10 h-10 rounded-xl bg-tmb-pine flex items-center justify-center text-xl">⛰️</div>
               <div>
-                <h3 className="text-lg font-semibold text-white">Upgrade Your Trip</h3>
-                <p className="text-slate-400 text-xs">Go live & shareable</p>
+                <h3 className="text-lg font-semibold text-tmb-ink">Upgrade Your Trip</h3>
+                <p className="text-tmb-muted text-xs">Go live & shareable</p>
               </div>
             </div>
-            <p className="text-sm text-slate-300 mb-4">
-              Found your saved trip in this browser. Import it to get a <strong className="text-emerald-400">live, shareable link</strong> that syncs between you and Nick in real time.
+            <p className="text-sm text-tmb-ink mb-4">
+              Found your saved trip in this browser. Import it to get a <strong className="text-tmb-moss">live, shareable link</strong> that syncs between you and Nick in real time.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={handleMigrate}
                 disabled={migrating}
-                className="flex-1 px-4 py-3 min-h-[44px] rounded-xl text-sm font-medium bg-gradient-to-r from-emerald-500 to-cyan-500 text-white hover:shadow-lg hover:shadow-emerald-500/25 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-3 min-h-[44px] rounded-xl text-sm font-medium bg-tmb-pine text-white hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {migrating ? <><LoaderCircle className="w-4 h-4 animate-spin" /> Migrating...</> : 'Import & Go Live'}
               </button>
               <button
                 onClick={() => setShowMigration(false)}
-                className="px-4 py-3 min-h-[44px] rounded-xl text-sm font-medium bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10 transition-all"
+                className="px-4 py-3 min-h-[44px] rounded-xl text-sm font-medium bg-tmb-cream border border-tmb-line text-tmb-ink hover:bg-tmb-kraft transition-all"
               >
                 Skip
               </button>
@@ -3899,10 +3926,10 @@ export default function App() {
 
       {/* Loading state */}
       {tripLoading && createPortal(
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-slate-950/80 backdrop-blur-sm">
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-tmb-cream/90 backdrop-blur-sm">
           <div className="flex flex-col items-center gap-4">
-            <LoaderCircle className="w-8 h-8 animate-spin text-emerald-400" />
-            <p className="text-slate-300 text-sm">Loading your trip...</p>
+            <LoaderCircle className="w-8 h-8 animate-spin text-tmb-pine" />
+            <p className="text-tmb-muted text-sm font-display uppercase tracking-wider">Loading your trip...</p>
           </div>
         </div>,
         document.body
@@ -3910,12 +3937,12 @@ export default function App() {
 
       {/* Trip error */}
       {tripError && !trip && createPortal(
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-slate-950/80 backdrop-blur-sm">
-          <div className="max-w-sm w-full p-6 rounded-2xl border border-red-500/20 text-center" style={{ backgroundColor: 'rgba(30, 41, 59, 0.95)' }}>
-            <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-3" />
-            <h3 className="text-lg font-semibold text-white mb-2">Trip Not Found</h3>
-            <p className="text-sm text-slate-400 mb-4">This link may have expired or the trip doesn't exist.</p>
-            <button onClick={() => navigate('/', { replace: true })} className="px-4 py-2.5 rounded-xl text-sm font-medium bg-white/10 text-white hover:bg-white/15 transition-all">
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-tmb-cream/90 backdrop-blur-sm">
+          <div className="max-w-sm w-full p-6 rounded-2xl border border-tmb-rust/30 text-center bg-tmb-paper shadow-xl">
+            <AlertTriangle className="w-10 h-10 text-tmb-rust mx-auto mb-3" />
+            <h3 className="text-lg font-display uppercase text-tmb-ink mb-2">Trip Not Found</h3>
+            <p className="text-sm text-tmb-muted mb-4">This link may have expired or the trip doesn't exist.</p>
+            <button onClick={() => navigate('/', { replace: true })} className="px-4 py-2.5 rounded-xl text-sm font-medium bg-tmb-pine text-white hover:bg-tmb-forest transition-all">
               Go Home
             </button>
           </div>
