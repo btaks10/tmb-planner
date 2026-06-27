@@ -46,21 +46,21 @@ function DocumentRow({ doc, onViewFile }) {
   };
 
   return (
-    <div className="flex items-center gap-3 px-4 py-2.5 border-b border-white/5 last:border-b-0">
+    <div className="flex items-center gap-3 px-4 py-2.5 border-b border-tmb-line2 last:border-b-0">
       <span className="text-base">{KIND_ICONS[doc.kind] || '📄'}</span>
       <div className="flex-1 min-w-0">
-        <span className="text-sm text-white truncate block">{doc.title}</span>
+        <span className="text-sm text-tmb-ink truncate block">{doc.title}</span>
         {doc.kind && (
-          <span className="text-[10px] text-slate-500">{KIND_LABELS[doc.kind] || doc.kind}</span>
+          <span className="text-[10px] text-tmb-muted/70">{KIND_LABELS[doc.kind] || doc.kind}</span>
         )}
       </div>
       <button
         onClick={handleView}
         disabled={loadingUrl}
-        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/5 text-slate-400 text-xs hover:bg-white/10 hover:text-white transition-colors disabled:opacity-50"
+        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-tmb-cream/60 text-tmb-muted text-xs hover:bg-tmb-kraft hover:text-tmb-ink transition-colors disabled:opacity-50"
       >
         {loadingUrl ? (
-          <div className="w-3 h-3 border border-slate-400 border-t-transparent rounded-full animate-spin" />
+          <div className="w-3 h-3 border border-tmb-muted border-t-transparent rounded-full animate-spin" />
         ) : (
           <ExternalLink className="w-3 h-3" />
         )}
@@ -90,34 +90,34 @@ function ContactCard({ contact, onUpdate, onDelete }) {
 
   if (editing) {
     return (
-      <div className="p-3 space-y-2 bg-white/[0.03] rounded-xl border border-white/10">
+      <div className="p-3 space-y-2 bg-tmb-cream/40 rounded-[13px] border border-tmb-line2">
         <input
           value={draft.label}
           onChange={e => setDraft(d => ({ ...d, label: e.target.value }))}
-          className="w-full text-sm bg-white/10 border border-white/10 rounded-lg px-3 py-1.5 text-white"
+          className="w-full text-sm bg-tmb-kraft/60 border border-tmb-line2 rounded-lg px-3 py-1.5 text-tmb-ink"
           placeholder="Name / Label"
         />
         <input
           value={draft.phone}
           onChange={e => setDraft(d => ({ ...d, phone: e.target.value }))}
-          className="w-full text-sm bg-white/10 border border-white/10 rounded-lg px-3 py-1.5 text-white"
+          className="w-full text-sm bg-tmb-kraft/60 border border-tmb-line2 rounded-lg px-3 py-1.5 text-tmb-ink"
           placeholder="Phone number"
         />
         <textarea
           value={draft.notes}
           onChange={e => setDraft(d => ({ ...d, notes: e.target.value }))}
-          className="w-full text-xs bg-white/10 border border-white/10 rounded-lg px-3 py-1.5 text-white resize-none"
+          className="w-full text-xs bg-tmb-kraft/60 border border-tmb-line2 rounded-lg px-3 py-1.5 text-tmb-ink resize-none"
           rows={2}
           placeholder="Notes"
         />
         <div className="flex gap-2">
-          <button onClick={saveEdit} className="flex items-center gap-1 px-3 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 text-xs hover:bg-emerald-500/30">
+          <button onClick={saveEdit} className="flex items-center gap-1 px-3 py-1 rounded-lg bg-tmb-moss/15 text-tmb-moss text-xs hover:bg-tmb-moss/25">
             <Save className="w-3 h-3" /> Save
           </button>
-          <button onClick={() => setEditing(false)} className="flex items-center gap-1 px-3 py-1 rounded-lg bg-white/10 text-slate-400 text-xs hover:bg-white/15">
+          <button onClick={() => setEditing(false)} className="flex items-center gap-1 px-3 py-1 rounded-lg bg-tmb-kraft/60 text-tmb-muted text-xs hover:bg-tmb-kraft">
             Cancel
           </button>
-          <button onClick={() => onDelete(contact.id)} className="flex items-center gap-1 px-3 py-1 rounded-lg bg-red-500/10 text-red-400 text-xs hover:bg-red-500/20 ml-auto">
+          <button onClick={() => onDelete(contact.id)} className="flex items-center gap-1 px-3 py-1 rounded-lg bg-tmb-rust/10 text-tmb-rust text-xs hover:bg-tmb-rust/20 ml-auto">
             <X className="w-3 h-3" /> Delete
           </button>
         </div>
@@ -126,28 +126,28 @@ function ContactCard({ contact, onUpdate, onDelete }) {
   }
 
   return (
-    <button onClick={startEdit} className="w-full text-left p-3 rounded-xl bg-white/[0.03] border border-white/5 hover:bg-white/[0.06] hover:border-white/10 transition-all">
+    <button onClick={startEdit} className="w-full text-left p-3 rounded-[13px] bg-tmb-cream/40 border border-tmb-line2 hover:bg-tmb-cream/60 hover:border-tmb-line transition-all">
       <div className="flex items-start gap-3">
         <div className="mt-0.5">
           {contact.phone ? (
-            <Phone className="w-4 h-4 text-emerald-400" />
+            <Phone className="w-4 h-4 text-tmb-moss" />
           ) : (
-            <AlertTriangle className="w-4 h-4 text-amber-400" />
+            <AlertTriangle className="w-4 h-4 text-tmb-amber" />
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <span className="text-sm font-medium text-white">{contact.label}</span>
+          <span className="text-sm font-medium text-tmb-ink">{contact.label}</span>
           {contact.phone && (
             <a
               href={`tel:${contact.phone}`}
               onClick={e => e.stopPropagation()}
-              className="block text-sm text-blue-400 hover:text-blue-300 font-mono mt-0.5"
+              className="block text-sm text-tmb-forest hover:text-tmb-forest font-mono mt-0.5"
             >
               {contact.phone}
             </a>
           )}
           {contact.notes && (
-            <p className="text-xs text-slate-500 mt-1">{contact.notes}</p>
+            <p className="text-xs text-tmb-muted/70 mt-1">{contact.notes}</p>
           )}
         </div>
       </div>
@@ -192,25 +192,25 @@ export default function DocumentsSafetyTab({
   }, [documents]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-body">
       {/* Documents vault */}
       <div>
         <div className="flex items-center gap-2 mb-3">
-          <FileText className="w-5 h-5 text-blue-400" />
-          <h3 className="text-base font-semibold text-white">Documents Vault</h3>
-          <span className="text-xs text-slate-500 ml-auto">{documents.length} files</span>
+          <FileText className="w-5 h-5 text-tmb-forest" />
+          <h3 className="text-base font-semibold text-tmb-ink">Documents Vault</h3>
+          <span className="text-xs text-tmb-muted/70 ml-auto">{documents.length} files</span>
         </div>
 
         {documents.length === 0 ? (
           <GlassCard className="p-6 text-center">
-            <p className="text-slate-400 text-sm">No documents uploaded yet. Upload receipts and confirmations in the Bookings tab.</p>
+            <p className="text-tmb-muted text-sm">No documents uploaded yet. Upload receipts and confirmations in the Bookings tab.</p>
           </GlassCard>
         ) : (
           <div className="space-y-3">
             {[...docsByKind.entries()].map(([kind, docs]) => (
               <GlassCard key={kind} className="overflow-hidden">
-                <div className="px-4 py-2 border-b border-white/5 bg-white/[0.02]">
-                  <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+                <div className="px-4 py-2 border-b border-tmb-line2 bg-tmb-cream/40">
+                  <span className="text-xs font-medium text-tmb-muted uppercase tracking-wider">
                     {KIND_LABELS[kind] || kind} ({docs.length})
                   </span>
                 </div>
@@ -226,18 +226,18 @@ export default function DocumentsSafetyTab({
       {/* Emergency contacts */}
       <div>
         <div className="flex items-center gap-2 mb-3">
-          <Shield className="w-5 h-5 text-red-400" />
-          <h3 className="text-base font-semibold text-white">Emergency Contacts</h3>
+          <Shield className="w-5 h-5 text-tmb-rust" />
+          <h3 className="text-base font-semibold text-tmb-ink">Emergency Contacts</h3>
         </div>
 
         {contactsLoading ? (
           <GlassCard className="p-6 text-center">
-            <div className="animate-spin w-6 h-6 border-2 border-red-400 border-t-transparent rounded-full mx-auto mb-2" />
-            <p className="text-slate-400 text-sm">Loading contacts...</p>
+            <div className="animate-spin w-6 h-6 border-2 border-tmb-rust border-t-transparent rounded-full mx-auto mb-2" />
+            <p className="text-tmb-muted text-sm">Loading contacts...</p>
           </GlassCard>
         ) : contactsError ? (
           <GlassCard className="p-6 text-center">
-            <p className="text-red-400 text-sm">Error: {contactsError}</p>
+            <p className="text-tmb-rust text-sm">Error: {contactsError}</p>
           </GlassCard>
         ) : (
           <div className="space-y-2">
@@ -252,7 +252,7 @@ export default function DocumentsSafetyTab({
 
             <button
               onClick={() => onCreateContact({ trip_id: tripId, label: 'New Contact', phone: '', notes: '' })}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-dashed border-white/10 text-slate-400 text-sm hover:bg-white/5 hover:border-white/20 transition-colors"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-[13px] border border-dashed border-tmb-line2 text-tmb-muted text-sm hover:bg-tmb-kraft/50 hover:border-tmb-line transition-colors"
             >
               <Plus className="w-4 h-4" /> Add contact
             </button>

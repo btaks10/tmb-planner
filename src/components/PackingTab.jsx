@@ -5,24 +5,24 @@ const STATUS_OPTIONS = ['Need to Buy', 'Bought', 'Packed', 'Not Bringing', 'Not 
 const FILTER_OPTIONS = ['All', 'Need to Buy', 'Bought', 'Packed', 'Not Bringing'];
 
 const STATUS_COLORS = {
-  'Need to Buy': 'bg-amber-500/20 text-amber-300 border-amber-500/30',
-  'Bought': 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-  'Packed': 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
-  'Not Bringing': 'bg-slate-500/20 text-slate-400 border-slate-500/30',
-  'Not Reviewed': 'bg-purple-500/20 text-purple-300 border-purple-500/30',
+  'Need to Buy': 'bg-tmb-amber/15 text-tmb-amber border-tmb-amber/30',
+  'Bought': 'bg-tmb-forest/15 text-tmb-forest border-tmb-forest/30',
+  'Packed': 'bg-tmb-moss/15 text-tmb-moss border-tmb-moss/30',
+  'Not Bringing': 'bg-tmb-muted/15 text-tmb-muted border-tmb-muted/30',
+  'Not Reviewed': 'bg-tmb-pine/15 text-tmb-pine border-tmb-pine/30',
 };
 
 const PRIORITY_BADGE = {
-  Essential: 'text-red-400',
-  Recommended: 'text-amber-400',
-  Optional: 'text-slate-400',
+  Essential: 'text-tmb-rust',
+  Recommended: 'text-tmb-amber',
+  Optional: 'text-tmb-muted',
 };
 
 const TRAVELER_COLORS = [
-  { bg: 'bg-blue-500/20', text: 'text-blue-300', border: 'border-blue-500/30', bar: 'from-blue-500 to-blue-400' },
-  { bg: 'bg-rose-500/20', text: 'text-rose-300', border: 'border-rose-500/30', bar: 'from-rose-500 to-rose-400' },
-  { bg: 'bg-amber-500/20', text: 'text-amber-300', border: 'border-amber-500/30', bar: 'from-amber-500 to-amber-400' },
-  { bg: 'bg-purple-500/20', text: 'text-purple-300', border: 'border-purple-500/30', bar: 'from-purple-500 to-purple-400' },
+  { bg: 'bg-tmb-forest/15', text: 'text-tmb-forest', border: 'border-tmb-forest/30', bar: 'from-tmb-forest to-tmb-pine' },
+  { bg: 'bg-tmb-rust/15', text: 'text-tmb-rust', border: 'border-tmb-rust/30', bar: 'from-tmb-rust to-tmb-clay' },
+  { bg: 'bg-tmb-amber/15', text: 'text-tmb-amber', border: 'border-tmb-amber/30', bar: 'from-tmb-amber to-tmb-clay' },
+  { bg: 'bg-tmb-pine/15', text: 'text-tmb-pine', border: 'border-tmb-pine/30', bar: 'from-tmb-pine to-tmb-forest' },
 ];
 
 function getTravelerColor(name, sortedNames) {
@@ -116,8 +116,8 @@ export default function PackingTab({ items, loading, error, onTogglePacked, onUp
   if (loading) {
     return (
       <GlassCard className="p-8 text-center">
-        <div className="animate-spin w-8 h-8 border-2 border-emerald-400 border-t-transparent rounded-full mx-auto mb-3" />
-        <p className="text-slate-400 text-sm">Loading packing list...</p>
+        <div className="animate-spin w-8 h-8 border-2 border-tmb-moss border-t-transparent rounded-full mx-auto mb-3" />
+        <p className="text-tmb-muted text-sm">Loading packing list...</p>
       </GlassCard>
     );
   }
@@ -125,7 +125,7 @@ export default function PackingTab({ items, loading, error, onTogglePacked, onUp
   if (error) {
     return (
       <GlassCard className="p-8 text-center">
-        <p className="text-red-400 text-sm">Error: {error}</p>
+        <p className="text-tmb-rust text-sm">Error: {error}</p>
       </GlassCard>
     );
   }
@@ -134,21 +134,21 @@ export default function PackingTab({ items, loading, error, onTogglePacked, onUp
     return (
       <GlassCard className="p-8 text-center">
         <div className="text-4xl mb-4">📦</div>
-        <p className="text-slate-400 text-sm">No gear items yet. Create a trip to get started.</p>
+        <p className="text-tmb-muted text-sm">No gear items yet. Create a trip to get started.</p>
       </GlassCard>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 font-body">
       {/* Traveler tabs */}
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
         <button
           onClick={() => setActiveTraveler('All')}
           className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
             activeTraveler === 'All'
-              ? 'bg-white/20 text-white border border-white/30'
-              : 'bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10'
+              ? 'bg-tmb-kraft/60 text-tmb-ink border border-tmb-line'
+              : 'bg-tmb-cream/60 text-tmb-muted border border-tmb-line2 hover:bg-tmb-kraft'
           }`}
         >
           All
@@ -162,7 +162,7 @@ export default function PackingTab({ items, loading, error, onTogglePacked, onUp
               className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors border ${
                 activeTraveler === name
                   ? `${color.bg} ${color.text} ${color.border}`
-                  : 'bg-white/5 text-slate-400 border-white/10 hover:bg-white/10'
+                  : 'bg-tmb-cream/60 text-tmb-muted border-tmb-line2 hover:bg-tmb-kraft'
               }`}
             >
               {name}
@@ -177,14 +177,14 @@ export default function PackingTab({ items, loading, error, onTogglePacked, onUp
       {/* Progress bar */}
       <GlassCard className="p-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-white">
+          <span className="text-sm font-medium text-tmb-ink">
             {packedCount}/{totalCount} packed
           </span>
-          <span className="text-sm text-emerald-400 font-semibold">{pct}%</span>
+          <span className="text-sm text-tmb-moss font-semibold">{pct}%</span>
         </div>
-        <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden">
+        <div className="w-full h-3 bg-tmb-kraft/60 rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-500"
+            className="h-full bg-gradient-to-r from-tmb-moss to-tmb-pine rounded-full transition-all duration-500"
             style={{ width: `${pct}%` }}
           />
         </div>
@@ -198,13 +198,13 @@ export default function PackingTab({ items, loading, error, onTogglePacked, onUp
               return (
                 <div key={name} className="flex items-center gap-2">
                   <span className={`text-[10px] w-20 truncate ${color.text}`}>{name}</span>
-                  <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                  <div className="flex-1 h-1.5 bg-tmb-kraft/60 rounded-full overflow-hidden">
                     <div
                       className={`h-full bg-gradient-to-r ${color.bar} rounded-full transition-all duration-500`}
                       style={{ width: `${stat.pct}%` }}
                     />
                   </div>
-                  <span className="text-[10px] text-slate-400 w-10 text-right">
+                  <span className="text-[10px] text-tmb-muted w-10 text-right">
                     {stat.packed}/{stat.total}
                   </span>
                 </div>
@@ -222,8 +222,8 @@ export default function PackingTab({ items, loading, error, onTogglePacked, onUp
             onClick={() => setFilter(f)}
             className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
               filter === f
-                ? 'bg-emerald-500/30 text-emerald-300 border border-emerald-500/40'
-                : 'bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10'
+                ? 'bg-tmb-moss/25 text-tmb-moss border border-tmb-moss/40'
+                : 'bg-tmb-cream/60 text-tmb-muted border border-tmb-line2 hover:bg-tmb-kraft'
             }`}
           >
             {f}
@@ -246,30 +246,30 @@ export default function PackingTab({ items, loading, error, onTogglePacked, onUp
             {/* Category header */}
             <button
               onClick={() => toggleCategory(category)}
-              className="w-full flex items-center justify-between p-3 sm:p-4 hover:bg-white/5 transition-colors"
+              className="w-full flex items-center justify-between p-3 sm:p-4 hover:bg-tmb-kraft/50 transition-colors"
             >
               <div className="flex items-center gap-2">
                 {collapsed ? (
-                  <ChevronRight className="w-4 h-4 text-slate-400" />
+                  <ChevronRight className="w-4 h-4 text-tmb-muted" />
                 ) : (
-                  <ChevronDown className="w-4 h-4 text-slate-400" />
+                  <ChevronDown className="w-4 h-4 text-tmb-muted" />
                 )}
-                <span className="text-sm font-semibold text-white">{category}</span>
+                <span className="text-sm font-semibold text-tmb-ink">{category}</span>
               </div>
-              <span className="text-xs text-slate-400">
+              <span className="text-xs text-tmb-muted">
                 {catPacked}/{categoryItems.length} packed
               </span>
             </button>
 
             {/* Items */}
             {!collapsed && (
-              <div className="border-t border-white/5">
+              <div className="border-t border-tmb-line2">
                 {categoryItems.map(item => {
                   const traveler = item.traveler || 'Traveler 1';
                   const color = getTravelerColor(traveler, travelerNames);
 
                   return (
-                    <div key={item.id} className="border-b border-white/5 last:border-b-0">
+                    <div key={item.id} className="border-b border-tmb-line2 last:border-b-0">
                       {/* Item row */}
                       <div className="flex items-center gap-3 px-3 sm:px-4 py-2.5">
                         {/* Packed checkbox */}
@@ -277,8 +277,8 @@ export default function PackingTab({ items, loading, error, onTogglePacked, onUp
                           onClick={() => onTogglePacked(item.id, item.packed)}
                           className={`flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-lg border-2 flex items-center justify-center transition-all ${
                             item.packed
-                              ? 'bg-emerald-500/30 border-emerald-400 text-emerald-300'
-                              : 'border-white/20 hover:border-white/40'
+                              ? 'bg-tmb-moss/25 border-tmb-moss text-tmb-moss'
+                              : 'border-tmb-line hover:border-tmb-line'
                           }`}
                           style={{ minWidth: 28, minHeight: 28 }}
                         >
@@ -290,7 +290,7 @@ export default function PackingTab({ items, loading, error, onTogglePacked, onUp
                           onClick={() => setExpandedItem(expandedItem === item.id ? null : item.id)}
                           className="flex-1 text-left min-w-0 flex items-center gap-1.5"
                         >
-                          <span className={`text-sm ${item.packed ? 'line-through text-slate-500' : item.status === 'Not Bringing' ? 'text-slate-500' : 'text-white'}`}>
+                          <span className={`text-sm ${item.packed ? 'line-through text-tmb-muted' : item.status === 'Not Bringing' ? 'text-tmb-muted' : 'text-tmb-ink'}`}>
                             {item.name}
                           </span>
                           {/* Traveler badge (only in "All" view with multiple travelers) */}
@@ -310,7 +310,7 @@ export default function PackingTab({ items, loading, error, onTogglePacked, onUp
 
                         {/* Qty badge */}
                         {item.qty > 1 && (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-slate-300 font-mono">
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-tmb-kraft/60 text-tmb-ink font-mono">
                             ×{item.qty}
                           </span>
                         )}
@@ -318,46 +318,46 @@ export default function PackingTab({ items, loading, error, onTogglePacked, onUp
 
                       {/* Expanded details */}
                       {expandedItem === item.id && (
-                        <div className="px-4 sm:px-5 pb-3 pt-1 bg-white/[0.02] space-y-2">
+                        <div className="px-4 sm:px-5 pb-3 pt-1 bg-tmb-cream/30 space-y-2">
                           {item.priority && (
                             <div className="flex items-center gap-2 text-xs">
-                              <span className="text-slate-500">Priority:</span>
-                              <span className={PRIORITY_BADGE[item.priority] || 'text-slate-400'}>{item.priority}</span>
+                              <span className="text-tmb-muted">Priority:</span>
+                              <span className={PRIORITY_BADGE[item.priority] || 'text-tmb-muted'}>{item.priority}</span>
                             </div>
                           )}
                           {item.cost != null && (
                             <div className="flex items-center gap-2 text-xs">
-                              <ShoppingCart className="w-3 h-3 text-slate-500" />
-                              <span className="text-slate-300">€{Number(item.cost).toFixed(2)}</span>
+                              <ShoppingCart className="w-3 h-3 text-tmb-muted" />
+                              <span className="text-tmb-ink">€{Number(item.cost).toFixed(2)}</span>
                             </div>
                           )}
                           {item.where_to_buy && item.where_to_buy !== 'TBD' && (
                             <div className="flex items-center gap-2 text-xs">
-                              <Package className="w-3 h-3 text-slate-500" />
-                              <span className="text-slate-300">{item.where_to_buy}</span>
+                              <Package className="w-3 h-3 text-tmb-muted" />
+                              <span className="text-tmb-ink">{item.where_to_buy}</span>
                             </div>
                           )}
                           {item.notes && (
-                            <p className="text-xs text-slate-400 italic">{item.notes}</p>
+                            <p className="text-xs text-tmb-muted italic">{item.notes}</p>
                           )}
 
                           {/* Status dropdown */}
                           <div className="flex items-center gap-2 pt-1">
-                            <span className="text-xs text-slate-500">Status:</span>
+                            <span className="text-xs text-tmb-muted">Status:</span>
                             <select
                               value={item.status || 'Not Reviewed'}
                               onChange={(e) => onUpdateItem(item.id, { status: e.target.value })}
-                              className="text-xs bg-white/10 border border-white/10 rounded-lg px-2 py-1 text-white appearance-none cursor-pointer"
+                              className="text-xs bg-tmb-kraft/60 border border-tmb-line2 rounded-lg px-2 py-1 text-tmb-ink appearance-none cursor-pointer"
                             >
                               {STATUS_OPTIONS.map(s => (
-                                <option key={s} value={s} className="bg-slate-800">{s}</option>
+                                <option key={s} value={s} className="bg-tmb-paper">{s}</option>
                               ))}
                             </select>
                           </div>
 
                           {/* Traveler selector */}
                           <div className="flex items-center gap-2">
-                            <span className="text-xs text-slate-500">Traveler:</span>
+                            <span className="text-xs text-tmb-muted">Traveler:</span>
                             {showNewTraveler === item.id ? (
                               <div className="flex items-center gap-1">
                                 <input
@@ -367,17 +367,17 @@ export default function PackingTab({ items, loading, error, onTogglePacked, onUp
                                   onKeyDown={(e) => { if (e.key === 'Enter') submitNewTraveler(item.id); }}
                                   placeholder="Name..."
                                   autoFocus
-                                  className="text-xs bg-white/10 border border-white/10 rounded-lg px-2 py-1 text-white w-28"
+                                  className="text-xs bg-tmb-kraft/60 border border-tmb-line2 rounded-lg px-2 py-1 text-tmb-ink w-28"
                                 />
                                 <button
                                   onClick={() => submitNewTraveler(item.id)}
-                                  className="text-xs text-emerald-400 hover:text-emerald-300 px-1"
+                                  className="text-xs text-tmb-moss hover:text-tmb-moss px-1"
                                 >
                                   <Check className="w-3.5 h-3.5" />
                                 </button>
                                 <button
                                   onClick={() => setShowNewTraveler(null)}
-                                  className="text-xs text-slate-400 hover:text-slate-300 px-1"
+                                  className="text-xs text-tmb-muted hover:text-tmb-ink px-1"
                                 >
                                   <X className="w-3.5 h-3.5" />
                                 </button>
@@ -386,12 +386,12 @@ export default function PackingTab({ items, loading, error, onTogglePacked, onUp
                               <select
                                 value={traveler}
                                 onChange={(e) => handleTravelerChange(item.id, e.target.value)}
-                                className="text-xs bg-white/10 border border-white/10 rounded-lg px-2 py-1 text-white appearance-none cursor-pointer"
+                                className="text-xs bg-tmb-kraft/60 border border-tmb-line2 rounded-lg px-2 py-1 text-tmb-ink appearance-none cursor-pointer"
                               >
                                 {travelerNames.map(n => (
-                                  <option key={n} value={n} className="bg-slate-800">{n}</option>
+                                  <option key={n} value={n} className="bg-tmb-paper">{n}</option>
                                 ))}
-                                <option value="__new__" className="bg-slate-800">+ New traveler...</option>
+                                <option value="__new__" className="bg-tmb-paper">+ New traveler...</option>
                               </select>
                             )}
                           </div>

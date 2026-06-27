@@ -11,11 +11,11 @@ const TYPE_ICONS = {
 };
 
 const TYPE_COLORS = {
-  bus: 'text-blue-400',
-  shuttle: 'text-blue-400',
-  lift: 'text-purple-400',
-  train: 'text-emerald-400',
-  taxi: 'text-amber-400',
+  bus: 'text-tmb-forest',
+  shuttle: 'text-tmb-forest',
+  lift: 'text-tmb-pine',
+  train: 'text-tmb-moss',
+  taxi: 'text-tmb-amber',
 };
 
 function GlassCard({ children, className = '' }) {
@@ -48,18 +48,18 @@ function LegCard({ leg, onUpdate, onDelete }) {
 
   if (editing) {
     return (
-      <div className="p-3 sm:p-4 space-y-2 bg-white/[0.03] rounded-xl border border-white/10">
+      <div className="p-3 sm:p-4 space-y-2 bg-tmb-cream/40 rounded-[13px] border border-tmb-line2">
         <input
           value={draft.name}
           onChange={e => setDraft(d => ({ ...d, name: e.target.value }))}
-          className="w-full text-sm bg-white/10 border border-white/10 rounded-lg px-3 py-1.5 text-white"
+          className="w-full text-sm bg-tmb-kraft/60 border border-tmb-line2 rounded-lg px-3 py-1.5 text-tmb-ink"
           placeholder="Name"
         />
         <div className="flex gap-2">
           <input
             value={draft.cost ?? ''}
             onChange={e => setDraft(d => ({ ...d, cost: e.target.value }))}
-            className="w-24 text-sm bg-white/10 border border-white/10 rounded-lg px-3 py-1.5 text-white"
+            className="w-24 text-sm bg-tmb-kraft/60 border border-tmb-line2 rounded-lg px-3 py-1.5 text-tmb-ink"
             placeholder="Cost"
             type="number"
             step="0.01"
@@ -67,25 +67,25 @@ function LegCard({ leg, onUpdate, onDelete }) {
           <input
             value={draft.depart_time}
             onChange={e => setDraft(d => ({ ...d, depart_time: e.target.value }))}
-            className="w-24 text-sm bg-white/10 border border-white/10 rounded-lg px-3 py-1.5 text-white"
+            className="w-24 text-sm bg-tmb-kraft/60 border border-tmb-line2 rounded-lg px-3 py-1.5 text-tmb-ink"
             placeholder="Time"
           />
         </div>
         <textarea
           value={draft.info}
           onChange={e => setDraft(d => ({ ...d, info: e.target.value }))}
-          className="w-full text-xs bg-white/10 border border-white/10 rounded-lg px-3 py-1.5 text-white resize-none"
+          className="w-full text-xs bg-tmb-kraft/60 border border-tmb-line2 rounded-lg px-3 py-1.5 text-tmb-ink resize-none"
           rows={2}
           placeholder="Notes / schedule info"
         />
         <div className="flex gap-2">
-          <button onClick={saveEdit} className="flex items-center gap-1 px-3 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 text-xs hover:bg-emerald-500/30">
+          <button onClick={saveEdit} className="flex items-center gap-1 px-3 py-1 rounded-lg bg-tmb-moss/15 text-tmb-moss text-xs hover:bg-tmb-moss/25">
             <Save className="w-3 h-3" /> Save
           </button>
-          <button onClick={() => setEditing(false)} className="flex items-center gap-1 px-3 py-1 rounded-lg bg-white/10 text-slate-400 text-xs hover:bg-white/15">
+          <button onClick={() => setEditing(false)} className="flex items-center gap-1 px-3 py-1 rounded-lg bg-tmb-kraft/60 text-tmb-muted text-xs hover:bg-tmb-kraft">
             Cancel
           </button>
-          <button onClick={() => onDelete(leg.id)} className="flex items-center gap-1 px-3 py-1 rounded-lg bg-red-500/10 text-red-400 text-xs hover:bg-red-500/20 ml-auto">
+          <button onClick={() => onDelete(leg.id)} className="flex items-center gap-1 px-3 py-1 rounded-lg bg-tmb-rust/10 text-tmb-rust text-xs hover:bg-tmb-rust/20 ml-auto">
             <X className="w-3 h-3" /> Delete
           </button>
         </div>
@@ -94,26 +94,26 @@ function LegCard({ leg, onUpdate, onDelete }) {
   }
 
   return (
-    <button onClick={startEdit} className="w-full text-left p-3 sm:p-4 rounded-xl bg-white/[0.03] border border-white/5 hover:bg-white/[0.06] hover:border-white/10 transition-all">
+    <button onClick={startEdit} className="w-full text-left p-3 sm:p-4 rounded-[13px] bg-tmb-cream/40 border border-tmb-line2 hover:bg-tmb-cream/60 hover:border-tmb-line transition-all">
       <div className="flex items-start gap-3">
-        <div className={`mt-0.5 ${TYPE_COLORS[leg.type] || 'text-slate-400'}`}>
+        <div className={`mt-0.5 ${TYPE_COLORS[leg.type] || 'text-tmb-muted'}`}>
           <Icon className="w-5 h-5" />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
-            <span className="text-sm font-medium text-white truncate">{leg.name}</span>
+            <span className="text-sm font-medium text-tmb-ink truncate">{leg.name}</span>
             {leg.cost != null && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-slate-300 whitespace-nowrap font-mono">
+              <span className="text-xs px-2 py-0.5 rounded-full bg-tmb-kraft/60 text-tmb-ink whitespace-nowrap font-mono">
                 {leg.currency === 'CHF' ? 'CHF ' : '€'}{Number(leg.cost).toFixed(2)}
               </span>
             )}
           </div>
-          <div className="text-xs text-slate-400 mt-0.5">
+          <div className="text-xs text-tmb-muted mt-0.5">
             {leg.from_place} → {leg.to_place}
-            {leg.depart_time && <span className="ml-2 text-slate-500">at {leg.depart_time}</span>}
+            {leg.depart_time && <span className="ml-2 text-tmb-muted/70">at {leg.depart_time}</span>}
           </div>
           {leg.info && (
-            <p className="text-xs text-slate-500 mt-1 line-clamp-2">{leg.info}</p>
+            <p className="text-xs text-tmb-muted/70 mt-1 line-clamp-2">{leg.info}</p>
           )}
           {leg.url && (
             <a
@@ -121,7 +121,7 @@ function LegCard({ leg, onUpdate, onDelete }) {
               target="_blank"
               rel="noopener noreferrer"
               onClick={e => e.stopPropagation()}
-              className="inline-flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 mt-1"
+              className="inline-flex items-center gap-1 text-xs text-tmb-forest hover:text-tmb-forest mt-1"
             >
               <ExternalLink className="w-3 h-3" /> Timetable
             </a>
@@ -179,8 +179,8 @@ export default function TransportTab({ legs, legsByDay, loading, error, tripId, 
   if (loading || seeding) {
     return (
       <GlassCard className="p-8 text-center">
-        <div className="animate-spin w-8 h-8 border-2 border-blue-400 border-t-transparent rounded-full mx-auto mb-3" />
-        <p className="text-slate-400 text-sm">{seeding ? 'Seeding transport data...' : 'Loading transport...'}</p>
+        <div className="animate-spin w-8 h-8 border-2 border-tmb-forest border-t-transparent rounded-full mx-auto mb-3" />
+        <p className="text-tmb-muted text-sm">{seeding ? 'Seeding transport data...' : 'Loading transport...'}</p>
       </GlassCard>
     );
   }
@@ -188,24 +188,24 @@ export default function TransportTab({ legs, legsByDay, loading, error, tripId, 
   if (error) {
     return (
       <GlassCard className="p-8 text-center">
-        <p className="text-red-400 text-sm">Error: {error}</p>
+        <p className="text-tmb-rust text-sm">Error: {error}</p>
       </GlassCard>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 font-body">
       {allDays.map(dayIndex => {
         const dayLegs = legsByDay.get(dayIndex) || [];
         return (
           <GlassCard key={dayIndex} className="overflow-hidden">
             {/* Day header */}
-            <div className="px-4 py-3 border-b border-white/5">
+            <div className="px-4 py-3 border-b border-tmb-line2">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-sm font-semibold text-white">Day {dayIndex + 1}</span>
+                  <span className="text-sm font-semibold text-tmb-ink">Day {dayIndex + 1}</span>
                   {DAY_ROUTES[dayIndex] && (
-                    <span className="text-xs text-slate-400 ml-2">{DAY_ROUTES[dayIndex]}</span>
+                    <span className="text-xs text-tmb-muted ml-2">{DAY_ROUTES[dayIndex]}</span>
                   )}
                 </div>
                 <button
@@ -217,7 +217,7 @@ export default function TransportTab({ legs, legsByDay, loading, error, tripId, 
                     from_place: '',
                     to_place: '',
                   })}
-                  className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/5 text-slate-400 text-xs hover:bg-white/10 hover:text-white transition-colors"
+                  className="flex items-center gap-1 px-2 py-1 rounded-lg bg-tmb-cream/60 text-tmb-muted text-xs hover:bg-tmb-kraft hover:text-tmb-ink transition-colors"
                 >
                   <Plus className="w-3 h-3" /> Add
                 </button>
@@ -231,7 +231,7 @@ export default function TransportTab({ legs, legsByDay, loading, error, tripId, 
                   <LegCard key={leg.id} leg={leg} onUpdate={onUpdateLeg} onDelete={onDeleteLeg} />
                 ))
               ) : (
-                <p className="text-xs text-slate-500 text-center py-2">No transport needed — hiking only</p>
+                <p className="text-xs text-tmb-muted/70 text-center py-2">No transport needed -- hiking only</p>
               )}
             </div>
           </GlassCard>
