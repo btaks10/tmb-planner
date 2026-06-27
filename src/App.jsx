@@ -1,14 +1,19 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { segmentData } from './segmentData';
+import { useTrip } from './lib/useTrip';
 import {
   Eye, Waves, Mountain, Landmark, Church, Bird, Camera,
   ChevronDown, ChevronRight, Utensils, Home, MapPin,
   Zap, Bus, CableCar, Route, Check, AlertTriangle,
-  Plus, Minus, Save, Share2, Link2, Copy, X, Maximize2, RotateCcw
+  Plus, Minus, Save, Share2, Link2, Copy, X, Maximize2, RotateCcw,
+  Wifi, WifiOff, Loader2, CloudOff
 } from 'lucide-react';
 import { MapContainer, TileLayer, Polyline, CircleMarker, Tooltip, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import savedTripCapture from './data/savedTripCapture.json';
+import gearSeed from './data/gearSeed.json';
 
 const STORAGE_KEY = 'tmb-planner-data';
 
@@ -1515,7 +1520,7 @@ const ShareModal = ({ isOpen, shareUrl, onClose, onCopy }) => {
 
         <div className="p-3 rounded-lg bg-white/5 border border-white/5">
           <p className="text-xs text-slate-400">
-            This link contains a snapshot of your current itinerary. Changes you make won't affect shared links, and changes others make won't affect your saved version.
+            This is a live link — anyone with it can view and edit the same trip in real time. Changes sync automatically between devices.
           </p>
         </div>
       </div>
@@ -2322,6 +2327,10 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
 };
 
 export default function App() {
+  const { token: urlToken } = useParams();
+  const navigate = useNavigate();
+  const { trip, loading: tripLoading, error: tripError, syncing, connected, updateTrip, createTrip, shareToken: tripShareToken } = useTrip(urlToken);
+
   const [scenarios, setScenarios] = useState(DEFAULT_DATA.scenarios);
   const [activeScenarioId, setActiveScenarioId] = useState(DEFAULT_DATA.activeScenarioId);
   const [view, setView] = useState('plan');
@@ -2335,6 +2344,9 @@ export default function App() {
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
   const [toast, setToast] = useState({ message: '', type: 'info', isVisible: false });
+  const [showMigration, setShowMigration] = useState(false);
+  const [migrating, setMigrating] = useState(false);
+  const tripHydrated = useRef(false);
 
   // Show toast helper
   const showToast = (message, type = 'info') => {
@@ -2342,99 +2354,171 @@ export default function App() {
     setTimeout(() => setToast(prev => ({ ...prev, isVisible: false })), 3000);
   };
 
-  // Encode scenario data for sharing
-  const encodeScenarioForShare = (scenario, shortcuts) => {
-    const shareData = {
-      n: scenario.name,
-      s: scenario.startDate,
-      d: scenario.days,
-      sc: shortcuts
-    };
-    return btoa(JSON.stringify(shareData));
-  };
-
-  // Decode scenario data from URL
-  const decodeScenarioFromUrl = (encoded) => {
-    try {
-      const decoded = JSON.parse(atob(encoded));
-      return {
-        name: decoded.n || 'Shared Trip',
-        startDate: decoded.s || '2026-08-01',
-        days: decoded.d || DEFAULT_DATA.scenarios[0].days,
-        shortcuts: decoded.sc || {}
-      };
-    } catch (e) {
-      console.error('Failed to decode shared trip:', e);
-      return null;
-    }
-  };
-
-  // Load from URL or localStorage on mount
+  // Hydrate local state from Supabase trip data
   useEffect(() => {
+    if (!trip || tripHydrated.current) return;
+    tripHydrated.current = true;
+
+    const scenario = {
+      id: trip.id,
+      name: trip.name,
+      startDate: trip.start_date,
+      days: trip.day_splits,
+    };
+    setScenarios([scenario]);
+    setActiveScenarioId(trip.id);
+    setSelectedShortcuts(trip.selected_shortcuts || {});
+    setUseImperial(trip.use_imperial ?? true);
+    setIsDirty(false);
+  }, [trip]);
+
+  // Handle remote updates from Realtime / polling
+  useEffect(() => {
+    if (!trip || !tripHydrated.current) return;
+    // Only apply remote changes — skip our own optimistic updates
+    setScenarios(prev => {
+      const current = prev.find(s => s.id === trip.id);
+      if (!current) return prev;
+      // Check if this is actually a remote change
+      if (
+        current.name === trip.name &&
+        current.startDate === trip.start_date &&
+        JSON.stringify(current.days) === JSON.stringify(trip.day_splits)
+      ) return prev;
+      return prev.map(s =>
+        s.id === trip.id
+          ? { ...s, name: trip.name, startDate: trip.start_date, days: trip.day_splits }
+          : s
+      );
+    });
+    setSelectedShortcuts(trip.selected_shortcuts || {});
+    setUseImperial(trip.use_imperial ?? true);
+  }, [trip?.updated_at]);
+
+  // On mount without a share token: check for localStorage to migrate, or check for old ?trip= param
+  useEffect(() => {
+    if (urlToken) return; // Already loading from share token
+    if (tripLoading) return;
+
+    // Handle legacy ?trip= snapshot links
     const urlParams = new URLSearchParams(window.location.search);
-    const sharedTrip = urlParams.get('trip');
-
-    if (sharedTrip) {
-      // Try to load from URL
-      const decoded = decodeScenarioFromUrl(sharedTrip);
-      if (decoded) {
-        // Create a new scenario from the shared data
-        const sharedScenario = {
+    const legacyTrip = urlParams.get('trip');
+    if (legacyTrip) {
+      try {
+        const decoded = JSON.parse(atob(legacyTrip));
+        const scenario = {
           id: Date.now(),
-          name: decoded.name + ' (Shared)',
-          startDate: decoded.startDate,
-          days: decoded.days
+          name: (decoded.n || 'Shared Trip') + ' (Imported)',
+          startDate: decoded.s || '2026-08-01',
+          days: decoded.d || DEFAULT_DATA.scenarios[0].days,
         };
-        setScenarios([sharedScenario]);
-        setActiveScenarioId(sharedScenario.id);
-        setSelectedShortcuts(decoded.shortcuts);
-        setIsDirty(true); // Mark as dirty so user knows to save
-
-        // Clear the URL param without reloading
+        setScenarios([scenario]);
+        setActiveScenarioId(scenario.id);
+        setSelectedShortcuts(decoded.sc || {});
         window.history.replaceState({}, '', window.location.pathname);
-
-        showToast('Loaded shared itinerary! Click Save to keep it.', 'success');
-      } else {
-        showToast("Couldn't load shared trip - using default", 'error');
-        loadFromLocalStorage();
+        showToast('Imported legacy shared trip! Use "Share" to get a live link.', 'success');
+      } catch (_) {
+        showToast("Couldn't load shared trip", 'error');
       }
-    } else {
-      loadFromLocalStorage();
+      return;
     }
-  }, []);
 
-  const loadFromLocalStorage = () => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
+    // Check for existing localStorage data to migrate
+    const saved = localStorage.getItem(STORAGE_KEY);
+    const migrated = localStorage.getItem('tmb-planner-migrated');
+    if (saved && !migrated) {
+      setShowMigration(true);
+      // Load localStorage data as fallback while migration is pending
+      try {
         const data = JSON.parse(saved);
         if (data.scenarios) setScenarios(data.scenarios);
         if (data.activeScenarioId) setActiveScenarioId(data.activeScenarioId);
         if (data.selectedShortcuts) setSelectedShortcuts(data.selectedShortcuts);
         if (data.useImperial !== undefined) setUseImperial(data.useImperial);
+      } catch (_) {}
+    }
+  }, [urlToken, tripLoading]);
+
+  // Migrate localStorage trip to Supabase
+  const handleMigrate = async () => {
+    setMigrating(true);
+    try {
+      // Use the real localStorage data, fall back to saved capture
+      let saved;
+      try {
+        saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      } catch (_) {}
+
+      const source = saved || savedTripCapture;
+      const activeScen = source.scenarios?.[0];
+      if (!activeScen) throw new Error('No scenario data found');
+
+      const result = await createTrip({
+        name: activeScen.name,
+        start_date: activeScen.startDate,
+        day_splits: activeScen.days,
+        selected_shortcuts: source.selectedShortcuts || {},
+        use_imperial: source.useImperial ?? true,
+        gear_items: gearSeed.items,
+      });
+
+      if (result?.share_token) {
+        localStorage.setItem('tmb-planner-migrated', 'true');
+        setShowMigration(false);
+        navigate(`/t/${result.share_token}`, { replace: true });
+        showToast('Trip migrated! This is now a live, shareable link.', 'success');
+      } else {
+        throw new Error('Migration failed');
       }
-    } catch (e) {
-      console.error('Failed to load saved data:', e);
+    } catch (err) {
+      showToast(`Migration failed: ${err.message}`, 'error');
+    } finally {
+      setMigrating(false);
     }
   };
 
-  // Generate share URL
-  const handleShare = () => {
-    if (!activeScenario) return;
+  // Sync changes to Supabase (auto-save, replaces manual Save button)
+  const syncToSupabase = useCallback(() => {
+    if (!trip?.id) return;
+    const activeScen = scenarios.find(s => s.id === activeScenarioId);
+    if (!activeScen) return;
 
-    // Only include shortcuts that are selected (true values)
-    const activeShortcutsOnly = {};
-    Object.entries(selectedShortcuts).forEach(([key, value]) => {
-      if (value) activeShortcutsOnly[key] = true;
+    updateTrip({
+      name: activeScen.name,
+      start_date: activeScen.startDate,
+      day_splits: activeScen.days,
+      selected_shortcuts: selectedShortcuts,
+      use_imperial: useImperial,
     });
+    setIsDirty(false);
+  }, [trip?.id, scenarios, activeScenarioId, selectedShortcuts, useImperial, updateTrip]);
 
-    const encoded = encodeScenarioForShare(activeScenario, activeShortcutsOnly);
-    const url = `${window.location.origin}${window.location.pathname}?trip=${encoded}`;
+  // Auto-save when data changes (if connected to Supabase)
+  useEffect(() => {
+    if (!trip?.id || !isDirty || !tripHydrated.current) return;
+    syncToSupabase();
+  }, [isDirty, syncToSupabase, trip?.id]);
+
+  // Generate share URL (now uses the live /t/:token link)
+  const handleShare = () => {
+    if (!tripShareToken) {
+      showToast('Save your trip first to get a shareable link', 'error');
+      return;
+    }
+    const url = `${window.location.origin}/t/${tripShareToken}`;
     setShareUrl(url);
     setShowShareModal(true);
   };
 
+  // Fallback save to localStorage (when not connected to Supabase)
   const saveToLocalStorage = () => {
+    if (trip?.id) {
+      // Connected to Supabase — sync instead
+      syncToSupabase();
+      setShowSaved(true);
+      setTimeout(() => setShowSaved(false), 2000);
+      return;
+    }
     try {
       const data = { scenarios, activeScenarioId, selectedShortcuts, useImperial };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -2688,7 +2772,20 @@ export default function App() {
             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center text-lg sm:text-xl">⛰️</div>
             <h1 className="text-xl sm:text-3xl font-light tracking-tight">Tour du Mont Blanc</h1>
           </div>
-          <p className="text-slate-400 text-xs sm:text-sm ml-10 sm:ml-13">Plan your journey around the roof of Europe</p>
+          <div className="flex items-center gap-2 ml-10 sm:ml-13">
+            <p className="text-slate-400 text-xs sm:text-sm">Plan your journey around the roof of Europe</p>
+            {trip?.id && (
+              <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full" title={connected ? 'Live sync active' : syncing ? 'Saving...' : 'Offline'}>
+                {syncing ? (
+                  <><Loader2 className="w-3 h-3 animate-spin text-amber-400" /><span className="text-amber-400">Saving</span></>
+                ) : connected ? (
+                  <><Wifi className="w-3 h-3 text-emerald-400" /><span className="text-emerald-400">Live</span></>
+                ) : (
+                  <><CloudOff className="w-3 h-3 text-slate-500" /><span className="text-slate-500">Offline</span></>
+                )}
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Scenario tabs and action buttons */}
@@ -3384,6 +3481,67 @@ export default function App() {
         onClose={() => setShowShareModal(false)}
         onCopy={() => showToast('Link copied to clipboard!', 'success')}
       />
+
+      {/* Migration modal */}
+      {showMigration && createPortal(
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+          <div className="relative max-w-md w-full p-6 rounded-2xl border border-white/10 shadow-2xl" style={{ backgroundColor: 'rgba(30, 41, 59, 0.95)', backdropFilter: 'blur(24px)' }}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center text-xl">⛰️</div>
+              <div>
+                <h3 className="text-lg font-semibold text-white">Upgrade Your Trip</h3>
+                <p className="text-slate-400 text-xs">Go live & shareable</p>
+              </div>
+            </div>
+            <p className="text-sm text-slate-300 mb-4">
+              Found your saved trip in this browser. Import it to get a <strong className="text-emerald-400">live, shareable link</strong> that syncs between you and Nick in real time.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={handleMigrate}
+                disabled={migrating}
+                className="flex-1 px-4 py-3 min-h-[44px] rounded-xl text-sm font-medium bg-gradient-to-r from-emerald-500 to-cyan-500 text-white hover:shadow-lg hover:shadow-emerald-500/25 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {migrating ? <><Loader2 className="w-4 h-4 animate-spin" /> Migrating...</> : 'Import & Go Live'}
+              </button>
+              <button
+                onClick={() => setShowMigration(false)}
+                className="px-4 py-3 min-h-[44px] rounded-xl text-sm font-medium bg-white/5 border border-white/10 text-slate-300 hover:bg-white/10 transition-all"
+              >
+                Skip
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Loading state */}
+      {tripLoading && createPortal(
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-slate-950/80 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
+            <p className="text-slate-300 text-sm">Loading your trip...</p>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Trip error */}
+      {tripError && !trip && createPortal(
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-slate-950/80 backdrop-blur-sm">
+          <div className="max-w-sm w-full p-6 rounded-2xl border border-red-500/20 text-center" style={{ backgroundColor: 'rgba(30, 41, 59, 0.95)' }}>
+            <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-3" />
+            <h3 className="text-lg font-semibold text-white mb-2">Trip Not Found</h3>
+            <p className="text-sm text-slate-400 mb-4">This link may have expired or the trip doesn't exist.</p>
+            <button onClick={() => navigate('/', { replace: true })} className="px-4 py-2.5 rounded-xl text-sm font-medium bg-white/10 text-white hover:bg-white/15 transition-all">
+              Go Home
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
 
       {/* Toast notifications */}
       <Toast
