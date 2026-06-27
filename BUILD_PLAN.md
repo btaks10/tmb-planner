@@ -101,6 +101,8 @@ create table bookings (
   trip_id uuid not null references trips(id) on delete cascade,
   night_date date, place_name text not null, location text,
   type text,                          -- hotel | refuge | gite | lodge
+  phase text,                         -- arrival | stage | departure | logistics
+  day_index int, end_waypoint_id int, -- links a night to its stage (where you sleep)
   check_in date, check_out date,
   confirmation_no text, booking_url text, phone text,
   cost numeric, currency text default 'EUR', notes text,
@@ -111,7 +113,7 @@ create table documents (
   id uuid primary key default gen_random_uuid(),
   trip_id uuid not null references trips(id) on delete cascade,
   title text not null,
-  kind text,                          -- receipt | ticket | insurance | passport | other
+  kind text,                          -- confirmation | receipt | summary | notion-entry | overview | ticket | insurance | passport | other
   storage_path text not null,         -- path in 'trip-files' bucket
   booking_id uuid references bookings(id) on delete set null,
   uploaded_at timestamptz default now()
@@ -186,11 +188,15 @@ create policy trip_children on gear_items
 - **Acceptance:** both sections reachable on desktop + mobile; existing trail views unchanged in behavior.
 
 ### Phase 4 — Logistics & Packing modules (2–3 days)
-- [ ] **Bookings + receipts**: per-night cards (seed Bryan's 9 nights). Upload receipts/confirmations to `trip-files`; show thumbnails/links; fields per `bookings`. *(Receipts are the headline storage goal.)*
+- [ ] **Bookings + receipts (stage-linked — the headline storage goal).** The 8 bookings + their files are already exported, renamed, and stage-mapped in **`receipts/receiptsManifest.json`** (gitignored; files in `receipts/`). Build it as:
+  - **Ingest (one-time, idempotent):** `scripts/ingestReceipts.mjs` (service-role) reads the manifest → upserts a `bookings` row per entry (set `phase`, `day_index`, `end_waypoint_id`) → uploads each `files[]` to `trip-files` at `trips/<trip_id>/bookings/<slug>/<file>` → inserts a `documents` row (FK `booking_id`, `kind` from manifest). Store `reference[]` (planning-table overview) as a trip-level doc; create `gaps[]` as `status:"missing"` placeholders.
+  - **Stage linkage (Trail & Plan):** on each day card show a **"Stay" block** for that night — resolve by `day_index`, validate `end_waypoint_id` — with name, dates, status, amount, and **receipt thumbnails** that open full-size. Arrival (Hotel Le Chamonix) = pre-trip card; return to Barcelona = departure card; Day 7 = Lykke (flag "receipt missing").
+  - **Bookings tab (Logistics):** full list arrival→stages→departure, each expandable with all fields + files + an **upload control** (drag-drop / mobile camera); EUR + CHF totals; a "Needs attention" section from `gaps[]` (Lykke receipt, both flights, Geneva transfers).
+  - **Stage notes to surface:** Base Camp Lodge (Day 2) → 06:45 navette back to Les Chapieux; Le Cabanon (Day 5) → pay CHF, breakfast-only; Rifugio Elena/Les Écuries → sleeping-bag liner mandatory; Lykke → verify & upload the real receipt.
 - [ ] **Packing**: gear checklist with packed toggles, grouped by category, a progress bar, and a status filter (Need to Buy / Bought / Not Bringing). **One-time import** from `src/data/gearSeed.json` (90 items; §6).
 - [ ] **Transport**: per-day legs seeded from `TRAIL_DATA_AUDIT.md` (the Les Chapieux navette, lifts, PostBus). Editable.
 - [ ] **Documents & Safety**: documents vault (tickets/insurance/passports) + emergency contacts & refuge phone numbers; all offline-readable.
-- **Acceptance:** upload a receipt offline→online and it persists + syncs to the other device; gear list imported; transport legs show correct 2026 prices/times.
+- **Acceptance:** every manifest booking appears on its correct **day card** *and* in the Bookings tab; receipts open from both; re-running the ingest makes no duplicates; `gaps[]` show as "needs upload"; a receipt uploaded offline→online persists + syncs to the other device; gear list imported; transport legs show correct 2026 prices/times.
 
 ### Phase 5 — Apply trail-data corrections (½ day)
 - [ ] Apply every ✅ correction in `TRAIL_DATA_AUDIT.md` §3 to `segmentData.js` (Prarion €18.90; add Bellevue; rewrite Les Chapieux navette €8 + times; Forclaz→Trient PostBus; Flégère/Brévent descent options).
