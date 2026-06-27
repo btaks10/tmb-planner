@@ -1,0 +1,34 @@
+{
+  "meta": {
+    "source": "TMB emergency reference",
+    "created": "2026-06-27",
+    "count": 5
+  },
+  "contacts": [
+    {
+      "label": "European Emergency",
+      "phone": "112",
+      "notes": "Works in France, Italy, and Switzerland. Free from any phone."
+    },
+    {
+      "label": "PGHM Chamonix (Mountain Rescue — France)",
+      "phone": "+33 4 50 53 16 89",
+      "notes": "Peloton de Gendarmerie de Haute Montagne. For mountain accidents in the Chamonix valley / Haute-Savoie."
+    },
+    {
+      "label": "REGA (Swiss Air Rescue)",
+      "phone": "1414",
+      "notes": "Swiss helicopter rescue. From abroad: +41 333 333 333. Free for REGA patrons."
+    },
+    {
+      "label": "CNSAS (Italian Mountain Rescue)",
+      "phone": "118",
+      "notes": "Corpo Nazionale Soccorso Alpino e Speleologico. For the Italian Val Ferret / Courmayeur section."
+    },
+    {
+      "label": "TMB Trail Conditions",
+      "phone": null,
+      "notes": "Check autourdumontblanc.com for current trail status, closures, and weather alerts before each stage."
+    }
+  ]
+}

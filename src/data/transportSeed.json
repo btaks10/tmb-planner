@@ -1,0 +1,69 @@
+{
+  "meta": {
+    "source": "TRAIL_DATA_AUDIT.md + TMB research",
+    "created": "2026-06-27",
+    "count": 5
+  },
+  "legs": [
+    {
+      "day_index": 0,
+      "name": "Téléphérique du Prarion",
+      "type": "lift",
+      "from_place": "Les Houches (Bellevue)",
+      "to_place": "Hôtel du Prarion",
+      "depart_time": null,
+      "cost": 18.90,
+      "currency": "EUR",
+      "info": "Optional shortcut — saves ~2h ascent to Col de Voza. Runs continuously in summer.",
+      "url": null
+    },
+    {
+      "day_index": 1,
+      "name": "Les Chapieux Navette",
+      "type": "shuttle",
+      "from_place": "Les Contamines / Nant Borrant",
+      "to_place": "Les Chapieux",
+      "depart_time": "17:20",
+      "cost": 8.00,
+      "currency": "EUR",
+      "info": "Evening shuttles: 17:20 / 17:50 / 18:20. Morning: 06:45 / 08:20. Book ahead in peak season.",
+      "url": null
+    },
+    {
+      "day_index": 4,
+      "name": "PostBus La Fouly → Champex-Lac",
+      "type": "bus",
+      "from_place": "La Fouly",
+      "to_place": "Champex-Lac",
+      "depart_time": null,
+      "cost": 8.40,
+      "currency": "CHF",
+      "info": "Swiss PostBus — pay on board with CHF or card. Check SBB.ch for current timetable.",
+      "url": "https://www.postauto.ch"
+    },
+    {
+      "day_index": 5,
+      "name": "PostBus Col de la Forclaz → Trient",
+      "type": "bus",
+      "from_place": "Col de la Forclaz",
+      "to_place": "Trient",
+      "depart_time": null,
+      "cost": 2.20,
+      "currency": "CHF",
+      "info": "Short ~5 min ride. Swiss PostBus.",
+      "url": "https://www.postauto.ch"
+    },
+    {
+      "day_index": 6,
+      "name": "La Flégère Gondola + Brévent Cable Car",
+      "type": "lift",
+      "from_place": "La Flégère",
+      "to_place": "Brévent summit / Planpraz",
+      "depart_time": null,
+      "cost": 50.00,
+      "currency": "EUR",
+      "info": "La Flégère gondola (€19) + Brévent cable car (€31). Combined ticket may be available. Check Compagnie du Mont-Blanc.",
+      "url": "https://www.montblancnaturalresort.com"
+    }
+  ]
+}
