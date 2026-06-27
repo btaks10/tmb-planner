@@ -1,0 +1,17 @@
+{
+  "_note": "Fallback seed of Bryan's saved TMB plan, reconstructed from the app screenshot (2026-06-27). Used by create-trip if the live localStorage capture is unavailable. Real capture to be added later. See BUILD_PLAN.md §2.1.",
+  "name": "7-Day Classic",
+  "startDate": "2026-08-05",
+  "daySplits": [6, 8, 12, 15, 21, 26, 33],
+  "selectedShortcuts": {},
+  "useImperial": true,
+  "dayEndpoints": [
+    "Refuge de la Balme",
+    "Les Chapieux",
+    "Courmayeur",
+    "Rifugio Elena",
+    "Champex-Lac",
+    "Col de Balme",
+    "Les Houches (End)"
+  ]
+}

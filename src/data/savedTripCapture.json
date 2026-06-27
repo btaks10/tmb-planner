@@ -1,0 +1,19 @@
+{
+  "_note": "Real localStorage capture from tmb-planner.vercel.app (2026-06-27). This is the source of truth for migration.",
+  "scenarios": [
+    {
+      "id": 1768254523933,
+      "name": "TC V1 (Shared)",
+      "startDate": "2026-08-05",
+      "days": [6, 8, 12, 15, 21, 26, 33]
+    }
+  ],
+  "activeScenarioId": 1768254523933,
+  "selectedShortcuts": {
+    "27-28-Train to Chamonix/Les Houches": true,
+    "0-1-Téléphérique du Prarion": true,
+    "16-17-Bus from Ferret": true,
+    "17-18-PostBus La Fouly to Champex": true
+  },
+  "useImperial": true
+}
