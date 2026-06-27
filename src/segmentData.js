@@ -66,10 +66,24 @@ export const segmentData = {
         distanceSaved: 5.0,
         ascentSaved: 600,
         descentSaved: 0,
-        cost: 18,
-        ticketInfo: "Buy at Les Houches station. Runs 9:00-17:00 in summer. No advance booking needed.",
+        cost: 18.9,
+        ticketInfo: "Buy at Les Houches station. Runs 9:15–17:00 (late Jun–early Sep). No advance booking needed.",
         skipsToWaypoint: null,
         considerations: "Misses the forest walk but saves significant elevation gain. Good option if starting late or in poor weather.",
+        position: 0.1
+      },
+      {
+        name: "Bellevue cable car",
+        type: "cable_car",
+        description: "Cable car from Les Houches to Bellevue, near Col de Voza",
+        timeSaved: 90,
+        distanceSaved: 5.0,
+        ascentSaved: 650,
+        descentSaved: 0,
+        cost: 18.9,
+        ticketInfo: "€18.90 one-way / €23.90 RT. Runs 7:30–18:00 (Jul 5–Aug 29). More direct route to Bellevue/Col de Voza.",
+        skipsToWaypoint: null,
+        considerations: "More direct than Prarion cable car for reaching Col de Voza. Opens earlier (7:30) which is useful for an early start.",
         position: 0.1
       },
       {
@@ -80,7 +94,7 @@ export const segmentData = {
         distanceSaved: 5.0,
         ascentSaved: 600,
         descentSaved: 0,
-        cost: 22,
+        cost: 22, // TODO verify — 2026 price may be ≈€40+ RT from Le Fayet; check montblancnaturalresort.com
         ticketInfo: "Departs from Saint-Gervais. Book at montblancnaturalresort.com or at station. Several departures daily.",
         skipsToWaypoint: null,
         considerations: "Scenic historic railway experience. Continues to Nid d'Aigle (2372m) if you want to see the Bionnassay glacier up close.",
@@ -459,17 +473,17 @@ export const segmentData = {
     ],
     shortcuts: [
       {
-        name: "Bus to Bourg-Saint-Maurice",
+        name: "Navette Les Chapieux ↔ Bourg-Saint-Maurice",
         type: "bus",
-        description: "Bus from Les Chapieux to valley towns",
+        description: "Shuttle bus from Les Chapieux to Bourg-Saint-Maurice and back",
         timeSaved: 0,
         distanceSaved: 0,
         ascentSaved: 0,
         descentSaved: 0,
-        cost: 5,
-        ticketInfo: "Limited summer service. Check with Les Chapieux refuge for schedule.",
+        cost: 8,
+        ticketInfo: "€8 each way. Evening departures from Les Chapieux: 17:20 / 17:50 / 18:20. Morning return BSM → Les Chapieux: 06:45 / 08:20. Runs ~Jun 22–Aug 30 (extended Jun 13–Sep 13). Ticket machine on site.",
         skipsToWaypoint: null,
-        considerations: "Useful for accessing supplies, pharmacy, or train connections. Does not skip TMB sections.",
+        considerations: "Key hinge for Day 2/3 logistics — supplies, pharmacy, or train connections in Bourg-Saint-Maurice. Does not skip TMB sections. Plan around fixed departure times.",
         position: 1.0
       }
     ],
@@ -658,7 +672,7 @@ export const segmentData = {
         distanceSaved: 6.4,
         ascentSaved: 40,
         descentSaved: 750,
-        cost: 3,
+        cost: 3, // TODO verify — check SVAP/Savda 2026 fare and timetable
         ticketInfo: "Savda bus. Stops near La Visaille. Runs hourly in summer. Buy on bus.",
         skipsToWaypoint: 12,
         considerations: "Useful if tired or short on time. The Val Veny walk is pleasant but not essential.",
@@ -987,15 +1001,15 @@ export const segmentData = {
       {
         name: "PostBus La Fouly to Champex",
         type: "bus",
-        description: "Skip ahead to Champex-Lac",
+        description: "Skip ahead to Champex-Lac via Orsières",
         timeSaved: 180,
         distanceSaved: 16.0,
         ascentSaved: 520,
         descentSaved: 550,
-        cost: 15,
-        ticketInfo: "PostBus via Orsières. Change at Orsières for Champex. Runs multiple times daily.",
+        cost: 15, // TODO verify — CHF fare on SBB; bus 272 La Fouly→Orsières then 273 Orsières→Champex
+        ticketInfo: "Bus 272 La Fouly → Orsières, change to bus 273 Orsières → Champex. Operating from 6 Jun 2026. Pay in CHF. Runs multiple times daily.",
         skipsToWaypoint: 21,
-        considerations: "Skips the valley floor section which is less dramatic. Many hikers use this option to save a day.",
+        considerations: "Skips the valley floor section which is less dramatic. Many hikers use this option to save a day. Note: requires a bus change at Orsières (272→273).",
         position: 1.0
       }
     ],
@@ -1243,17 +1257,17 @@ export const segmentData = {
     ],
     shortcuts: [
       {
-        name: "Bus from Col de la Forclaz",
+        name: "PostBus Col de la Forclaz → Trient",
         type: "bus",
-        description: "PostBus to Martigny (valley) or Chamonix",
-        timeSaved: 0,
-        distanceSaved: 0,
+        description: "PostBus descent to Trient (4-min ride) or onward to Martigny",
+        timeSaved: 30,
+        distanceSaved: 2.1,
         ascentSaved: 0,
-        descentSaved: 0,
-        cost: 10,
-        ticketInfo: "PostBus stop at col. Good for supplies run to Martigny or exit point.",
-        skipsToWaypoint: null,
-        considerations: "Useful for accessing Martigny for supplies, train connections, or rest day.",
+        descentSaved: 250,
+        cost: 2.2,
+        ticketInfo: "≈CHF 2.20 to Trient (4 min). Useful times: 16:31 / 18:31 (also 05:35 / 11:31). Continues to Martigny for supplies. See carpostal.ch/valais.",
+        skipsToWaypoint: 25,
+        considerations: "Quick skip of the Forclaz→Trient descent. Also useful for a supplies run to Martigny (longer ride). Pay in CHF.",
         position: 1.0
       }
     ],
@@ -1292,7 +1306,22 @@ export const segmentData = {
         position: 1.0
       }
     ],
-    shortcuts: [],
+    shortcuts: [
+      {
+        name: "PostBus Forclaz → Trient",
+        type: "bus",
+        description: "PostBus descent from Col de la Forclaz to Trient (4 min)",
+        timeSaved: 30,
+        distanceSaved: 2.1,
+        ascentSaved: 0,
+        descentSaved: 250,
+        cost: 2.2,
+        ticketInfo: "≈CHF 2.20. Useful times: 16:31 / 18:31 (also 05:35 / 11:31). See carpostal.ch/valais.",
+        skipsToWaypoint: 25,
+        considerations: "Short descent skip. Saves knees if they're suffering by this point. Pay in CHF.",
+        position: 0.0
+      }
+    ],
     waterSources: [
       { name: "Trient village fountain", type: "fountain", potable: true, position: 1.0 }
     ],
@@ -1413,7 +1442,7 @@ export const segmentData = {
         distanceSaved: 5.0,
         ascentSaved: 0,
         descentSaved: 650,
-        cost: 20,
+        cost: 20, // TODO verify — check 2026 Charamillon/Le Tour lift price and hours
         ticketInfo: "Chamonix lift pass accepted. Runs 9:00-16:30 in summer.",
         skipsToWaypoint: null,
         considerations: "Easy descent but misses the trail. Good option for tired knees.",
@@ -1427,7 +1456,7 @@ export const segmentData = {
         distanceSaved: 31.5,
         ascentSaved: 1930,
         descentSaved: 3010,
-        cost: 12,
+        cost: 12, // TODO verify — Mont Blanc Express 2026 fare (Vallorcine–Chamonix line)
         ticketInfo: "Mont Blanc Express train. Frequent departures. Scenic ride.",
         skipsToWaypoint: 33,
         considerations: "Completes the circuit by train. Many hikers use this if short on time or to skip the final day.",
@@ -1514,7 +1543,7 @@ export const segmentData = {
         distanceSaved: 23.5,
         ascentSaved: 1690,
         descentSaved: 2730,
-        cost: 10,
+        cost: 10, // TODO verify — Mont Blanc Express 2026 fare (Vallorcine–Chamonix line)
         ticketInfo: "Mont Blanc Express. Frequent service.",
         skipsToWaypoint: 33,
         considerations: "Skips the final high sections including La Flégère and Brévent—which are spectacular. Only recommend if injured or out of time.",
@@ -1577,8 +1606,8 @@ export const segmentData = {
         distanceSaved: 7.0,
         ascentSaved: 750,
         descentSaved: 300,
-        cost: 20,
-        ticketInfo: "Chamonix lift pass. From Les Praz village. Frequent departures.",
+        cost: 19,
+        ticketInfo: "€19 one-way. Runs 8:20–18:00 (Jul 11–Aug 30), last descent 18:00. From Les Praz village.",
         skipsToWaypoint: 29,
         considerations: "Misses the beautiful traverse and Lac Blanc option. Only use if short on time.",
         position: 0.0
@@ -1636,15 +1665,29 @@ export const segmentData = {
     ],
     shortcuts: [
       {
+        name: "Télécabine de la Flégère (descent)",
+        type: "cable_car",
+        description: "Descend from La Flégère to Les Praz / Chamonix",
+        timeSaved: 90,
+        distanceSaved: 2.8,
+        ascentSaved: 0,
+        descentSaved: 340,
+        cost: 19,
+        ticketInfo: "€19 one-way. Runs 8:20–18:00 (Jul 11–Aug 30), last descent 18:00. Bus from Les Praz to Les Houches.",
+        skipsToWaypoint: null,
+        considerations: "Bail-out option if tired or weather closing in. Descend to Chamonix and bus/taxi to Les Houches.",
+        position: 0.0
+      },
+      {
         name: "Cable car Planpraz to Chamonix",
         type: "cable_car",
-        description: "Descend to Chamonix by cable car",
+        description: "Descend to Chamonix by cable car (Brévent system)",
         timeSaved: 90,
         distanceSaved: 2.5,
         ascentSaved: 300,
         descentSaved: 200,
         cost: 22,
-        ticketInfo: "Part of Brévent lift system. Frequent departures to Chamonix.",
+        ticketInfo: "Part of Brévent lift system. Runs 8:20–18:00 (Jul 11–Aug 30). Frequent departures to Chamonix.",
         skipsToWaypoint: null,
         considerations: "If bad weather closing in or tired, can end day here and bus to Les Houches.",
         position: 1.0
@@ -1739,7 +1782,22 @@ export const segmentData = {
         position: 1.0
       }
     ],
-    shortcuts: [],
+    shortcuts: [
+      {
+        name: "Téléphérique du Brévent (descent)",
+        type: "cable_car",
+        description: "Cable car from Brévent summit to Chamonix",
+        timeSaved: 120,
+        distanceSaved: 10.0,
+        ascentSaved: 0,
+        descentSaved: 1500,
+        cost: 31,
+        ticketInfo: "€31 one-way / €43 RT. Runs 8:20–18:00 (Jul 11–Aug 30). Descends via Planpraz to Chamonix.",
+        skipsToWaypoint: null,
+        considerations: "Major bail-out for a tired finish. Descend to Chamonix and bus/taxi to Les Houches. Skips Bellachat and the final descent.",
+        position: 0.0
+      }
+    ],
     waterSources: [
       { name: "Bellachat refuge", type: "tap", potable: true, position: 1.0 }
     ],
@@ -1795,8 +1853,8 @@ export const segmentData = {
         distanceSaved: 5.0,
         ascentSaved: 0,
         descentSaved: 700,
-        cost: 18,
-        ticketInfo: "Same cable car you may have seen on Day 1. Runs until 17:00.",
+        cost: 18.9,
+        ticketInfo: "€18.90 one-way. Same cable car you may have seen on Day 1. Runs 9:15–17:00 (late Jun–early Sep).",
         skipsToWaypoint: null,
         considerations: "Saves knees on long descent. But walking in is more satisfying—you've come this far!",
         position: 0.3
