@@ -1,5 +1,26 @@
 @import "tailwindcss";
 
+@theme {
+  --font-poster: 'Anton', Impact, sans-serif;
+  --font-display: 'Oswald', system-ui, sans-serif;
+  --font-body: 'Archivo', system-ui, sans-serif;
+
+  --color-tmb-pine: #1c3a2a;
+  --color-tmb-forest: #2e5039;
+  --color-tmb-moss: #6b8c54;
+  --color-tmb-gold: #e3a93c;
+  --color-tmb-amber: #cf7d2c;
+  --color-tmb-rust: #a83f24;
+  --color-tmb-clay: #bf6334;
+  --color-tmb-cream: #f6eedd;
+  --color-tmb-paper: #fffaef;
+  --color-tmb-kraft: #e9d8b4;
+  --color-tmb-ink: #2a2720;
+  --color-tmb-muted: #7a6e52;
+  --color-tmb-line: #dcc699;
+  --color-tmb-line2: #ece0c2;
+}
+
 @keyframes slide-up {
   from {
     opacity: 0;
@@ -21,42 +42,42 @@
 }
 
 .leaflet-tooltip {
-  background: rgba(15, 23, 42, 0.95) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: rgba(42, 39, 32, 0.95) !important;
+  border: 1px solid #dcc699 !important;
   border-radius: 0.75rem !important;
   padding: 0.5rem 0.75rem !important;
-  color: white !important;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4) !important;
-  backdrop-filter: blur(12px);
+  color: #2a2720 !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25) !important;
+  font-family: 'Archivo', system-ui, sans-serif;
 }
 
 .leaflet-tooltip::before {
-  border-top-color: rgba(15, 23, 42, 0.95) !important;
+  border-top-color: rgba(42, 39, 32, 0.95) !important;
 }
 
 .leaflet-tooltip-left::before {
-  border-left-color: rgba(15, 23, 42, 0.95) !important;
+  border-left-color: rgba(42, 39, 32, 0.95) !important;
 }
 
 .leaflet-tooltip-right::before {
-  border-right-color: rgba(15, 23, 42, 0.95) !important;
+  border-right-color: rgba(42, 39, 32, 0.95) !important;
 }
 
 .leaflet-tooltip-bottom::before {
-  border-bottom-color: rgba(15, 23, 42, 0.95) !important;
+  border-bottom-color: rgba(42, 39, 32, 0.95) !important;
 }
 
 /* Hide default Leaflet attribution styling issues */
 .leaflet-control-attribution {
-  background: rgba(15, 23, 42, 0.7) !important;
-  color: #64748b !important;
+  background: rgba(246, 238, 221, 0.85) !important;
+  color: #7a6e52 !important;
   font-size: 10px !important;
   padding: 2px 8px !important;
   border-radius: 4px 0 0 0 !important;
 }
 
 .leaflet-control-attribution a {
-  color: #94a3b8 !important;
+  color: #2a2720 !important;
 }
 
 /* Custom zoom controls */

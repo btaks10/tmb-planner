@@ -83,23 +83,19 @@ const MAP_CENTER = [45.88, 6.92];
 const MAP_ZOOM = 11;
 
 const DAY_COLORS = [
-  { main: '#10b981', gradient: 'from-emerald-500 to-teal-600' },
-  { main: '#3b82f6', gradient: 'from-blue-500 to-indigo-600' },
-  { main: '#8b5cf6', gradient: 'from-violet-500 to-purple-600' },
-  { main: '#f59e0b', gradient: 'from-amber-500 to-orange-600' },
-  { main: '#ef4444', gradient: 'from-red-500 to-rose-600' },
-  { main: '#06b6d4', gradient: 'from-cyan-500 to-blue-600' },
-  { main: '#ec4899', gradient: 'from-pink-500 to-rose-600' },
-  { main: '#84cc16', gradient: 'from-lime-500 to-green-600' },
-  { main: '#f97316', gradient: 'from-orange-500 to-red-600' },
-  { main: '#6366f1', gradient: 'from-indigo-500 to-violet-600' },
-  { main: '#14b8a6', gradient: 'from-teal-500 to-emerald-600' },
+  { main: '#1c3a2a', gradient: 'bg-tmb-pine' },     // pine
+  { main: '#2e5039', gradient: 'bg-tmb-forest' },   // forest
+  { main: '#6b8c54', gradient: 'bg-tmb-moss' },     // moss
+  { main: '#cf7d2c', gradient: 'bg-tmb-amber' },    // amber
+  { main: '#bf6334', gradient: 'bg-tmb-clay' },     // clay
+  { main: '#a83f24', gradient: 'bg-tmb-rust' },     // rust
+  { main: '#e3a93c', gradient: 'bg-tmb-gold' },     // gold
 ];
 
 const formatDate = (date) => date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
 const GlassCard = ({ children, className = "", hover = false }) => (
-  <div className={`backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl shadow-2xl ${hover ? 'hover:bg-white/10 hover:border-white/20 transition-all duration-300' : ''} ${className}`}>
+  <div className={`bg-tmb-paper border border-tmb-line rounded-[13px] shadow-lg font-body ${hover ? 'hover:shadow-xl hover:border-tmb-gold/40 transition-all duration-300' : ''} ${className}`}>
     {children}
   </div>
 );
