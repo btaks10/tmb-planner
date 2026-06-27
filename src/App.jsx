@@ -2290,13 +2290,15 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
 };
 
 export default function App() {
-  const { token: urlToken } = useParams();
+  const { token: urlToken, section: urlSection } = useParams();
+  const section = urlSection || 'trail';
   const navigate = useNavigate();
   const { trip, loading: tripLoading, error: tripError, syncing, connected, updateTrip, createTrip, shareToken: tripShareToken } = useTrip(urlToken);
 
   const [scenarios, setScenarios] = useState(DEFAULT_DATA.scenarios);
   const [activeScenarioId, setActiveScenarioId] = useState(DEFAULT_DATA.activeScenarioId);
   const [view, setView] = useState('plan');
+  const [logisticsView, setLogisticsView] = useState('bookings');
   const [selectedShortcuts, setSelectedShortcuts] = useState(DEFAULT_DATA.selectedShortcuts);
   const [useImperial, setUseImperial] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
@@ -2699,6 +2701,28 @@ export default function App() {
           </div>
         </div>
 
+        {/* Section nav */}
+        <GlassCard className="p-1 sm:p-1.5 mb-4 sm:mb-6 flex gap-1 w-full sm:w-auto sm:inline-flex">
+          {[
+            { id: 'trail', label: 'Trail & Plan', icon: '⛰️' },
+            { id: 'logistics', label: 'Logistics & Packing', icon: '🎒' }
+          ].map(s => (
+            <button
+              key={s.id}
+              onClick={() => navigate(urlToken ? `/t/${urlToken}/${s.id}` : '/', { replace: false })}
+              className={`flex-1 sm:flex-initial px-4 sm:px-6 py-3 sm:py-2.5 min-h-[48px] sm:min-h-[44px] rounded-xl text-sm font-semibold transition-all duration-300 flex items-center justify-center sm:justify-start gap-2.5 ${
+                section === s.id
+                  ? 'bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 text-white border border-emerald-500/30 shadow-lg shadow-emerald-500/10'
+                  : 'text-slate-400 hover:text-white hover:bg-white/5 active:bg-white/10'
+              }`}
+            >
+              <span className="text-lg">{s.icon}</span>
+              <span>{s.label}</span>
+            </button>
+          ))}
+        </GlassCard>
+
+        {section === 'trail' && (<>
         {/* Scenario tabs and action buttons */}
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-2 mb-4 sm:mb-6">
           {/* Scenario pills - horizontal scroll on mobile */}
@@ -3367,6 +3391,43 @@ export default function App() {
               useImperial={useImperial}
             />
           </GlassCard>
+        )}
+        </>)}
+
+        {section === 'logistics' && (
+          <>
+            {/* Logistics sub-tabs */}
+            <GlassCard className="p-1 sm:p-1.5 mb-4 sm:mb-6 flex sm:inline-flex gap-1 w-full sm:w-auto">
+              {[
+                { id: 'bookings', label: 'Bookings', icon: '📋' },
+                { id: 'packing', label: 'Packing', icon: '✅' },
+                { id: 'transport', label: 'Transport', icon: '🚌' },
+                { id: 'documents', label: 'Documents & Safety', icon: '📄' }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setLogisticsView(tab.id)}
+                  className={`flex-1 sm:flex-initial px-3 sm:px-4 py-2.5 sm:py-2 min-h-[44px] rounded-xl text-sm transition-all duration-300 flex items-center justify-center sm:justify-start gap-2 ${
+                    logisticsView === tab.id ? 'bg-white/15 text-white' : 'text-slate-400 hover:text-white hover:bg-white/5 active:bg-white/10'
+                  }`}
+                >
+                  <span>{tab.icon}</span>
+                  <span className="hidden sm:inline">{tab.label}</span>
+                </button>
+              ))}
+            </GlassCard>
+
+            {/* Logistics placeholder content */}
+            <GlassCard className="p-8 sm:p-12 text-center">
+              <div className="text-4xl mb-4">
+                {logisticsView === 'bookings' ? '📋' : logisticsView === 'packing' ? '✅' : logisticsView === 'transport' ? '🚌' : '📄'}
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">
+                {logisticsView === 'bookings' ? 'Bookings' : logisticsView === 'packing' ? 'Packing' : logisticsView === 'transport' ? 'Transport' : 'Documents & Safety'}
+              </h3>
+              <p className="text-slate-400 text-sm">Coming soon — this section is under construction.</p>
+            </GlassCard>
+          </>
         )}
       </div>
 
