@@ -287,7 +287,7 @@ const DaySummaryTable = ({
             {showEndAltitude && <td className="py-3 px-3"></td>}
           </tr>
           {hasAnySavings && (
-            <tr className="border-t border-cyan-500/20 bg-cyan-500/5">
+            <tr className="border-t border-tmb-gold/20 bg-tmb-gold/5">
               <td className="py-3 px-3 text-tmb-gold" colSpan="2">
                 <div className="flex items-center gap-2">
                   <Zap className="w-4 h-4" />
@@ -395,8 +395,8 @@ const SubSegment = ({ fromWp, toWp, segmentKey, selectedShortcuts, onShortcutTog
           </div>
           <div className="flex gap-4 text-xs text-tmb-muted mt-1">
             <span>{distance} km</span>
-            <span className="text-emerald-500/70">↑{ascent}m</span>
-            <span className="text-rose-500/70">↓{descent}m</span>
+            <span className="text-tmb-moss">↑{ascent}m</span>
+            <span className="text-tmb-rust">↓{descent}m</span>
             <span>{formatTime(time)}</span>
           </div>
         </div>
@@ -469,7 +469,7 @@ const SubSegment = ({ fromWp, toWp, segmentKey, selectedShortcuts, onShortcutTog
                 className="w-full px-4 py-3 flex items-center justify-between text-sm hover:bg-tmb-cream/60 transition-colors"
               >
                 <div className="flex items-center gap-2">
-                  <Utensils className="w-4 h-4 text-orange-400" />
+                  <Utensils className="w-4 h-4 text-tmb-clay" />
                   <span className="text-tmb-ink">Food & Refuges</span>
                   <span className="text-tmb-muted text-xs">({segment.foodStops.length})</span>
                 </div>
@@ -485,9 +485,9 @@ const SubSegment = ({ fromWp, toWp, segmentKey, selectedShortcuts, onShortcutTog
                         {foods.map((food, idx) => (
                           <div key={idx} className="flex items-start gap-2 p-2 rounded-lg hover:bg-tmb-cream/60 transition-colors">
                             {food.type === 'refuge' ? (
-                              <Home className="w-4 h-4 text-orange-400 mt-0.5 shrink-0" />
+                              <Home className="w-4 h-4 text-tmb-clay mt-0.5 shrink-0" />
                             ) : (
-                              <Utensils className="w-4 h-4 text-orange-400 mt-0.5 shrink-0" />
+                              <Utensils className="w-4 h-4 text-tmb-clay mt-0.5 shrink-0" />
                             )}
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2">
@@ -496,7 +496,7 @@ const SubSegment = ({ fromWp, toWp, segmentKey, selectedShortcuts, onShortcutTog
                               </div>
                               <div className="text-xs text-tmb-muted">{food.description}</div>
                               {food.specialty && (
-                                <div className="text-xs text-orange-400/70 mt-1">★ {food.specialty}</div>
+                                <div className="text-xs text-tmb-clay/70 mt-1">★ {food.specialty}</div>
                               )}
                             </div>
                           </div>
@@ -535,13 +535,13 @@ const SubSegment = ({ fromWp, toWp, segmentKey, selectedShortcuts, onShortcutTog
                           const isSelected = selectedShortcuts[shortcutId];
 
                           return (
-                            <div key={idx} className={`p-3 rounded-lg transition-colors ${isSelected ? 'bg-cyan-500/20 border border-cyan-500/30' : 'bg-tmb-cream/60'}`}>
+                            <div key={idx} className={`p-3 rounded-lg transition-colors ${isSelected ? 'bg-tmb-gold/15 border border-tmb-gold/30' : 'bg-tmb-cream/60'}`}>
                               <div className="flex items-start gap-3">
                                 <button
                                   onClick={() => onShortcutToggle(shortcutId, shortcut.timeSaved)}
                                   className={`mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
                                     isSelected
-                                      ? 'bg-cyan-500 border-cyan-500'
+                                      ? 'bg-tmb-pine border-tmb-pine'
                                       : 'border-tmb-muted hover:border-tmb-gold'
                                   }`}
                                 >
@@ -637,7 +637,7 @@ const EndpointDropdown = ({ value, options, onChange, formatTime }) => {
         ref={buttonRef}
         onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); }}
         className={`w-full bg-tmb-cream/60 border px-3 py-2.5 sm:py-1.5 min-h-[44px] sm:min-h-0 rounded-lg text-sm font-medium text-tmb-ink hover:bg-tmb-kraft transition-colors flex items-center justify-between gap-2 ${
-          isOpen ? 'border-emerald-500/50' : 'border-tmb-line2'
+          isOpen ? 'border-tmb-moss/50' : 'border-tmb-line2'
         }`}
       >
         <span className="truncate">{selectedOption?.name || 'Select...'}</span>
@@ -668,7 +668,7 @@ const EndpointDropdown = ({ value, options, onChange, formatTime }) => {
               }}
               className={`w-full px-4 py-3 sm:py-2.5 min-h-[44px] sm:min-h-0 text-left text-sm transition-colors flex items-center justify-between gap-3 ${
                 opt.id === value
-                  ? 'bg-emerald-500/20 text-tmb-moss'
+                  ? 'bg-tmb-moss/20 text-tmb-moss'
                   : 'text-tmb-ink hover:bg-tmb-kraft'
               } ${index === 0 ? 'rounded-t-xl' : ''} ${index === options.length - 1 ? 'rounded-b-xl' : ''}`}
             >
@@ -1031,16 +1031,16 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                 dayData.allFood.map((food, idx) => (
                   <div key={idx} className="flex items-start gap-3 p-3 rounded-xl bg-tmb-cream/60">
                     {food.type === 'refuge' ? (
-                      <Home className="w-4 h-4 text-orange-400 mt-0.5 shrink-0" />
+                      <Home className="w-4 h-4 text-tmb-clay mt-0.5 shrink-0" />
                     ) : (
-                      <Utensils className="w-4 h-4 text-orange-400 mt-0.5 shrink-0" />
+                      <Utensils className="w-4 h-4 text-tmb-clay mt-0.5 shrink-0" />
                     )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-sm font-medium text-tmb-ink">{food.name}</span>
                         <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                          food.type === 'refuge' ? 'bg-orange-500/20 text-orange-400' :
-                          food.type === 'restaurant' ? 'bg-emerald-500/20 text-tmb-moss' :
+                          food.type === 'refuge' ? 'bg-tmb-clay/15 text-tmb-clay' :
+                          food.type === 'restaurant' ? 'bg-tmb-moss/20 text-tmb-moss' :
                           'bg-blue-500/20 text-blue-400'
                         }`}>
                           {food.type}
@@ -1049,7 +1049,7 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                       </div>
                       <div className="text-xs text-tmb-muted mt-0.5">{food.description}</div>
                       {food.specialty && (
-                        <div className="text-xs text-orange-400/70 mt-1">★ {food.specialty}</div>
+                        <div className="text-xs text-tmb-clay/70 mt-1">★ {food.specialty}</div>
                       )}
                       <div className="text-[10px] text-tmb-muted/70 mt-1">{food.segmentLabel}</div>
                     </div>
@@ -1066,7 +1066,7 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
               ) : (
                 <>
                   {timeSaved > 0 && (
-                    <div className="flex items-center justify-between p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+                    <div className="flex items-center justify-between p-3 rounded-xl bg-tmb-gold/10 border border-tmb-gold/20">
                       <span className="text-sm text-tmb-gold">Time saved with selected shortcuts</span>
                       <span className="text-sm font-semibold text-tmb-gold">{formatTime(timeSaved)}</span>
                     </div>
@@ -1075,7 +1075,7 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                     <div
                       key={idx}
                       className={`p-3 rounded-xl transition-colors ${
-                        shortcut.isSelected ? 'bg-cyan-500/20 border border-cyan-500/30' : 'bg-tmb-cream/60'
+                        shortcut.isSelected ? 'bg-tmb-gold/15 border border-tmb-gold/30' : 'bg-tmb-cream/60'
                       }`}
                     >
                       <div className="flex items-start gap-3">
@@ -1083,7 +1083,7 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                           onClick={(e) => { e.stopPropagation(); onShortcutToggle(shortcut.shortcutId, shortcut.timeSaved); }}
                           className={`mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
                             shortcut.isSelected
-                              ? 'bg-cyan-500 border-cyan-500'
+                              ? 'bg-tmb-pine border-tmb-pine'
                               : 'border-tmb-muted hover:border-tmb-gold'
                           }`}
                         >
@@ -1267,7 +1267,7 @@ const ShareModal = ({ isOpen, shareUrl, onClose, onCopy }) => {
                 type="text"
                 value={shareUrl}
                 readOnly
-                className="w-full bg-tmb-cream border border-tmb-line rounded-lg pl-10 pr-4 py-3 sm:py-2.5 text-sm text-tmb-ink focus:outline-none focus:border-cyan-500/50"
+                className="w-full bg-tmb-cream border border-tmb-line rounded-lg pl-10 pr-4 py-3 sm:py-2.5 text-sm text-tmb-ink focus:outline-none focus:border-tmb-gold/50"
                 onClick={(e) => e.target.select()}
               />
             </div>
@@ -1275,7 +1275,7 @@ const ShareModal = ({ isOpen, shareUrl, onClose, onCopy }) => {
               onClick={handleCopy}
               className={`px-4 py-3 sm:py-2.5 min-h-[44px] rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
                 copied
-                  ? 'bg-emerald-500 text-tmb-ink'
+                  ? 'bg-tmb-pine text-tmb-ink'
                   : 'bg-tmb-pine text-white hover:shadow-lg'
               }`}
             >
@@ -1432,7 +1432,7 @@ const OfflineMapButton = ({ tileUrl }) => {
           <div className="px-3 py-2 min-w-[160px]">
             <div className="text-[10px] text-tmb-muted mb-1">Downloading tiles...</div>
             <div className="w-full h-1.5 bg-tmb-line rounded-full overflow-hidden">
-              <div className="h-full bg-emerald-500 transition-all duration-300 rounded-full" style={{ width: `${pct}%` }} />
+              <div className="h-full bg-tmb-pine transition-all duration-300 rounded-full" style={{ width: `${pct}%` }} />
             </div>
             <div className="text-[10px] text-tmb-muted mt-1">{progress.done}/{progress.total} ({pct}%)</div>
           </div>
@@ -1649,7 +1649,7 @@ const SegmentDetailModal = ({ isOpen, dayIndex, dayData, scenario, formatTime, f
                     onClick={() => onShortcutToggle(shortcutId, shortcut.timeSaved)}
                     className={`w-full flex items-center justify-between p-3 rounded-lg border transition-all ${
                       isSelected
-                        ? 'bg-white/10 border-white/20'
+                        ? 'bg-white/10 border-tmb-line'
                         : 'bg-tmb-cream/60 border-transparent hover:bg-tmb-kraft'
                     }`}
                   >
@@ -1822,7 +1822,7 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
           center={MAP_CENTER}
           zoom={MAP_ZOOM}
           className="h-full w-full"
-          style={{ background: '#1e293b' }}
+          style={{ background: '#f6eedd' }}
           zoomControl={true}
           minZoom={9}
           maxZoom={15}
@@ -1947,7 +1947,7 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
                 center={icon.position}
                 radius={icon.isSelected ? 11 : 8}
                 pathOptions={{
-                  color: icon.isSelected ? '#fff' : '#94a3b8',
+                  color: icon.isSelected ? '#fff' : '#7a6e52',
                   weight: 2,
                   fillColor: icon.isSelected ? color : '#475569',
                   fillOpacity: icon.isSelected ? 1 : 0.8
@@ -1986,9 +1986,9 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
             center={[WAYPOINTS[0].lat, WAYPOINTS[0].lng]}
             radius={16}
             pathOptions={{
-              color: '#10b981',
+              color: '#1c3a2a',
               weight: 0,
-              fillColor: '#10b981',
+              fillColor: '#1c3a2a',
               fillOpacity: 0.3
             }}
           />
@@ -1999,7 +1999,7 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
             pathOptions={{
               color: '#fff',
               weight: 3,
-              fillColor: '#10b981',
+              fillColor: '#1c3a2a',
               fillOpacity: 1
             }}
         >
@@ -2087,7 +2087,7 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
               <div className="text-xs text-tmb-muted uppercase tracking-wider mb-2">Shortcuts</div>
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2 text-xs">
-                  <div className="w-4 h-0.5 border-t-2 border-dashed border-cyan-400" />
+                  <div className="w-4 h-0.5 border-t-2 border-dashed border-tmb-gold" />
                   <span className="text-tmb-ink">Cable Car</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs">
@@ -2207,7 +2207,7 @@ const BookingCard = ({ booking, getFileUrl }) => {
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm font-medium text-tmb-ink">{booking.place_name}</span>
             {booking.type && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/10 text-tmb-muted">{booking.type}</span>}
-            {booking.status && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-tmb-moss border border-emerald-500/20">{booking.status}</span>}
+            {booking.status && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-tmb-moss/15 text-tmb-moss border border-tmb-moss/20">{booking.status}</span>}
           </div>
           <div className="flex items-center gap-3 mt-1 text-xs text-tmb-muted">
             <span>{booking.check_in} → {booking.check_out}</span>
@@ -2245,7 +2245,7 @@ const BookingCard = ({ booking, getFileUrl }) => {
             {booking.phone && (
               <>
                 <span className="text-tmb-muted">Phone</span>
-                <a href={`tel:${booking.phone}`} className="text-tmb-gold hover:text-cyan-300 flex items-center gap-1">
+                <a href={`tel:${booking.phone}`} className="text-tmb-gold hover:text-tmb-forest flex items-center gap-1">
                   <Phone className="w-3 h-3" />{booking.phone}
                 </a>
               </>
@@ -2253,7 +2253,7 @@ const BookingCard = ({ booking, getFileUrl }) => {
             {booking.booking_url && (
               <>
                 <span className="text-tmb-muted">Booking</span>
-                <a href={booking.booking_url} target="_blank" rel="noopener noreferrer" className="text-tmb-gold hover:text-cyan-300 flex items-center gap-1">
+                <a href={booking.booking_url} target="_blank" rel="noopener noreferrer" className="text-tmb-gold hover:text-tmb-forest flex items-center gap-1">
                   <ExternalLink className="w-3 h-3" />View booking
                 </a>
               </>
@@ -3030,7 +3030,7 @@ export default function App() {
                     <button
                       onClick={mergeShortestDay}
                       disabled={dayData.length <= 1}
-                      className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-lg bg-tmb-cream border border-tmb-line text-tmb-muted hover:bg-rose-500/20 hover:border-rose-500/30 hover:text-tmb-rust disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+                      className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-lg bg-tmb-cream border border-tmb-line text-tmb-muted hover:bg-tmb-rust/15 hover:border-tmb-rust/30 hover:text-tmb-rust disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center justify-center"
                       title="Remove day (merge shortest)"
                     >
                       <Minus className="w-5 h-5" />
@@ -3041,7 +3041,7 @@ export default function App() {
                     </div>
                     <button
                       onClick={splitLongestDay}
-                      className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-lg bg-tmb-cream border border-tmb-line text-tmb-muted hover:bg-emerald-500/20 hover:border-emerald-500/30 hover:text-tmb-moss transition-all flex items-center justify-center"
+                      className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-lg bg-tmb-cream border border-tmb-line text-tmb-muted hover:bg-tmb-moss/20 hover:border-tmb-moss/30 hover:text-tmb-moss transition-all flex items-center justify-center"
                       title="Add day (split longest)"
                     >
                       <Plus className="w-5 h-5" />
@@ -3075,7 +3075,7 @@ export default function App() {
                       type="text"
                       value={activeScenario.name}
                       onChange={(e) => renameScenario(activeScenario.id, e.target.value)}
-                      className="bg-transparent text-xl font-light border-b border-white/20 focus:border-emerald-500 outline-none pb-1 w-44 transition-colors"
+                      className="bg-transparent text-xl font-light border-b border-tmb-line focus:border-tmb-rust outline-none pb-1 w-44 transition-colors"
                     />
                   </div>
                   <div>
@@ -3089,7 +3089,7 @@ export default function App() {
                         ));
                         setIsDirty(true);
                       }}
-                      className="bg-tmb-cream border border-tmb-line px-4 py-2 rounded-xl text-sm focus:border-emerald-500 outline-none transition-colors"
+                      className="bg-tmb-cream border border-tmb-line px-4 py-2 rounded-xl text-sm focus:border-tmb-rust outline-none transition-colors"
                     />
                   </div>
                 </div>
@@ -3099,7 +3099,7 @@ export default function App() {
                     <button
                       onClick={mergeShortestDay}
                       disabled={dayData.length <= 1}
-                      className="w-10 h-10 min-h-[44px] min-w-[44px] rounded-lg bg-tmb-cream border border-tmb-line text-tmb-muted hover:bg-rose-500/20 hover:border-rose-500/30 hover:text-tmb-rust disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center justify-center"
+                      className="w-10 h-10 min-h-[44px] min-w-[44px] rounded-lg bg-tmb-cream border border-tmb-line text-tmb-muted hover:bg-tmb-rust/15 hover:border-tmb-rust/30 hover:text-tmb-rust disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center justify-center"
                       title="Remove day (merge shortest)"
                     >
                       <Minus className="w-4 h-4" />
@@ -3110,7 +3110,7 @@ export default function App() {
                     </div>
                     <button
                       onClick={splitLongestDay}
-                      className="w-10 h-10 min-h-[44px] min-w-[44px] rounded-lg bg-tmb-cream border border-tmb-line text-tmb-muted hover:bg-emerald-500/20 hover:border-emerald-500/30 hover:text-tmb-moss transition-all flex items-center justify-center"
+                      className="w-10 h-10 min-h-[44px] min-w-[44px] rounded-lg bg-tmb-cream border border-tmb-line text-tmb-muted hover:bg-tmb-moss/20 hover:border-tmb-moss/30 hover:text-tmb-moss transition-all flex items-center justify-center"
                       title="Add day (split longest)"
                     >
                       <Plus className="w-4 h-4" />
@@ -3317,21 +3317,21 @@ export default function App() {
                     const y = 250 - ((alt - minAlt) / (maxAlt - minAlt)) * 200;
                     return (
                       <g key={alt}>
-                        <line x1="60" y1={y} x2="760" y2={y} stroke="#334155" strokeWidth="1" strokeDasharray="4,4" />
-                        <text x="52" y={y + 4} fill="#94a3b8" fontSize="11" textAnchor="end" fontFamily="system-ui">{alt}m</text>
+                        <line x1="60" y1={y} x2="760" y2={y} stroke="#dcc699" strokeWidth="1" strokeDasharray="4,4" />
+                        <text x="52" y={y + 4} fill="#7a6e52" fontSize="11" textAnchor="end" fontFamily="system-ui">{alt}m</text>
                       </g>
                     );
                   })}
 
                   {/* X-axis labels */}
                   {[0, 40, 80, 120, 160].map(km => (
-                    <text key={km} x={60 + (km / maxDist) * 700} y={280} fill="#94a3b8" fontSize="11" textAnchor="middle" fontFamily="system-ui">{km}km</text>
+                    <text key={km} x={60 + (km / maxDist) * 700} y={280} fill="#7a6e52" fontSize="11" textAnchor="middle" fontFamily="system-ui">{km}km</text>
                   ))}
 
                   {/* Subtle fill under the line */}
                   <path
                     d={`M 60 250 L ${WAYPOINTS.map(p => `${60 + (p.cumDist / maxDist) * 700} ${250 - ((p.altitude - minAlt) / (maxAlt - minAlt)) * 200}`).join(' L ')} L ${60 + (WAYPOINTS[WAYPOINTS.length-1].cumDist / maxDist) * 700} 250 Z`}
-                    fill="rgba(16, 185, 129, 0.08)"
+                    fill="rgba(107, 140, 84, 0.12)"
                   />
 
                   {/* Day-colored elevation line segments */}
@@ -3383,7 +3383,7 @@ export default function App() {
                         {/* Faded "skipped" section indicator */}
                         <line
                           x1={x1} y1={y1} x2={x2} y2={y2}
-                          stroke="#334155"
+                          stroke="#dcc699"
                           strokeWidth={isHovered ? "8" : "6"}
                           strokeLinecap="round"
                           opacity="0.3"
@@ -3398,12 +3398,12 @@ export default function App() {
                           style={{ transition: 'stroke-width 0.15s ease' }}
                         />
                         {/* Start marker */}
-                        <circle cx={x1} cy={y1} r={isHovered ? "10" : "8"} fill={color} stroke="#0f172a" strokeWidth="2" style={{ transition: 'r 0.15s ease' }} />
+                        <circle cx={x1} cy={y1} r={isHovered ? "10" : "8"} fill={color} stroke="#f6eedd" strokeWidth="2" style={{ transition: 'r 0.15s ease' }} />
                         {/* End marker */}
-                        <circle cx={x2} cy={y2} r={isHovered ? "8" : "6"} fill={color} stroke="#0f172a" strokeWidth="2" opacity="0.7" style={{ transition: 'r 0.15s ease' }} />
+                        <circle cx={x2} cy={y2} r={isHovered ? "8" : "6"} fill={color} stroke="#f6eedd" strokeWidth="2" opacity="0.7" style={{ transition: 'r 0.15s ease' }} />
                         {/* Icon in middle of line */}
-                        <circle cx={midX} cy={midY} r={isHovered ? "14" : "12"} fill={color} stroke="#0f172a" strokeWidth="2" style={{ transition: 'r 0.15s ease' }} />
-                        <text x={midX} y={midY + 4} fill="#0f172a" fontSize={isHovered ? "12" : "10"} textAnchor="middle" fontWeight="bold">
+                        <circle cx={midX} cy={midY} r={isHovered ? "14" : "12"} fill={color} stroke="#f6eedd" strokeWidth="2" style={{ transition: 'r 0.15s ease' }} />
+                        <text x={midX} y={midY + 4} fill="#f6eedd" fontSize={isHovered ? "12" : "10"} textAnchor="middle" fontWeight="bold">
                           {isCableCar ? '🚡' : isBus ? '🚌' : '↗'}
                         </text>
                       </g>
@@ -3431,7 +3431,7 @@ export default function App() {
                         <text x={x} y={25} fill={color} fontSize="11" textAnchor="middle" fontWeight="600" fontFamily="system-ui">D{i + 1}</text>
 
                         {/* Marker circle - larger on hover */}
-                        <circle cx={x} cy={y} r={isHovered ? "13" : "10"} fill={color} stroke="#0f172a" strokeWidth="2.5" style={{ transition: 'r 0.15s ease' }} />
+                        <circle cx={x} cy={y} r={isHovered ? "13" : "10"} fill={color} stroke="#f6eedd" strokeWidth="2.5" style={{ transition: 'r 0.15s ease' }} />
                         <text x={x} y={y + 4} fill="white" fontSize={isHovered ? "12" : "10"} textAnchor="middle" fontWeight="bold" fontFamily="system-ui">{i + 1}</text>
 
                         {/* Invisible larger hit area for easier hovering */}
@@ -3442,7 +3442,7 @@ export default function App() {
 
                   {/* Start marker */}
                   <g>
-                    <circle cx={60} cy={250 - ((WAYPOINTS[0].altitude - minAlt) / (maxAlt - minAlt)) * 200} r="6" fill="#10b981" stroke="#0f172a" strokeWidth="2" />
+                    <circle cx={60} cy={250 - ((WAYPOINTS[0].altitude - minAlt) / (maxAlt - minAlt)) * 200} r="6" fill="#1c3a2a" stroke="#f6eedd" strokeWidth="2" />
                   </g>
                 </svg>
 
