@@ -184,6 +184,6 @@ describe('PackingTab', () => {
   it('applies dimmed style to Not Bringing items', () => {
     renderTab()
     const umbrella = screen.getByText('Trekking umbrella')
-    expect(umbrella.className).toContain('text-slate-500')
+    expect(umbrella.className).toContain('text-tmb-muted')
   })
 })
