@@ -31,7 +31,7 @@ const KIND_ICONS = {
   other: '📄',
 };
 
-function DocumentRow({ doc, onViewFile }) {
+function DocumentRow({ doc, onViewFile, onViewDoc }) {
   const [loadingUrl, setLoadingUrl] = useState(false);
 
   const handleView = async () => {
@@ -39,7 +39,11 @@ function DocumentRow({ doc, onViewFile }) {
     setLoadingUrl(true);
     try {
       const url = await onViewFile(doc.storage_path);
-      if (url) window.open(url, '_blank');
+      if (url && onViewDoc) {
+        onViewDoc({ url, filename: doc.title || doc.kind || 'Document', kind: doc.kind });
+      } else if (url) {
+        window.open(url, '_blank');
+      }
     } finally {
       setLoadingUrl(false);
     }
@@ -165,6 +169,7 @@ export default function DocumentsSafetyTab({
   onCreateContact,
   onUpdateContact,
   onDeleteContact,
+  onViewDoc,
 }) {
   // Collect all documents from bookings
   const documents = useMemo(() => {
@@ -215,7 +220,7 @@ export default function DocumentsSafetyTab({
                   </span>
                 </div>
                 {docs.map(doc => (
-                  <DocumentRow key={doc.id} doc={doc} onViewFile={getFileUrl} />
+                  <DocumentRow key={doc.id} doc={doc} onViewFile={getFileUrl} onViewDoc={onViewDoc} />
                 ))}
               </GlassCard>
             ))}
