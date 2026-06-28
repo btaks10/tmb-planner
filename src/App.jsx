@@ -3691,26 +3691,9 @@ export default function App() {
       <div className="max-w-5xl mx-auto relative px-4 sm:px-6 py-5 sm:py-8 pb-24 sm:pb-8">
 
         {section === 'trail' && (<>
-        {/* Scenario tabs and action buttons */}
+        {/* Action buttons */}
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-2 mb-4 sm:mb-6">
-          <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide flex-wrap sm:flex-nowrap items-center">
-            {scenarios.map(s => (
-              <button
-                key={s.id}
-                onClick={() => setActiveScenarioId(s.id)}
-                className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-sm font-display uppercase tracking-wider transition-all duration-300 whitespace-nowrap min-h-[44px] ${
-                  activeScenarioId === s.id
-                    ? 'bg-tmb-pine text-[#f4ead2] shadow-md'
-                    : 'bg-tmb-paper text-tmb-muted hover:bg-tmb-kraft border border-tmb-line'
-                }`}
-              >
-                {s.name}
-              </button>
-            ))}
-            {/* Add-scenario button hidden — single-trip focus */}
-          </div>
-
-          <div className="flex items-center gap-2 sm:ml-auto justify-end">
+          <div className="flex items-center gap-2 sm:ml-auto justify-end flex-1">
             {showSaved && (
               <span className="text-tmb-moss text-sm animate-pulse font-display uppercase tracking-wider">Saved!</span>
             )}
