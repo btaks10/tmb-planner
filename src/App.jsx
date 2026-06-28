@@ -23,7 +23,7 @@ import {
   Zap, Bus, CableCar, Route, Check, AlertTriangle,
   Plus, Minus, Save, Share2, Link2, Copy, X, Maximize2, RotateCcw,
   Wifi, WifiOff, LoaderCircle, CloudOff, Download, CheckCircle,
-  ExternalLink, Phone, FileText, Bed
+  ExternalLink, Phone, FileText, Bed, Upload, Trash2, Droplets
 } from 'lucide-react';
 import { MapContainer, TileLayer, Polyline, CircleMarker, Tooltip, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -2356,10 +2356,12 @@ const isBookingIncomplete = (booking) => {
 };
 
 // Booking detail modal
-const BookingDetailModal = ({ booking, isOpen, onClose, getFileUrl, jwt, tripId }) => {
+const BookingDetailModal = ({ booking, isOpen, onClose, getFileUrl, uploadDocument, removeDocument, jwt, tripId }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [fileUrls, setFileUrls] = useState({});
   const [uploading, setUploading] = useState(false);
+  const [removing, setRemoving] = useState(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -2478,9 +2480,38 @@ const BookingDetailModal = ({ booking, isOpen, onClose, getFileUrl, jwt, tripId 
             </div>
           )}
 
-          {/* Documents */}
+          {/* Documents + upload/remove */}
           <div>
-            <div className="text-[9px] font-display uppercase tracking-[.12em] text-tmb-muted mb-2">Documents</div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-[9px] font-display uppercase tracking-[.12em] text-tmb-muted">Documents</div>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-display uppercase bg-tmb-pine text-white hover:bg-tmb-forest transition-colors disabled:opacity-50 min-h-[32px]"
+              >
+                {uploading ? <LoaderCircle className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+                {uploading ? 'Uploading…' : 'Upload'}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*,.pdf"
+                className="hidden"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file || !booking.id) return;
+                  setUploading(true);
+                  try {
+                    await uploadDocument(booking.id, booking.slug || booking.id, file);
+                  } catch (err) {
+                    console.error('Upload failed:', err);
+                  } finally {
+                    setUploading(false);
+                    if (fileInputRef.current) fileInputRef.current.value = '';
+                  }
+                }}
+              />
+            </div>
             {booking.documents?.length > 0 ? (
               <div className="space-y-1.5">
                 {booking.documents.map((doc) => (
@@ -2492,15 +2523,32 @@ const BookingDetailModal = ({ booking, isOpen, onClose, getFileUrl, jwt, tripId 
                         <ExternalLink className="w-3 h-3" /> View
                       </a>
                     ) : (
-                      <span className="text-xs text-tmb-muted">Loading...</span>
+                      <span className="text-xs text-tmb-muted">Loading…</span>
                     )}
+                    <button
+                      onClick={async () => {
+                        setRemoving(doc.id);
+                        try {
+                          await removeDocument(booking.id, doc.id, doc.storage_path);
+                        } catch (err) {
+                          console.error('Remove failed:', err);
+                        } finally {
+                          setRemoving(null);
+                        }
+                      }}
+                      disabled={removing === doc.id}
+                      className="text-tmb-muted hover:text-tmb-rust transition-colors p-1 min-h-[32px] min-w-[32px] flex items-center justify-center"
+                      title="Remove document"
+                    >
+                      {removing === doc.id ? <LoaderCircle className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                    </button>
                   </div>
                 ))}
               </div>
             ) : (
               <div className="p-4 rounded-[9px] border border-dashed border-tmb-line text-center">
                 <p className="text-xs text-tmb-muted">No documents attached yet.</p>
-                <p className="text-[10px] text-tmb-amber mt-1">Upload receipts via the ingest script.</p>
+                <p className="text-[10px] text-tmb-amber mt-1">Tap Upload to add a receipt or confirmation.</p>
               </div>
             )}
           </div>
@@ -2647,7 +2695,7 @@ export default function App() {
   const section = urlSection || 'trail';
   const navigate = useNavigate();
   const { trip, jwt, loading: tripLoading, error: tripError, syncing, connected, online, pendingCount, updateTrip, createTrip, shareToken: tripShareToken } = useTrip(urlToken);
-  const { bookings, bookingsByDayIndex, arrivalBooking, totals: bookingTotals, gaps: bookingGaps, getFileUrl, loading: bookingsLoading } = useBookings(trip?.id, jwt);
+  const { bookings, bookingsByDayIndex, arrivalBooking, totals: bookingTotals, gaps: bookingGaps, getFileUrl, uploadDocument, removeDocument, loading: bookingsLoading } = useBookings(trip?.id, jwt);
   const { items: gearItems, loading: gearLoading, error: gearError, togglePacked, updateItem: updateGearItem } = useGearItems(trip?.id, jwt);
   const { legs: transportLegs, legsByDay, loading: transportLoading, error: transportError, createLeg, updateLeg, deleteLeg } = useTransportLegs(trip?.id, jwt);
   const { contacts: safetyContacts, loading: contactsLoading, error: contactsError, createContact, updateContact, deleteContact } = useSafetyContacts(trip?.id, jwt);
@@ -3992,6 +4040,8 @@ export default function App() {
         isOpen={selectedBooking !== null}
         onClose={() => setSelectedBooking(null)}
         getFileUrl={getFileUrl}
+        uploadDocument={uploadDocument}
+        removeDocument={removeDocument}
         jwt={jwt}
         tripId={trip?.id}
       />

@@ -85,6 +85,60 @@ export function useBookings(tripId, jwt) {
     return data.signedUrl;
   }, []);
 
+  // Upload a document file to a booking
+  const uploadDocument = useCallback(async (bookingId, bookingSlug, file) => {
+    if (!clientRef.current || !tripId) return null;
+    const storagePath = `trips/${tripId}/bookings/${bookingSlug}/${file.name}`;
+
+    // Upload to trip-files storage
+    const { error: uploadErr } = await clientRef.current.storage
+      .from('trip-files')
+      .upload(storagePath, file, { upsert: true });
+    if (uploadErr) throw uploadErr;
+
+    // Insert documents row
+    const kind = file.name.match(/receipt/i) ? 'receipt' : file.name.match(/confirm/i) ? 'confirmation' : 'other';
+    const { data, error: dbErr } = await clientRef.current
+      .from('documents')
+      .insert({ booking_id: bookingId, title: file.name, kind, storage_path: storagePath })
+      .select()
+      .single();
+    if (dbErr) throw dbErr;
+
+    // Update local state
+    setBookings(prev => prev.map(b =>
+      b.id === bookingId
+        ? { ...b, documents: [...(b.documents || []), data] }
+        : b
+    ));
+    return data;
+  }, [tripId]);
+
+  // Remove a document (storage + row)
+  const removeDocument = useCallback(async (bookingId, docId, storagePath) => {
+    if (!clientRef.current) return;
+
+    // Delete storage object
+    if (storagePath) {
+      await clientRef.current.storage.from('trip-files').remove([storagePath]);
+    }
+
+    // Delete documents row
+    const { error: dbErr } = await clientRef.current
+      .from('documents')
+      .delete()
+      .eq('id', docId);
+    if (dbErr) throw dbErr;
+
+    // Update local state
+    setBookings(prev => prev.map(b =>
+      b.id === bookingId
+        ? { ...b, documents: (b.documents || []).filter(d => d.id !== docId) }
+        : b
+    ));
+    urlCacheRef.current.delete(storagePath);
+  }, []);
+
   return {
     bookings,
     bookingsByDayIndex,
@@ -92,6 +146,8 @@ export function useBookings(tripId, jwt) {
     totals,
     gaps: GAPS,
     getFileUrl,
+    uploadDocument,
+    removeDocument,
     loading,
     error,
   };
