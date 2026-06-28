@@ -3129,7 +3129,7 @@ export default function App() {
                 onClick={() => setActiveScenarioId(s.id)}
                 className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-sm font-display uppercase tracking-wider transition-all duration-300 whitespace-nowrap min-h-[44px] ${
                   activeScenarioId === s.id
-                    ? 'bg-tmb-pine text-tmb-ink shadow-md'
+                    ? 'bg-tmb-pine text-[#f4ead2] shadow-md'
                     : 'bg-tmb-paper text-tmb-muted hover:bg-tmb-kraft border border-tmb-line'
                 }`}
               >
