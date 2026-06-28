@@ -45,11 +45,20 @@ Populate the Transport section comprehensively from the trip's `selected_shortcu
 
 ---
 
+## 8. Distance + time from the day's start (Sights / Food / Refuges / Shortcuts / Water)
+For every point inside an expanded day — sights, food/refuges, shortcuts, **and** the new water stops — show how far it is and the estimated time **from where that day started**. E.g. on the Rifugio Elena → Champex-Lac day: "La Fouly Village · ≈X km · ~Yh from Rifugio Elena."
+- Compute from waypoint cumulative data + the item's `position`: an item at position `p` in segment `fromWp → toWp` sits at `cumDist = fromWp.cumDist + p·(toWp.cumDist − fromWp.cumDist)` (same for `cumTime`); distance/time from start = that minus the **day's starting waypoint's** cumDist/cumTime.
+- Show as a small muted line on each item; respect the imperial/metric toggle; round sensibly (km 1 dp, time ~15 min).
+
+## 9. Surface ALL water stops
+Water sources exist in `segmentData` (**55 across the trip**, each with `potable` + `position`) but are **not rendered anywhere** today. Add a **Water** section/tab to each day (alongside Sights / Food / Shortcuts) listing every water source for that day's segments: name, type (fountain / tap / spring / stream), potable flag, and its distance/time from the day's start (per item 8). Verify **every** segment's `waterSources` renders (all 55 reachable). Use a clear water icon; mark any non-potable distinctly.
+
 ## Guardrails
 - UI/structure only — no changes to trip math, Supabase schema, offline layer, sharing, or receipts ingestion.
 - Primary is sole `App.jsx` editor; run with QA paused. When done, tell QA to update class/snapshot tests + add: booking-modal opens with fields + a document, upload/remove doc, and the "in progress" state.
 - Keep everything working: sharing link, receipts, packing, transport, documents, offline, map.
 - Commit logically per item.
+- **Shipping step:** after the work, run `node scripts/ingestReceipts.mjs` to push the 3 staged hi-res confirmations (Refuge de la Balme, Base Camp, Centrale) to Storage — already in `receipts/`, idempotent upsert (replaces the low-res versions).
 
 ## Acceptance
 - Clicking any lodging tag opens a styled modal with that booking's info + receipts; upload and remove both work; bookings with missing info show "in progress" (card + modal).
@@ -59,4 +68,7 @@ Populate the Transport section comprehensively from the trip's `selected_shortcu
 - Logistics medallions match the Trail tab's day colors/numbers exactly.
 - Cost summary sits at the bottom, collapsed, expands to an itemized EUR+CHF breakdown.
 - Transport lists all 4 selected shortcuts + flights + Geneva transfers + the Les Chapieux navette.
+- Every sight / food / refuge / shortcut / water item shows distance + time from the day's start (e.g. La Fouly from Rifugio Elena).
+- A Water section lists all water stops per day (all ~55 surfaced), with potable flags.
+- The 3 updated hi-res confirmations are pushed to Storage via the ingest script.
 - `npm run build` green; tests updated (with QA).
