@@ -25,7 +25,7 @@ import {
   Wifi, WifiOff, LoaderCircle, CloudOff, Download, CheckCircle,
   ExternalLink, Phone, FileText, Bed, Upload, Trash2, Droplets
 } from 'lucide-react';
-import { MapContainer, TileLayer, Polyline, CircleMarker, Tooltip, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Polyline, CircleMarker, Tooltip, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import savedTripCapture from './data/savedTripCapture.json';
 import { warmTiles, getCachedTileCount, getTileList } from './lib/offlineTiles';
@@ -76,6 +76,15 @@ const WAYPOINTS = [
   { id: 32, name: "Bellachat", altitude: 2152, cumDist: 157.1, cumTime: 3065, ascent: 8620, descent: 8770, stage: 11, lat: 45.9150, lng: 6.8200 },
   { id: 33, name: "Les Houches (End)", altitude: 1007, cumDist: 164.6, cumTime: 3205, ascent: 8660, descent: 9960, stage: 11, lat: 45.8906, lng: 6.7986 },
 ];
+
+// Interpolate lat/lng for a POI from its position between two bounding waypoints
+const poiLatLng = (position, fromWp, toWp) => {
+  if (!fromWp || !toWp || position == null) return null;
+  return {
+    lat: fromWp.lat + position * (toWp.lat - fromWp.lat),
+    lng: fromWp.lng + position * (toWp.lng - fromWp.lng),
+  };
+};
 
 // Mont Blanc summit location for map reference
 const MONT_BLANC = { lat: 45.8326, lng: 6.8652, altitude: 4808 };
@@ -731,6 +740,288 @@ const FromStartLine = ({ distFromStart, timeFromStart, startName, useImperial })
   );
 };
 
+// Fit map bounds to a specific day's route + POIs
+const FitDayBounds = ({ bounds }) => {
+  const map = useMap();
+  useEffect(() => {
+    if (bounds && bounds.length === 2) {
+      map.fitBounds(bounds, { padding: [30, 30] });
+    }
+  }, [map, bounds]);
+  return null;
+};
+
+// Per-day map component showing route + POIs for a single hiking day
+const DayMap = ({ dayIndex, subSegments, dayData, color, day, useImperial, activeScenario }) => {
+  const prevEnd = dayIndex === 0 ? 0 : activeScenario.days[dayIndex - 1];
+  const currentEnd = activeScenario.days[dayIndex];
+  const dayStartWp = WAYPOINTS[prevEnd];
+  const dayEndWp = WAYPOINTS[currentEnd];
+  const dayColor = DAY_COLORS[dayIndex % DAY_COLORS.length].main;
+
+  // Build route positions for this day
+  const routePositions = useMemo(() => {
+    const positions = [];
+    for (let j = prevEnd; j <= currentEnd; j++) {
+      const wp = WAYPOINTS[j];
+      if (wp && wp.lat && wp.lng) {
+        positions.push([wp.lat, wp.lng]);
+      }
+    }
+    return positions;
+  }, [prevEnd, currentEnd]);
+
+  // Enrich item with from-start distance/time (same logic as ExpandableDayCard)
+  const enrichWithFromStart = (item, seg) => {
+    const cumDist = seg.fromWp.cumDist + item.position * (seg.toWp.cumDist - seg.fromWp.cumDist);
+    const cumTime = seg.fromWp.cumTime + item.position * (seg.toWp.cumTime - seg.fromWp.cumTime);
+    return {
+      distFromStart: cumDist - dayStartWp.cumDist,
+      timeFromStart: cumTime - dayStartWp.cumTime,
+    };
+  };
+
+  // Collect all POIs with resolved lat/lng
+  const pois = useMemo(() => {
+    const items = [];
+
+    subSegments.forEach(seg => {
+      const segment = segmentData[seg.segmentKey];
+      if (!segment) return;
+
+      // Sights: use explicit coordinates
+      if (segment.sights) {
+        segment.sights.forEach(sight => {
+          if (!sight.coordinates || !sight.coordinates.lat || !sight.coordinates.lng) return;
+          const fromStart = enrichWithFromStart(sight, seg);
+          items.push({
+            type: 'sight',
+            name: sight.name,
+            description: sight.description,
+            sightType: sight.type,
+            photoRating: sight.photoRating,
+            lat: sight.coordinates.lat,
+            lng: sight.coordinates.lng,
+            ...fromStart,
+          });
+        });
+      }
+
+      // Food/refuges: interpolate from position
+      if (segment.foodStops) {
+        segment.foodStops.forEach(food => {
+          const coords = poiLatLng(food.position, seg.fromWp, seg.toWp);
+          if (!coords) return;
+          const fromStart = enrichWithFromStart(food, seg);
+          items.push({
+            type: 'food',
+            name: food.name,
+            description: food.description || food.specialty || '',
+            foodType: food.type,
+            priceRange: food.priceRange,
+            lat: coords.lat,
+            lng: coords.lng,
+            ...fromStart,
+          });
+        });
+      }
+
+      // Shortcuts: interpolate from position
+      if (segment.shortcuts) {
+        segment.shortcuts.forEach(sc => {
+          const coords = poiLatLng(sc.position, seg.fromWp, seg.toWp);
+          if (!coords) return;
+          const fromStart = enrichWithFromStart(sc, seg);
+          items.push({
+            type: 'shortcut',
+            name: sc.name,
+            description: sc.description,
+            shortcutType: sc.type,
+            timeSaved: sc.timeSaved,
+            lat: coords.lat,
+            lng: coords.lng,
+            ...fromStart,
+          });
+        });
+      }
+
+      // Water: interpolate from position
+      if (segment.waterSources) {
+        segment.waterSources.forEach(ws => {
+          const coords = poiLatLng(ws.position, seg.fromWp, seg.toWp);
+          if (!coords) return;
+          const fromStart = enrichWithFromStart(ws, seg);
+          items.push({
+            type: 'water',
+            name: ws.name,
+            description: ws.type || '',
+            potable: ws.potable,
+            lat: coords.lat,
+            lng: coords.lng,
+            ...fromStart,
+          });
+        });
+      }
+    });
+
+    return items;
+  }, [subSegments, dayStartWp]);
+
+  // Calculate bounds to fit the route + all POIs
+  const bounds = useMemo(() => {
+    const allLats = routePositions.map(p => p[0]);
+    const allLngs = routePositions.map(p => p[1]);
+    pois.forEach(poi => {
+      allLats.push(poi.lat);
+      allLngs.push(poi.lng);
+    });
+    if (allLats.length === 0) return null;
+    return [
+      [Math.min(...allLats), Math.min(...allLngs)],
+      [Math.max(...allLats), Math.max(...allLngs)],
+    ];
+  }, [routePositions, pois]);
+
+  // POI marker colors and sizes
+  const getPoiStyle = (poiType) => {
+    switch (poiType) {
+      case 'sight': return { color: '#cf7d2c', fillColor: '#e3a93c', radius: 5 };
+      case 'food': return { color: '#bf6334', fillColor: '#e07c4a', radius: 5 };
+      case 'shortcut': return { color: '#6b8c54', fillColor: '#8ab06a', radius: 4 };
+      case 'water': return { color: '#3b82f6', fillColor: '#60a5fa', radius: 4 };
+      default: return { color: '#888', fillColor: '#aaa', radius: 4 };
+    }
+  };
+
+  const getPoiLabel = (poiType) => {
+    switch (poiType) {
+      case 'sight': return 'Sight';
+      case 'food': return 'Food / Refuge';
+      case 'shortcut': return 'Shortcut';
+      case 'water': return 'Water';
+      default: return '';
+    }
+  };
+
+  // Format from-start info for popup
+  const formatFromStart = (poi) => {
+    if (poi.distFromStart == null || poi.distFromStart <= 0) return '';
+    const dist = useImperial
+      ? `${(poi.distFromStart * 0.621371).toFixed(1)} mi`
+      : `${poi.distFromStart.toFixed(1)} km`;
+    const roundedMin = Math.round(poi.timeFromStart / 15) * 15;
+    const h = Math.floor(roundedMin / 60);
+    const m = roundedMin % 60;
+    const time = h > 0 ? (m > 0 ? `${h}h ${m}m` : `${h}h`) : `${roundedMin}m`;
+    return `${dist} · ~${time} from ${dayStartWp.name}`;
+  };
+
+  if (routePositions.length < 2) return null;
+
+  const mapCenter = routePositions[Math.floor(routePositions.length / 2)];
+
+  return (
+    <div className="rounded-xl overflow-hidden h-[300px] sm:h-[400px]">
+      <MapContainer
+        key={`day-map-${dayIndex}`}
+        center={mapCenter}
+        zoom={13}
+        className="h-full w-full"
+        style={{ background: '#f6eedd' }}
+        zoomControl={true}
+        minZoom={10}
+        maxZoom={16}
+      >
+        <FitDayBounds bounds={bounds} />
+
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          url={import.meta.env.VITE_MAP_TILE_URL || "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"}
+          maxZoom={19}
+        />
+
+        {/* Day route polyline */}
+        <Polyline
+          positions={routePositions}
+          pathOptions={{
+            color: dayColor,
+            weight: 4,
+            opacity: 0.85,
+            lineCap: 'round',
+            lineJoin: 'round',
+          }}
+        />
+
+        {/* Start marker (green) */}
+        {dayStartWp && (
+          <CircleMarker
+            center={[dayStartWp.lat, dayStartWp.lng]}
+            radius={7}
+            pathOptions={{ color: '#1c3a2a', fillColor: '#4ade80', fillOpacity: 1, weight: 2 }}
+          >
+            <Tooltip direction="top" offset={[0, -8]} className="leaflet-tooltip-custom">
+              <div className="font-display text-xs font-semibold">{dayStartWp.name}</div>
+              <div className="text-[10px] text-gray-500">Start · {dayStartWp.altitude}m</div>
+            </Tooltip>
+          </CircleMarker>
+        )}
+
+        {/* End/accommodation marker (day accent color) */}
+        {dayEndWp && (
+          <CircleMarker
+            center={[dayEndWp.lat, dayEndWp.lng]}
+            radius={7}
+            pathOptions={{ color: '#1c3a2a', fillColor: dayColor, fillOpacity: 1, weight: 2 }}
+          >
+            <Tooltip direction="top" offset={[0, -8]} className="leaflet-tooltip-custom">
+              <div className="font-display text-xs font-semibold">{dayEndWp.name}</div>
+              <div className="text-[10px] text-gray-500">End · {dayEndWp.altitude}m</div>
+            </Tooltip>
+          </CircleMarker>
+        )}
+
+        {/* POI markers */}
+        {pois.map((poi, idx) => {
+          const style = getPoiStyle(poi.type);
+          return (
+            <CircleMarker
+              key={`poi-${idx}`}
+              center={[poi.lat, poi.lng]}
+              radius={style.radius}
+              pathOptions={{
+                color: style.color,
+                fillColor: style.fillColor,
+                fillOpacity: 0.9,
+                weight: 1.5,
+              }}
+            >
+              <Popup className="day-map-popup" maxWidth={220}>
+                <div className="font-body text-xs">
+                  <div className="font-display text-sm font-semibold text-tmb-ink mb-0.5">{poi.name}</div>
+                  <div className="text-[10px] uppercase tracking-wider text-tmb-muted font-display mb-1">{getPoiLabel(poi.type)}</div>
+                  {poi.description && (
+                    <div className="text-tmb-muted mb-1">{poi.description}</div>
+                  )}
+                  {poi.type === 'water' && poi.potable != null && (
+                    <div className={`text-[10px] font-semibold ${poi.potable ? 'text-green-600' : 'text-amber-600'}`}>
+                      {poi.potable ? 'Potable' : 'Not confirmed potable'}
+                    </div>
+                  )}
+                  {formatFromStart(poi) && (
+                    <div className="text-[10px] text-tmb-muted mt-1">
+                      ≈{formatFromStart(poi)}
+                    </div>
+                  )}
+                </div>
+              </Popup>
+            </CircleMarker>
+          );
+        })}
+      </MapContainer>
+    </div>
+  );
+};
+
 const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, removeDay, selectedShortcuts, onShortcutToggle, useImperial, booking, onBookingClick }) => {
   const [expanded, setExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState('segments');
@@ -984,7 +1275,8 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
               { id: 'sights', label: 'Sights', labelFull: 'All Sights', count: dayData.allSights.length },
               { id: 'food', label: 'Food', labelFull: 'Food & Refuges', count: dayData.allFood.length },
               { id: 'water', label: 'Water', labelFull: 'Water Sources', count: dayData.allWater.length },
-              { id: 'shortcuts', label: 'Shortcuts', labelFull: 'Shortcuts', count: dayData.allShortcuts.length }
+              { id: 'shortcuts', label: 'Shortcuts', labelFull: 'Shortcuts', count: dayData.allShortcuts.length },
+              { id: 'map', label: 'Map', labelFull: 'Day Map' }
             ].map(tab => (
               <button
                 key={tab.id}
@@ -1206,6 +1498,20 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                 </>
               )}
             </div>
+          )}
+
+          {activeTab === 'map' && (
+            <MapErrorBoundary>
+              <DayMap
+                dayIndex={dayIndex}
+                subSegments={subSegments}
+                dayData={dayData}
+                color={color}
+                day={day}
+                useImperial={useImperial}
+                activeScenario={activeScenario}
+              />
+            </MapErrorBoundary>
           )}
 
           {/* Stats are shown in the card body above */}
@@ -2280,7 +2586,7 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
 
 // --- Bookings UI Components ---
 
-const BookingCard = ({ booking, getFileUrl }) => {
+const BookingCard = ({ booking, getFileUrl, onViewDoc }) => {
   const [expanded, setExpanded] = useState(false);
   const [fileUrls, setFileUrls] = useState({});
 
@@ -2400,18 +2706,20 @@ const BookingCard = ({ booking, getFileUrl }) => {
               <div className="text-[10px] uppercase tracking-wider text-tmb-muted mb-2">Documents</div>
               <div className="flex flex-wrap gap-2">
                 {booking.documents.map((doc) => (
-                  <a
+                  <button
                     key={doc.id}
-                    href={fileUrls[doc.storage_path] || '#'}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-tmb-cream border border-tmb-line text-xs hover:bg-tmb-kraft transition-colors ${fileUrls[doc.storage_path] ? 'text-tmb-amber' : 'text-tmb-muted'}`}
-                    onClick={(e) => { if (!fileUrls[doc.storage_path]) e.preventDefault(); }}
+                    onClick={() => {
+                      if (fileUrls[doc.storage_path] && onViewDoc) {
+                        onViewDoc({ url: fileUrls[doc.storage_path], filename: doc.title || doc.kind, kind: doc.kind });
+                      }
+                    }}
+                    disabled={!fileUrls[doc.storage_path]}
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-tmb-cream border border-tmb-line text-xs hover:bg-tmb-kraft transition-colors ${fileUrls[doc.storage_path] ? 'text-tmb-amber cursor-pointer' : 'text-tmb-muted cursor-default'}`}
                   >
                     <FileText className="w-3.5 h-3.5" />
                     <span className="truncate max-w-[160px]">{doc.kind || 'file'}</span>
                     {fileUrls[doc.storage_path] && <ExternalLink className="w-3 h-3" />}
-                  </a>
+                  </button>
                 ))}
               </div>
             </div>
@@ -2419,6 +2727,101 @@ const BookingCard = ({ booking, getFileUrl }) => {
         </div>
       )}
     </GlassCard>
+  );
+};
+
+// Document viewer modal (lightbox)
+const DocumentViewer = ({ url, filename, kind, isOpen, onClose }) => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      requestAnimationFrame(() => setIsVisible(true));
+    } else {
+      requestAnimationFrame(() => setIsVisible(false));
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleEsc = (e) => { if (e.key === 'Escape') { e.stopPropagation(); onClose(); } };
+    document.addEventListener('keydown', handleEsc, true);
+    return () => document.removeEventListener('keydown', handleEsc, true);
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  const ext = (filename || '').split('.').pop().toLowerCase();
+  const isImage = ['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext) || kind === 'image';
+  const isPdf = ext === 'pdf' || kind === 'pdf';
+
+  return createPortal(
+    <div
+      className={`fixed inset-0 flex items-center justify-center z-60 p-0 sm:p-6 transition-opacity duration-200 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+      onClick={onClose}
+    >
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+
+      {/* Content area */}
+      <div
+        className={`relative w-full h-full sm:h-auto sm:max-w-3xl sm:max-h-[90vh] bg-tmb-paper sm:rounded-2xl flex flex-col transition-all duration-200 ${isVisible ? 'opacity-100 translate-y-0 sm:scale-100' : 'opacity-0 translate-y-8 sm:scale-95'}`}
+        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)', paddingTop: 'env(safe-area-inset-top, 0px)' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-tmb-line2 shrink-0">
+          <div className="flex-1 min-w-0">
+            <span className="text-sm font-medium text-tmb-ink truncate block">{filename || 'Document'}</span>
+            {kind && <span className="text-[10px] text-tmb-muted uppercase tracking-wider">{kind}</span>}
+          </div>
+          <button
+            onClick={onClose}
+            className="w-11 h-11 min-h-[44px] min-w-[44px] flex items-center justify-center text-tmb-muted hover:text-tmb-ink transition-colors rounded-lg hover:bg-tmb-kraft -mr-1"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-auto flex items-center justify-center p-4">
+          {isImage && url ? (
+            <img src={url} alt={filename || 'Document'} className="max-w-full max-h-[80vh] object-contain rounded-lg" />
+          ) : isPdf && url ? (
+            <iframe src={url} title={filename || 'PDF'} className="w-full h-[80vh] border-0 rounded-lg" />
+          ) : (
+            <div className="text-center py-12">
+              <FileText className="w-12 h-12 text-tmb-muted mx-auto mb-3" />
+              <p className="text-sm text-tmb-muted mb-3">Preview not available for this file type.</p>
+              {url && (
+                <a
+                  href={url}
+                  download={filename}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-tmb-pine text-white text-sm font-medium hover:bg-tmb-forest transition-colors"
+                >
+                  <Download className="w-4 h-4" /> Download
+                </a>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        {url && (
+          <div className="px-4 py-3 border-t border-tmb-line2 shrink-0 flex justify-center">
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-xs text-tmb-forest hover:text-tmb-pine transition-colors"
+            >
+              <ExternalLink className="w-3.5 h-3.5" /> Open in new tab
+            </a>
+          </div>
+        )}
+      </div>
+    </div>,
+    document.body
   );
 };
 
@@ -2431,7 +2834,7 @@ const isBookingIncomplete = (booking) => {
 };
 
 // Booking detail modal
-const BookingDetailModal = ({ booking, isOpen, onClose, getFileUrl, uploadDocument, removeDocument, jwt, tripId }) => {
+const BookingDetailModal = ({ booking, isOpen, onClose, getFileUrl, uploadDocument, removeDocument, jwt, tripId, onViewDoc, viewingDoc }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [fileUrls, setFileUrls] = useState({});
   const [uploading, setUploading] = useState(false);
@@ -2456,10 +2859,10 @@ const BookingDetailModal = ({ booking, isOpen, onClose, getFileUrl, uploadDocume
 
   useEffect(() => {
     if (!isOpen) return;
-    const handleEsc = (e) => { if (e.key === 'Escape') onClose(); };
+    const handleEsc = (e) => { if (e.key === 'Escape' && !viewingDoc) onClose(); };
     document.addEventListener('keydown', handleEsc);
     return () => document.removeEventListener('keydown', handleEsc);
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, viewingDoc]);
 
   if (!isOpen || !booking) return null;
 
@@ -2594,9 +2997,12 @@ const BookingDetailModal = ({ booking, isOpen, onClose, getFileUrl, uploadDocume
                     <FileText className="w-4 h-4 text-tmb-muted shrink-0" />
                     <span className="text-xs text-tmb-ink flex-1 truncate">{doc.title || doc.kind || 'Document'}</span>
                     {fileUrls[doc.storage_path] ? (
-                      <a href={fileUrls[doc.storage_path]} target="_blank" rel="noopener noreferrer" className="text-xs text-tmb-forest flex items-center gap-1 hover:text-tmb-pine">
+                      <button
+                        onClick={() => onViewDoc?.({ url: fileUrls[doc.storage_path], filename: doc.title || doc.kind || 'Document', kind: doc.kind })}
+                        className="text-xs text-tmb-forest flex items-center gap-1 hover:text-tmb-pine transition-colors"
+                      >
                         <ExternalLink className="w-3 h-3" /> View
-                      </a>
+                      </button>
                     ) : (
                       <span className="text-xs text-tmb-muted">Loading…</span>
                     )}
@@ -2651,7 +3057,7 @@ const BookingDetailModal = ({ booking, isOpen, onClose, getFileUrl, uploadDocume
   );
 };
 
-const BookingsPanel = ({ bookings, arrivalBooking, totals, gaps, getFileUrl, loading }) => {
+const BookingsPanel = ({ bookings, arrivalBooking, totals, gaps, getFileUrl, loading, onViewDoc }) => {
   const [costOpen, setCostOpen] = useState(false);
 
   if (loading) {
@@ -2703,7 +3109,7 @@ const BookingsPanel = ({ bookings, arrivalBooking, totals, gaps, getFileUrl, loa
       {arrivalBooking && (
         <div>
           <div className="text-xs text-tmb-muted font-display uppercase tracking-[.12em] mb-2 px-1">Arrival</div>
-          <BookingCard booking={arrivalBooking} getFileUrl={getFileUrl} />
+          <BookingCard booking={arrivalBooking} getFileUrl={getFileUrl} onViewDoc={onViewDoc} />
         </div>
       )}
 
@@ -2713,7 +3119,7 @@ const BookingsPanel = ({ bookings, arrivalBooking, totals, gaps, getFileUrl, loa
           <div className="text-xs text-tmb-muted font-display uppercase tracking-[.12em] mb-2 px-1">Stages (Days 1–{stageBookings.length})</div>
           <div className="space-y-2">
             {stageBookings.map((b) => (
-              <BookingCard key={b.id} booking={b} getFileUrl={getFileUrl} />
+              <BookingCard key={b.id} booking={b} getFileUrl={getFileUrl} onViewDoc={onViewDoc} />
             ))}
           </div>
         </div>
@@ -2788,6 +3194,7 @@ export default function App() {
   const [hoveredShortcut, setHoveredShortcut] = useState(null);
   const [showShareModal, setShowShareModal] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const [viewingDoc, setViewingDoc] = useState(null); // { url, filename, kind }
   const [shareUrl, setShareUrl] = useState('');
   const [toast, setToast] = useState({ message: '', type: 'info', isVisible: false });
   const [showMigration, setShowMigration] = useState(false);
@@ -4057,6 +4464,7 @@ export default function App() {
                 gaps={bookingGaps}
                 getFileUrl={getFileUrl}
                 loading={bookingsLoading}
+                onViewDoc={setViewingDoc}
               />
             ) : logisticsView === 'packing' ? (
               <PackingTab
@@ -4088,6 +4496,7 @@ export default function App() {
                 onCreateContact={createContact}
                 onUpdateContact={updateContact}
                 onDeleteContact={deleteContact}
+                onViewDoc={setViewingDoc}
               />
             )}
           </>
@@ -4119,6 +4528,8 @@ export default function App() {
         removeDocument={removeDocument}
         jwt={jwt}
         tripId={trip?.id}
+        onViewDoc={setViewingDoc}
+        viewingDoc={viewingDoc}
       />
 
       {/* Share modal */}
@@ -4127,6 +4538,15 @@ export default function App() {
         shareUrl={shareUrl}
         onClose={() => setShowShareModal(false)}
         onCopy={() => showToast('Link copied to clipboard!', 'success')}
+      />
+
+      {/* Document viewer modal */}
+      <DocumentViewer
+        url={viewingDoc?.url}
+        filename={viewingDoc?.filename}
+        kind={viewingDoc?.kind}
+        isOpen={viewingDoc !== null}
+        onClose={() => setViewingDoc(null)}
       />
 
       {/* Migration modal */}
