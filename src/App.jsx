@@ -1196,11 +1196,13 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
   };
 
   return (
-    <GlassCard className="overflow-hidden group" hover>
+    <GlassCard className={`overflow-hidden group sm:border-l-0`} hover style={{ borderLeftWidth: '3px', borderLeftColor: color.main }}>
       {/* Card header: route + date */}
-      <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-2.5 border-b border-tmb-line2 cursor-pointer" onClick={() => setExpanded(!expanded)}>
-        <div className="flex items-center gap-2 flex-wrap min-w-0">
-          <span className="font-display uppercase tracking-[.02em] font-semibold text-base sm:text-lg text-tmb-ink truncate">{day.startWp.name}</span>
+      <div className="flex items-center justify-between gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 border-b border-tmb-line2 cursor-pointer" onClick={() => setExpanded(!expanded)}>
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0">
+          {/* Inline day chip — mobile only */}
+          <span className={`sm:hidden text-[10px] font-poster text-white px-1.5 py-0.5 rounded ${color.gradient} leading-none`}>{day.day}</span>
+          <span className="font-display uppercase tracking-[.02em] font-semibold text-sm sm:text-lg text-tmb-ink">{day.startWp.name}</span>
           <span className="text-tmb-clay font-display">→</span>
           <div onClick={(e) => e.stopPropagation()} className="min-w-0">
             <EndpointDropdown
@@ -3942,9 +3944,9 @@ export default function App() {
             </GlassCard>
 
             {/* Trail line itinerary with Aug 2-11 bookends */}
-            <div className="relative pl-8 sm:pl-10 mb-6" style={{ paddingTop: '8px' }}>
-              {/* Dashed trail line */}
-              <div className="absolute left-[17px] sm:left-[21px] top-6 bottom-6 w-[3px]" style={{ background: 'repeating-linear-gradient(#bf6334 0 7px, transparent 7px 14px)' }} />
+            <div className="relative sm:pl-10 mb-6" style={{ paddingTop: '8px' }}>
+              {/* Dashed trail line — desktop only */}
+              <div className="hidden sm:block absolute left-[21px] top-6 bottom-6 w-[3px]" style={{ background: 'repeating-linear-gradient(#bf6334 0 7px, transparent 7px 14px)' }} />
 
               {/* ── Getting there ── */}
               {arrivalBooking && (<>
@@ -3954,10 +3956,10 @@ export default function App() {
 
                 {/* Travel card — Barcelona → Chamonix */}
                 <div className="relative mb-4">
-                  <div className="absolute -left-8 sm:-left-10 top-4 w-[46px] h-[46px] rounded-full bg-tmb-clay flex items-center justify-center border-[3px] border-tmb-cream z-10" style={{ boxShadow: '0 4px 12px -3px rgba(0,0,0,.4)' }}>
+                  <div className="hidden sm:flex absolute -left-10 top-4 w-[46px] h-[46px] rounded-full bg-tmb-clay items-center justify-center border-[3px] border-tmb-cream z-10" style={{ boxShadow: '0 4px 12px -3px rgba(0,0,0,.4)' }}>
                     <span className="text-lg">✈</span>
                   </div>
-                  <div className="ml-6 sm:ml-8">
+                  <div className="sm:ml-8">
                     <GlassCard className="overflow-hidden">
                       <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-2.5 border-b border-tmb-line2">
                         <div className="flex items-center gap-2">
@@ -3984,10 +3986,10 @@ export default function App() {
 
                 {/* Rest & acclimatize card */}
                 <div className="relative mb-4">
-                  <div className="absolute -left-8 sm:-left-10 top-4 w-[46px] h-[46px] rounded-full bg-tmb-moss flex items-center justify-center border-[3px] border-tmb-cream z-10" style={{ boxShadow: '0 4px 12px -3px rgba(0,0,0,.4)' }}>
+                  <div className="hidden sm:flex absolute -left-10 top-4 w-[46px] h-[46px] rounded-full bg-tmb-moss items-center justify-center border-[3px] border-tmb-cream z-10" style={{ boxShadow: '0 4px 12px -3px rgba(0,0,0,.4)' }}>
                     <span className="text-lg">☼</span>
                   </div>
-                  <div className="ml-6 sm:ml-8">
+                  <div className="sm:ml-8">
                     <GlassCard className="overflow-hidden">
                       <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-2.5 border-b border-tmb-line2">
                         <span className="font-display uppercase tracking-[.02em] font-semibold text-lg">Rest & acclimatize</span>
@@ -4016,17 +4018,17 @@ export default function App() {
               <div className="space-y-4">
                 {dayData.map((day, idx) => (
                   <div key={idx} className="relative">
-                    {/* Day medallion on the trail line */}
+                    {/* Day medallion on the trail line — desktop only */}
                     <div
-                      className={`absolute -left-8 sm:-left-10 top-4 w-[46px] h-[46px] rounded-full flex flex-col items-center justify-center border-[3px] border-tmb-cream z-10 ${DAY_COLORS[idx % DAY_COLORS.length].gradient}`}
+                      className={`hidden sm:flex absolute -left-10 top-4 w-[46px] h-[46px] rounded-full flex-col items-center justify-center border-[3px] border-tmb-cream z-10 ${DAY_COLORS[idx % DAY_COLORS.length].gradient}`}
                       style={{ boxShadow: '0 4px 12px -3px rgba(0,0,0,.4)' }}
                     >
                       <span className="text-[8px] font-display uppercase tracking-[.1em] text-white/85 -mt-px">Day</span>
                       <span className="text-xl font-poster text-white leading-none">{day.day}</span>
                     </div>
 
-                    {/* Card offset from medallion */}
-                    <div className="ml-6 sm:ml-8">
+                    {/* Card — full width on mobile, offset on desktop */}
+                    <div className="sm:ml-8">
                       <ExpandableDayCard
                         day={day}
                         dayIndex={idx}
@@ -4052,10 +4054,10 @@ export default function App() {
                 </div>
 
                 <div className="relative mb-2">
-                  <div className="absolute -left-8 sm:-left-10 top-4 w-[46px] h-[46px] rounded-full bg-tmb-rust flex items-center justify-center border-[3px] border-tmb-cream z-10" style={{ boxShadow: '0 4px 12px -3px rgba(0,0,0,.4)' }}>
+                  <div className="hidden sm:flex absolute -left-10 top-4 w-[46px] h-[46px] rounded-full bg-tmb-rust items-center justify-center border-[3px] border-tmb-cream z-10" style={{ boxShadow: '0 4px 12px -3px rgba(0,0,0,.4)' }}>
                     <span className="text-lg">✈</span>
                   </div>
-                  <div className="ml-6 sm:ml-8">
+                  <div className="sm:ml-8">
                     <GlassCard className="overflow-hidden">
                       <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-2.5 border-b border-tmb-line2">
                         <div className="flex items-center gap-2">
