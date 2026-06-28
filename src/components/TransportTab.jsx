@@ -110,10 +110,10 @@ function LegCard({ leg, onUpdate, onDelete }) {
           </div>
           <div className="text-xs text-tmb-muted mt-0.5">
             {leg.from_place} → {leg.to_place}
-            {leg.depart_time && <span className="ml-2 text-tmb-muted/70">at {leg.depart_time}</span>}
+            {leg.depart_time && <span className="ml-2 text-tmb-muted">at {leg.depart_time}</span>}
           </div>
           {leg.info && (
-            <p className="text-xs text-tmb-muted/70 mt-1 line-clamp-2">{leg.info}</p>
+            <p className="text-xs text-tmb-muted mt-1 line-clamp-2">{leg.info}</p>
           )}
           {leg.url && (
             <a
@@ -242,7 +242,7 @@ export default function TransportTab({ legs, legsByDay, loading, error, tripId, 
                   <LegCard key={leg.id} leg={leg} onUpdate={onUpdateLeg} onDelete={onDeleteLeg} />
                 ))
               ) : (
-                <p className="text-xs text-tmb-muted/70 text-center py-2">No transport needed -- hiking only</p>
+                <p className="text-xs text-tmb-muted text-center py-2">No transport needed -- hiking only</p>
               )}
             </div>
           </GlassCard>

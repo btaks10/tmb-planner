@@ -51,7 +51,7 @@ function DocumentRow({ doc, onViewFile }) {
       <div className="flex-1 min-w-0">
         <span className="text-sm text-tmb-ink truncate block">{doc.title}</span>
         {doc.kind && (
-          <span className="text-[10px] text-tmb-muted/70">{KIND_LABELS[doc.kind] || doc.kind}</span>
+          <span className="text-[10px] text-tmb-muted">{KIND_LABELS[doc.kind] || doc.kind}</span>
         )}
       </div>
       <button
@@ -147,7 +147,7 @@ function ContactCard({ contact, onUpdate, onDelete }) {
             </a>
           )}
           {contact.notes && (
-            <p className="text-xs text-tmb-muted/70 mt-1">{contact.notes}</p>
+            <p className="text-xs text-tmb-muted mt-1">{contact.notes}</p>
           )}
         </div>
       </div>
@@ -198,7 +198,7 @@ export default function DocumentsSafetyTab({
         <div className="flex items-center gap-2 mb-3">
           <FileText className="w-5 h-5 text-tmb-forest" />
           <h3 className="text-base font-semibold text-tmb-ink">Documents Vault</h3>
-          <span className="text-xs text-tmb-muted/70 ml-auto">{documents.length} files</span>
+          <span className="text-xs text-tmb-muted ml-auto">{documents.length} files</span>
         </div>
 
         {documents.length === 0 ? (

@@ -191,7 +191,7 @@ const DaySummaryTable = ({
                 <td className="py-3 px-3 text-tmb-muted whitespace-nowrap">{formatDate(d.date)}</td>
                 <td className="py-3 px-3 whitespace-nowrap">
                   <span className="text-tmb-ink">{d.startWp.name}</span>
-                  <span className="text-tmb-muted/70 mx-1.5">→</span>
+                  <span className="text-tmb-muted mx-1.5">→</span>
                   <span className="text-tmb-ink">{d.endWp.name}</span>
                 </td>
                 <td className="py-3 px-3 text-right font-medium whitespace-nowrap w-20">
@@ -288,7 +288,7 @@ const DaySummaryTable = ({
           </tr>
           {hasAnySavings && (
             <tr className="border-t border-tmb-gold/20 bg-tmb-gold/5">
-              <td className="py-3 px-3 text-tmb-gold" colSpan="2">
+              <td className="py-3 px-3 text-tmb-amber" colSpan="2">
                 <div className="flex items-center gap-2">
                   <Zap className="w-4 h-4" />
                   <span>Shortcuts Active</span>
@@ -297,16 +297,16 @@ const DaySummaryTable = ({
               <td className="py-3 px-3 text-right text-tmb-amber">
                 €{activeShortcuts.totalCost}
               </td>
-              <td className="py-3 px-3 text-right text-tmb-gold">
+              <td className="py-3 px-3 text-right text-tmb-amber">
                 {activeShortcuts.totalDistanceSaved > 0 ? `-${formatDistanceValue(activeShortcuts.totalDistanceSaved, useImperial)} ${distUnit}` : ''}
               </td>
-              <td className="py-3 px-3 text-right text-tmb-gold">
+              <td className="py-3 px-3 text-right text-tmb-amber">
                 {activeShortcuts.totalAscentSaved > 0 ? `-${formatElevationValue(activeShortcuts.totalAscentSaved, useImperial)}${elevUnit}` : ''}
               </td>
-              <td className="py-3 px-3 text-right text-tmb-gold">
+              <td className="py-3 px-3 text-right text-tmb-amber">
                 {activeShortcuts.totalDescentSaved > 0 ? `-${formatElevationValue(activeShortcuts.totalDescentSaved, useImperial)}${elevUnit}` : ''}
               </td>
-              <td className="py-3 px-3 text-right text-tmb-gold">
+              <td className="py-3 px-3 text-right text-tmb-amber">
                 {totalTimeSaved > 0 ? `-${formatTime(totalTimeSaved)}` : ''}
               </td>
               {showEndAltitude && <td className="py-3 px-3"></td>}
@@ -390,7 +390,7 @@ const SubSegment = ({ fromWp, toWp, segmentKey, selectedShortcuts, onShortcutTog
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 text-sm">
             <span className="text-tmb-muted">{fromWp.name}</span>
-            <span className="text-tmb-muted/70">→</span>
+            <span className="text-tmb-muted">→</span>
             <span className="text-tmb-ink">{toWp.name}</span>
           </div>
           <div className="flex gap-4 text-xs text-tmb-muted mt-1">
@@ -517,7 +517,7 @@ const SubSegment = ({ fromWp, toWp, segmentKey, selectedShortcuts, onShortcutTog
                 className="w-full px-4 py-3 flex items-center justify-between text-sm hover:bg-tmb-cream/60 transition-colors"
               >
                 <div className="flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-tmb-gold" />
+                  <Zap className="w-4 h-4 text-tmb-amber" />
                   <span className="text-tmb-ink">Shortcuts</span>
                   <span className="text-tmb-muted text-xs">({segment.shortcuts.length})</span>
                 </div>
@@ -545,26 +545,26 @@ const SubSegment = ({ fromWp, toWp, segmentKey, selectedShortcuts, onShortcutTog
                                       : 'border-tmb-muted hover:border-tmb-gold'
                                   }`}
                                 >
-                                  {isSelected && <Check className="w-3 h-3 text-tmb-ink" />}
+                                  {isSelected && <Check className="w-3 h-3 text-white" />}
                                 </button>
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2">
-                                    <ShortcutIcon type={shortcut.type} className="w-4 h-4 text-tmb-gold" />
+                                    <ShortcutIcon type={shortcut.type} className="w-4 h-4 text-tmb-amber" />
                                     <span className="text-sm text-tmb-ink">{shortcut.name}</span>
                                   </div>
                                   <div className="text-xs text-tmb-muted mt-1">{shortcut.description}</div>
                                   <div className="flex flex-wrap gap-2 mt-2 text-xs">
                                     {shortcut.timeSaved > 0 && (
-                                      <span className="text-tmb-gold">-{formatTime(shortcut.timeSaved)}</span>
+                                      <span className="text-tmb-amber">-{formatTime(shortcut.timeSaved)}</span>
                                     )}
                                     {shortcut.distanceSaved > 0 && (
-                                      <span className="text-tmb-gold">-{shortcut.distanceSaved}km</span>
+                                      <span className="text-tmb-amber">-{shortcut.distanceSaved}km</span>
                                     )}
                                     {shortcut.ascentSaved > 0 && (
-                                      <span className="text-tmb-gold">-↑{shortcut.ascentSaved}m</span>
+                                      <span className="text-tmb-amber">-↑{shortcut.ascentSaved}m</span>
                                     )}
                                     {shortcut.descentSaved > 0 && (
-                                      <span className="text-tmb-gold">-↓{shortcut.descentSaved}m</span>
+                                      <span className="text-tmb-amber">-↓{shortcut.descentSaved}m</span>
                                     )}
                                     {shortcut.cost > 0 && (
                                       <span className="text-tmb-amber">€{shortcut.cost}</span>
@@ -668,12 +668,12 @@ const EndpointDropdown = ({ value, options, onChange, formatTime }) => {
               }}
               className={`w-full px-4 py-3 sm:py-2.5 min-h-[44px] sm:min-h-0 text-left text-sm transition-colors flex items-center justify-between gap-3 ${
                 opt.id === value
-                  ? 'bg-tmb-moss/20 text-tmb-moss'
-                  : 'text-tmb-ink hover:bg-tmb-kraft'
+                  ? 'bg-tmb-moss/20 text-[#a8d88e]'
+                  : 'text-[#f4ead2] hover:bg-white/10'
               } ${index === 0 ? 'rounded-t-xl' : ''} ${index === options.length - 1 ? 'rounded-b-xl' : ''}`}
             >
               <span className="font-medium truncate">{opt.name}</span>
-              <span className="text-xs text-tmb-muted shrink-0">
+              <span className="text-xs text-[#bcd0ad] shrink-0">
                 {opt.dist}km · {formatTime(opt.time)}
               </span>
             </button>
@@ -725,7 +725,7 @@ const FromStartLine = ({ distFromStart, timeFromStart, startName, useImperial })
   const m = roundedMin % 60;
   const time = h > 0 ? (m > 0 ? `${h}h ${m}m` : `${h}h`) : `${roundedMin}m`;
   return (
-    <div className="text-[10px] text-tmb-muted/70 mt-0.5">
+    <div className="text-[10px] text-tmb-muted mt-0.5">
       ≈{dist} · ~{time} from {startName}
     </div>
   );
@@ -904,7 +904,7 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
           </div>
           <button
             onClick={(e) => { e.stopPropagation(); removeDay(dayIndex); }}
-            className="w-8 h-8 min-h-[44px] min-w-[44px] rounded-full text-tmb-muted/50 hover:text-tmb-rust transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center"
+            className="w-8 h-8 min-h-[44px] min-w-[44px] rounded-full text-tmb-muted hover:text-tmb-rust transition-all opacity-0 group-hover:opacity-100 flex items-center justify-center"
           >
             ×
           </button>
@@ -1147,8 +1147,8 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                 <>
                   {timeSaved > 0 && (
                     <div className="flex items-center justify-between p-3 rounded-xl bg-tmb-gold/10 border border-tmb-gold/20">
-                      <span className="text-sm text-tmb-gold">Time saved with selected shortcuts</span>
-                      <span className="text-sm font-semibold text-tmb-gold">{formatTime(timeSaved)}</span>
+                      <span className="text-sm text-tmb-amber">Time saved with selected shortcuts</span>
+                      <span className="text-sm font-semibold text-tmb-amber">{formatTime(timeSaved)}</span>
                     </div>
                   )}
                   {dayData.allShortcuts.map((shortcut, idx) => (
@@ -1171,22 +1171,22 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                         </button>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <ShortcutIcon type={shortcut.type} className="w-4 h-4 text-tmb-gold" />
+                            <ShortcutIcon type={shortcut.type} className="w-4 h-4 text-tmb-amber" />
                             <span className="text-sm font-medium text-tmb-ink">{shortcut.name}</span>
                           </div>
                           <div className="text-xs text-tmb-muted mt-1">{shortcut.description}</div>
                           <div className="flex flex-wrap gap-2 mt-2 text-xs">
                             {shortcut.timeSaved > 0 && (
-                              <span className="text-tmb-gold">-{formatTime(shortcut.timeSaved)}</span>
+                              <span className="text-tmb-amber">-{formatTime(shortcut.timeSaved)}</span>
                             )}
                             {shortcut.distanceSaved > 0 && (
-                              <span className="text-tmb-gold">-{shortcut.distanceSaved}km</span>
+                              <span className="text-tmb-amber">-{shortcut.distanceSaved}km</span>
                             )}
                             {shortcut.ascentSaved > 0 && (
-                              <span className="text-tmb-gold">-↑{shortcut.ascentSaved}m</span>
+                              <span className="text-tmb-amber">-↑{shortcut.ascentSaved}m</span>
                             )}
                             {shortcut.descentSaved > 0 && (
-                              <span className="text-tmb-gold">-↓{shortcut.descentSaved}m</span>
+                              <span className="text-tmb-amber">-↓{shortcut.descentSaved}m</span>
                             )}
                             {shortcut.cost > 0 && (
                               <span className="text-tmb-amber">€{shortcut.cost}</span>
@@ -1246,19 +1246,19 @@ const DeleteConfirmModal = ({ isOpen, dayNumber, startName, endName, onCancel, o
         <h3 className="text-lg font-display uppercase text-white mb-2">
           Delete Day {dayNumber}?
         </h3>
-        <p className="text-tmb-muted text-sm mb-6">
-          This will remove <span className="text-tmb-ink">{startName}</span> → <span className="text-tmb-ink">{endName}</span> from your itinerary. The segments will be merged with the next day.
+        <p className="text-[#c5b99a] text-sm mb-6">
+          This will remove <span className="text-[#f4ead2]">{startName}</span> → <span className="text-[#f4ead2]">{endName}</span> from your itinerary. The segments will be merged with the next day.
         </p>
         <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
           <button
             onClick={onCancel}
-            className="px-4 py-3 sm:py-2 min-h-[44px] rounded-lg bg-white/10 hover:bg-tmb-kraft text-tmb-ink text-sm font-medium transition-colors order-2 sm:order-1"
+            className="px-4 py-3 sm:py-2 min-h-[44px] rounded-lg bg-white/10 hover:bg-white/20 text-[#f4ead2] text-sm font-medium transition-colors order-2 sm:order-1"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-3 sm:py-2 min-h-[44px] rounded-lg bg-red-500 hover:bg-red-600 text-tmb-ink text-sm font-medium transition-colors order-1 sm:order-2"
+            className="px-4 py-3 sm:py-2 min-h-[44px] rounded-lg bg-tmb-rust hover:bg-red-700 text-white text-sm font-medium transition-colors order-1 sm:order-2"
           >
             Delete
           </button>
@@ -1322,26 +1322,26 @@ const ShareModal = ({ isOpen, shareUrl, onClose, onCopy }) => {
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 w-10 h-10 min-h-[44px] min-w-[44px] flex items-center justify-center text-tmb-muted hover:text-tmb-ink transition-colors rounded-lg hover:bg-tmb-kraft"
+          className="absolute top-3 right-3 w-10 h-10 min-h-[44px] min-w-[44px] flex items-center justify-center text-[#bcd0ad] hover:text-white transition-colors rounded-lg hover:bg-white/10"
         >
           <X className="w-5 h-5" />
         </button>
 
         <div className="flex items-center gap-3 mb-4 pr-8">
           <div className="w-10 h-10 rounded-xl bg-tmb-forest flex items-center justify-center shrink-0">
-            <Share2 className="w-5 h-5 text-tmb-ink" />
+            <Share2 className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-tmb-ink">Share Itinerary</h3>
-            <p className="text-tmb-muted text-xs">Anyone with this link can view this trip</p>
+            <h3 className="text-lg font-semibold text-white">Share Itinerary</h3>
+            <p className="text-[#c5b99a] text-xs">Anyone with this link can view this trip</p>
           </div>
         </div>
 
         <div className="mb-4">
-          <label className="text-xs text-tmb-muted font-display uppercase tracking-[.12em] block mb-2">Shareable Link</label>
+          <label className="text-xs text-[#bcd0ad] font-display uppercase tracking-[.12em] block mb-2">Shareable Link</label>
           <div className="flex flex-col sm:flex-row gap-2">
             <div className="flex-1 relative">
-              <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-tmb-muted" />
+              <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-tmb-ink" />
               <input
                 ref={inputRef}
                 type="text"
@@ -1355,7 +1355,7 @@ const ShareModal = ({ isOpen, shareUrl, onClose, onCopy }) => {
               onClick={handleCopy}
               className={`px-4 py-3 sm:py-2.5 min-h-[44px] rounded-lg text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
                 copied
-                  ? 'bg-tmb-pine text-tmb-ink'
+                  ? 'bg-tmb-moss text-white'
                   : 'bg-tmb-pine text-white hover:shadow-lg'
               }`}
             >
@@ -1374,8 +1374,8 @@ const ShareModal = ({ isOpen, shareUrl, onClose, onCopy }) => {
           </div>
         </div>
 
-        <div className="p-3 rounded-lg bg-tmb-cream/60 border border-tmb-line2">
-          <p className="text-xs text-tmb-muted">
+        <div className="p-3 rounded-lg bg-white/5 border border-white/10">
+          <p className="text-xs text-[#c5b99a]">
             This is a live link — anyone with it can view and edit the same trip in real time. Changes sync automatically between devices.
           </p>
         </div>
@@ -1463,7 +1463,7 @@ const MapControls = ({ onFitRoute }) => {
       <div className="leaflet-control">
         <button
           onClick={handleFitRoute}
-          className="w-11 h-11 sm:w-8 sm:h-8 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg flex items-center justify-center text-tmb-muted/70 hover:bg-white hover:text-tmb-ink transition-colors"
+          className="w-11 h-11 sm:w-8 sm:h-8 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg flex items-center justify-center text-tmb-muted hover:bg-white hover:text-tmb-ink transition-colors"
           title="Fit entire route"
         >
           <Maximize2 className="w-5 h-5 sm:w-4 sm:h-4" />
@@ -1510,11 +1510,11 @@ const OfflineMapButton = ({ tileUrl }) => {
       >
         {state === 'downloading' ? (
           <div className="px-3 py-2 min-w-[160px]">
-            <div className="text-[10px] text-tmb-muted mb-1">Downloading tiles...</div>
-            <div className="w-full h-1.5 bg-tmb-line rounded-full overflow-hidden">
-              <div className="h-full bg-tmb-pine transition-all duration-300 rounded-full" style={{ width: `${pct}%` }} />
+            <div className="text-[10px] text-[#bcd0ad] mb-1">Downloading tiles...</div>
+            <div className="w-full h-1.5 bg-white/20 rounded-full overflow-hidden">
+              <div className="h-full bg-tmb-moss transition-all duration-300 rounded-full" style={{ width: `${pct}%` }} />
             </div>
-            <div className="text-[10px] text-tmb-muted mt-1">{progress.done}/{progress.total} ({pct}%)</div>
+            <div className="text-[10px] text-[#bcd0ad] mt-1">{progress.done}/{progress.total} ({pct}%)</div>
           </div>
         ) : state === 'done' ? (
           <div className="px-3 py-2 flex items-center gap-1.5">
@@ -1526,10 +1526,10 @@ const OfflineMapButton = ({ tileUrl }) => {
             onClick={handleDownload}
             className="px-3 py-2 flex items-center gap-1.5 hover:bg-tmb-cream/60 transition-colors min-h-[44px]"
           >
-            <Download className="w-3.5 h-3.5 text-tmb-muted" />
+            <Download className="w-3.5 h-3.5 text-[#bcd0ad]" />
             <div className="text-left">
-              <div className="text-[11px] text-tmb-ink">Offline Map</div>
-              <div className="text-[9px] text-tmb-muted">~{tiles.total} tiles · ~25MB</div>
+              <div className="text-[11px] text-[#f4ead2]">Offline Map</div>
+              <div className="text-[9px] text-[#bcd0ad]">~{tiles.total} tiles · ~25MB</div>
             </div>
           </button>
         )}
@@ -1641,7 +1641,7 @@ const SegmentDetailModal = ({ isOpen, dayIndex, dayData, scenario, formatTime, f
         </div>
 
         {/* Route */}
-        <div className="mb-4 p-3 rounded-lg bg-tmb-cream/60">
+        <div className="mb-4 p-3 rounded-lg bg-tmb-cream/80">
           <div className="text-xs text-tmb-muted font-display uppercase tracking-[.12em] mb-1">Route</div>
           <div className="text-tmb-ink text-sm sm:text-base">
             {d.startWp.name} <span className="text-tmb-muted">→</span> {d.endWp.name}
@@ -1650,19 +1650,19 @@ const SegmentDetailModal = ({ isOpen, dayIndex, dayData, scenario, formatTime, f
 
         {/* Stats Grid - 2x2 on mobile, 4 col on tablet+ */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4">
-          <div className="p-3 rounded-lg bg-tmb-cream/60 text-center">
+          <div className="p-3 rounded-lg bg-tmb-cream/80 text-center">
             <div className="text-base sm:text-lg font-semibold text-tmb-ink">{d.distance}</div>
             <div className="text-xs text-tmb-muted">km</div>
           </div>
-          <div className="p-3 rounded-lg bg-tmb-cream/60 text-center">
+          <div className="p-3 rounded-lg bg-tmb-cream/80 text-center">
             <div className="text-base sm:text-lg font-semibold text-tmb-moss">↑{d.ascent}</div>
             <div className="text-xs text-tmb-muted">m gain</div>
           </div>
-          <div className="p-3 rounded-lg bg-tmb-cream/60 text-center">
+          <div className="p-3 rounded-lg bg-tmb-cream/80 text-center">
             <div className="text-base sm:text-lg font-semibold text-tmb-rust">↓{d.descent}</div>
             <div className="text-xs text-tmb-muted">m loss</div>
           </div>
-          <div className="p-3 rounded-lg bg-tmb-cream/60 text-center">
+          <div className="p-3 rounded-lg bg-tmb-cream/80 text-center">
             <div className="text-base sm:text-lg font-semibold text-tmb-ink">{formatTime(d.time)}</div>
             <div className="text-xs text-tmb-muted">time</div>
           </div>
@@ -1670,7 +1670,7 @@ const SegmentDetailModal = ({ isOpen, dayIndex, dayData, scenario, formatTime, f
 
         {/* Waypoints */}
         <div className="mb-4">
-          <div className="text-xs text-tmb-muted font-display uppercase tracking-[.12em] mb-2">Waypoints ({waypoints.length})</div>
+          <div className="text-xs text-[#bcd0ad] font-display uppercase tracking-[.12em] mb-2">Waypoints ({waypoints.length})</div>
           <div className="flex flex-wrap gap-1.5">
             {waypoints.map((wp, i) => (
               <span key={i} className="text-xs px-2 py-1 rounded-full bg-tmb-cream/60 text-tmb-ink">
@@ -1683,12 +1683,12 @@ const SegmentDetailModal = ({ isOpen, dayIndex, dayData, scenario, formatTime, f
         {/* Sights */}
         {allSights.length > 0 && (
           <div className="mb-4">
-            <div className="text-xs text-tmb-muted font-display uppercase tracking-[.12em] mb-2">Highlights</div>
+            <div className="text-xs text-[#bcd0ad] font-display uppercase tracking-[.12em] mb-2">Highlights</div>
             <div className="space-y-2">
               {allSights.map((sight, i) => (
                 <div key={i} className="flex items-center gap-2 text-sm">
                   <span className="text-lg">{sight.icon}</span>
-                  <span className="text-tmb-ink">{sight.name}</span>
+                  <span className="text-[#f4ead2]">{sight.name}</span>
                 </div>
               ))}
             </div>
@@ -1698,13 +1698,13 @@ const SegmentDetailModal = ({ isOpen, dayIndex, dayData, scenario, formatTime, f
         {/* Food Stops */}
         {allFood.length > 0 && (
           <div className="mb-4">
-            <div className="text-xs text-tmb-muted font-display uppercase tracking-[.12em] mb-2">Food & Refuges</div>
+            <div className="text-xs text-[#bcd0ad] font-display uppercase tracking-[.12em] mb-2">Food & Refuges</div>
             <div className="space-y-2">
               {allFood.map((food, i) => (
                 <div key={i} className="flex items-center gap-2 text-sm">
                   <span className="text-lg">{food.type === 'refuge' ? '🏠' : '🍽️'}</span>
-                  <span className="text-tmb-ink">{food.name}</span>
-                  {food.altitude && <span className="text-xs text-tmb-muted">{food.altitude}m</span>}
+                  <span className="text-[#f4ead2]">{food.name}</span>
+                  {food.altitude && <span className="text-xs text-[#bcd0ad]">{food.altitude}m</span>}
                 </div>
               ))}
             </div>
@@ -1714,7 +1714,7 @@ const SegmentDetailModal = ({ isOpen, dayIndex, dayData, scenario, formatTime, f
         {/* Shortcuts */}
         {allShortcuts.length > 0 && (
           <div>
-            <div className="text-xs text-tmb-muted font-display uppercase tracking-[.12em] mb-2">Shortcuts Available</div>
+            <div className="text-xs text-[#bcd0ad] font-display uppercase tracking-[.12em] mb-2">Shortcuts Available</div>
             <div className="space-y-2">
               {allShortcuts.map((shortcut, i) => {
                 const shortcutId = `${shortcut.segmentFromId}-${shortcut.name}`;
@@ -1736,8 +1736,8 @@ const SegmentDetailModal = ({ isOpen, dayIndex, dayData, scenario, formatTime, f
                     <div className="flex items-center gap-2">
                       <span className="text-lg">{isCableCar ? '🚡' : isBus ? '🚌' : '↗️'}</span>
                       <div className="text-left">
-                        <div className="text-sm text-tmb-ink">{shortcut.name}</div>
-                        <div className="text-xs text-tmb-muted">{shortcut.description}</div>
+                        <div className="text-sm text-[#f4ead2]">{shortcut.name}</div>
+                        <div className="text-xs text-[#bcd0ad]">{shortcut.description}</div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -1748,7 +1748,7 @@ const SegmentDetailModal = ({ isOpen, dayIndex, dayData, scenario, formatTime, f
                       <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
                         isSelected ? 'bg-tmb-pine border-tmb-pine' : 'border-tmb-muted'
                       }`}>
-                        {isSelected && <Check className="w-3 h-3 text-tmb-ink" />}
+                        {isSelected && <Check className="w-3 h-3 text-white" />}
                       </div>
                     </div>
                   </button>
@@ -1787,7 +1787,7 @@ class MapErrorBoundary extends Component {
             Retry
           </button>
           {this.state.error && (
-            <p className="text-xs text-tmb-muted/60 mt-3 font-mono">{this.state.error.message}</p>
+            <p className="text-xs text-tmb-muted mt-3 font-mono">{this.state.error.message}</p>
           )}
         </GlassCard>
       );
@@ -2200,11 +2200,11 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2 text-xs">
                   <div className="w-4 h-0.5 border-t-2 border-dashed border-tmb-gold" />
-                  <span className="text-tmb-ink">Cable Car</span>
+                  <span className="text-[#f4ead2]">Cable Car</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs">
                   <div className="w-4 h-0.5 border-t-2 border-dashed border-amber-400" />
-                  <span className="text-tmb-ink">Bus</span>
+                  <span className="text-[#f4ead2]">Bus</span>
                 </div>
               </div>
             </div>
@@ -2357,7 +2357,7 @@ const BookingCard = ({ booking, getFileUrl }) => {
             {booking.phone && (
               <>
                 <span className="text-tmb-muted">Phone</span>
-                <a href={`tel:${booking.phone}`} className="text-tmb-gold hover:text-tmb-forest flex items-center gap-1">
+                <a href={`tel:${booking.phone}`} className="text-tmb-amber hover:text-tmb-forest flex items-center gap-1">
                   <Phone className="w-3 h-3" />{booking.phone}
                 </a>
               </>
@@ -2365,7 +2365,7 @@ const BookingCard = ({ booking, getFileUrl }) => {
             {booking.booking_url && (
               <>
                 <span className="text-tmb-muted">Booking</span>
-                <a href={booking.booking_url} target="_blank" rel="noopener noreferrer" className="text-tmb-gold hover:text-tmb-forest flex items-center gap-1">
+                <a href={booking.booking_url} target="_blank" rel="noopener noreferrer" className="text-tmb-amber hover:text-tmb-forest flex items-center gap-1">
                   <ExternalLink className="w-3 h-3" />View booking
                 </a>
               </>
@@ -2405,7 +2405,7 @@ const BookingCard = ({ booking, getFileUrl }) => {
                     href={fileUrls[doc.storage_path] || '#'}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-tmb-cream border border-tmb-line text-xs hover:bg-tmb-kraft transition-colors ${fileUrls[doc.storage_path] ? 'text-tmb-gold' : 'text-tmb-muted'}`}
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-tmb-cream border border-tmb-line text-xs hover:bg-tmb-kraft transition-colors ${fileUrls[doc.storage_path] ? 'text-tmb-amber' : 'text-tmb-muted'}`}
                     onClick={(e) => { if (!fileUrls[doc.storage_path]) e.preventDefault(); }}
                   >
                     <FileText className="w-3.5 h-3.5" />
@@ -2728,7 +2728,7 @@ const BookingsPanel = ({ bookings, arrivalBooking, totals, gaps, getFileUrl, loa
           </div>
           <div className="flex items-center gap-4">
             <span className="font-display font-semibold text-tmb-moss">€{totals.eur.toFixed(2)}</span>
-            {totals.chf > 0 && <span className="font-display font-semibold text-tmb-gold">CHF {totals.chf.toFixed(2)}</span>}
+            {totals.chf > 0 && <span className="font-display font-semibold text-tmb-amber">CHF {totals.chf.toFixed(2)}</span>}
           </div>
         </button>
         {costOpen && (
@@ -2754,7 +2754,7 @@ const BookingsPanel = ({ bookings, arrivalBooking, totals, gaps, getFileUrl, loa
               {totals.chf > 0 && (
                 <div className="flex items-center justify-between text-sm mt-1">
                   <span className="font-display uppercase tracking-[.08em] text-tmb-muted">Total CHF</span>
-                  <span className="font-display font-bold text-tmb-gold">CHF {totals.chf.toFixed(2)}</span>
+                  <span className="font-display font-bold text-tmb-amber">CHF {totals.chf.toFixed(2)}</span>
                 </div>
               )}
             </div>
@@ -3190,7 +3190,7 @@ export default function App() {
         {/* Sync status badge */}
         {trip?.id && (
           <div className="absolute top-3 left-4 sm:left-8">
-            <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-black/20 backdrop-blur-sm text-tmb-ink/80" title={connected ? 'Live sync active' : syncing ? 'Syncing...' : !online ? `Offline${pendingCount ? ` (${pendingCount} pending)` : ''}` : 'Offline'}>
+            <span className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-black/20 backdrop-blur-sm text-white/90" title={connected ? 'Live sync active' : syncing ? 'Syncing...' : !online ? `Offline${pendingCount ? ` (${pendingCount} pending)` : ''}` : 'Offline'}>
               {syncing ? (
                 <><LoaderCircle className="w-3 h-3 animate-spin" /><span>Syncing</span></>
               ) : connected ? (
@@ -3289,7 +3289,7 @@ export default function App() {
               onClick={saveToLocalStorage}
               className={`px-3 sm:px-4 py-2 sm:py-2.5 min-h-[44px] rounded-full text-sm font-display uppercase tracking-wider transition-all duration-300 flex items-center gap-2 ${
                 isDirty
-                  ? 'bg-tmb-rust text-tmb-ink shadow-md'
+                  ? 'bg-tmb-rust text-white shadow-md'
                   : 'bg-tmb-paper text-tmb-muted hover:bg-tmb-kraft border border-tmb-line'
               }`}
             >
@@ -3897,25 +3897,25 @@ export default function App() {
                           {shortcut.timeSaved > 0 && (
                             <>
                               <div className="text-[#bcd0ad]">Time saved</div>
-                              <div className="text-right text-tmb-gold">{formatTime(shortcut.timeSaved)}</div>
+                              <div className="text-right text-tmb-amber">{formatTime(shortcut.timeSaved)}</div>
                             </>
                           )}
                           {shortcut.distanceSaved > 0 && (
                             <>
                               <div className="text-[#bcd0ad]">Distance saved</div>
-                              <div className="text-right text-tmb-gold">{shortcut.distanceSaved}km</div>
+                              <div className="text-right text-tmb-amber">{shortcut.distanceSaved}km</div>
                             </>
                           )}
                           {shortcut.ascentSaved > 0 && (
                             <>
                               <div className="text-[#bcd0ad]">Ascent saved</div>
-                              <div className="text-right text-tmb-gold">↑{shortcut.ascentSaved}m</div>
+                              <div className="text-right text-tmb-amber">↑{shortcut.ascentSaved}m</div>
                             </>
                           )}
                           {shortcut.descentSaved > 0 && (
                             <>
                               <div className="text-[#bcd0ad]">Descent saved</div>
-                              <div className="text-right text-tmb-gold">↓{shortcut.descentSaved}m</div>
+                              <div className="text-right text-tmb-amber">↓{shortcut.descentSaved}m</div>
                             </>
                           )}
                           {shortcut.cost > 0 && (
@@ -3950,16 +3950,16 @@ export default function App() {
                     <span className="text-xs text-tmb-muted font-display uppercase tracking-[.12em]">Active Shortcuts</span>
                     <div className="flex items-center gap-2 text-xs flex-wrap">
                       {activeShortcuts.totalTimeSaved > 0 && (
-                        <span className="text-tmb-gold">-{formatTime(activeShortcuts.totalTimeSaved)}</span>
+                        <span className="text-tmb-amber">-{formatTime(activeShortcuts.totalTimeSaved)}</span>
                       )}
                       {activeShortcuts.totalDistanceSaved > 0 && (
-                        <span className="text-tmb-gold">-{activeShortcuts.totalDistanceSaved.toFixed(1)}km</span>
+                        <span className="text-tmb-amber">-{activeShortcuts.totalDistanceSaved.toFixed(1)}km</span>
                       )}
                       {activeShortcuts.totalAscentSaved > 0 && (
-                        <span className="text-tmb-gold">-↑{activeShortcuts.totalAscentSaved}m</span>
+                        <span className="text-tmb-amber">-↑{activeShortcuts.totalAscentSaved}m</span>
                       )}
                       {activeShortcuts.totalDescentSaved > 0 && (
-                        <span className="text-tmb-gold">-↓{activeShortcuts.totalDescentSaved}m</span>
+                        <span className="text-tmb-amber">-↓{activeShortcuts.totalDescentSaved}m</span>
                       )}
                       {activeShortcuts.totalCost > 0 && (
                         <span className="text-tmb-amber">€{activeShortcuts.totalCost}</span>
@@ -4137,12 +4137,12 @@ export default function App() {
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-xl bg-tmb-pine flex items-center justify-center text-xl">⛰️</div>
               <div>
-                <h3 className="text-lg font-semibold text-tmb-ink">Upgrade Your Trip</h3>
-                <p className="text-tmb-muted text-xs">Go live & shareable</p>
+                <h3 className="text-lg font-semibold text-white">Upgrade Your Trip</h3>
+                <p className="text-[#c5b99a] text-xs">Go live & shareable</p>
               </div>
             </div>
-            <p className="text-sm text-tmb-ink mb-4">
-              Found your saved trip in this browser. Import it to get a <strong className="text-tmb-moss">live, shareable link</strong> that syncs between you and Nick in real time.
+            <p className="text-sm text-[#f4ead2] mb-4">
+              Found your saved trip in this browser. Import it to get a <strong className="text-[#a8d88e]">live, shareable link</strong> that syncs between you and Nick in real time.
             </p>
             <div className="flex gap-3">
               <button

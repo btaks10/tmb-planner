@@ -46,7 +46,7 @@
   border: 1px solid #dcc699 !important;
   border-radius: 0.75rem !important;
   padding: 0.5rem 0.75rem !important;
-  color: #2a2720 !important;
+  color: #f4ead2 !important;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25) !important;
   font-family: 'Archivo', system-ui, sans-serif;
 }
@@ -77,7 +77,7 @@
 }
 
 .leaflet-control-attribution a {
-  color: #2a2720 !important;
+  color: #4a4129 !important;
 }
 
 /* Custom zoom controls */
