@@ -2232,7 +2232,7 @@ const BookingCard = ({ booking, getFileUrl }) => {
         onClick={() => setExpanded(!expanded)}
         className="w-full p-4 flex items-start gap-3 text-left hover:bg-tmb-cream/60 transition-colors"
       >
-        <div className="w-9 h-9 rounded-lg bg-tmb-forest flex items-center justify-center shrink-0 text-sm font-bold text-white">
+        <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-sm font-poster text-white border-2 border-tmb-cream ${booking.day_index ? DAY_COLORS[(booking.day_index - 1) % DAY_COLORS.length].gradient : 'bg-tmb-forest'}`} style={{ boxShadow: '0 2px 8px -2px rgba(0,0,0,.3)' }}>
           {booking.day_index || '—'}
         </div>
         <div className="flex-1 min-w-0">
