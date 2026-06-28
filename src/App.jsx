@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback, Component } from 'react';
 import { createPortal } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom';
 import { segmentData } from './segmentData';
@@ -1684,6 +1684,38 @@ const SegmentDetailModal = ({ isOpen, dayIndex, dayData, scenario, formatTime, f
 };
 
 // Trail Map component using Leaflet
+// Error boundary to gracefully handle map rendering failures
+class MapErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <GlassCard className="p-8 text-center">
+          <div className="text-4xl mb-3">🗺️</div>
+          <h3 className="font-display uppercase tracking-wider text-tmb-ink mb-2">Map Unavailable</h3>
+          <p className="text-sm text-tmb-muted mb-4">The map couldn't load. Check your connection and try refreshing.</p>
+          <button
+            onClick={() => this.setState({ hasError: false, error: null })}
+            className="px-4 py-2 rounded-[9px] text-sm font-display uppercase bg-tmb-pine text-white hover:bg-tmb-forest transition-colors"
+          >
+            Retry
+          </button>
+          {this.state.error && (
+            <p className="text-xs text-tmb-muted/60 mt-3 font-mono">{this.state.error.message}</p>
+          )}
+        </GlassCard>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, selectedShortcuts, onShortcutToggle, totals, totalTimeSaved, useImperial }) => {
   const [hoveredDay, setHoveredDay] = useState(null);
   const [selectedDay, setSelectedDay] = useState(null);
@@ -1836,7 +1868,7 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
           {/* Tile layer - supports Thunderforest outdoors or CARTO dark fallback */}
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url={import.meta.env.VITE_MAP_TILE_URL || "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"}
+            url={import.meta.env.VITE_MAP_TILE_URL || "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"}
             maxZoom={19}
           />
 
@@ -2055,7 +2087,7 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
       </MapContainer>
 
       {/* Offline Map Download Button */}
-      <OfflineMapButton tileUrl={import.meta.env.VITE_MAP_TILE_URL || "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"} />
+      <OfflineMapButton tileUrl={import.meta.env.VITE_MAP_TILE_URL || "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"} />
 
       {/* Map Legend Overlay */}
       <div className="absolute bottom-4 left-4 z-[1000]">
@@ -3642,6 +3674,7 @@ export default function App() {
         )}
 
         {view === 'map' && (
+          <MapErrorBoundary>
           <GlassCard className="p-4">
             <TrailMap
               dayData={dayData}
@@ -3656,6 +3689,7 @@ export default function App() {
               useImperial={useImperial}
             />
           </GlassCard>
+          </MapErrorBoundary>
         )}
         </>)}
 
