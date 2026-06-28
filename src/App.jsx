@@ -2921,12 +2921,7 @@ export default function App() {
                 {s.name}
               </button>
             ))}
-            <button
-              onClick={createScenario}
-              className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full bg-tmb-paper border border-dashed border-tmb-line text-tmb-muted hover:bg-tmb-kraft hover:border-tmb-gold transition-all duration-300 flex items-center justify-center shrink-0"
-            >
-              +
-            </button>
+            {/* Add-scenario button hidden — single-trip focus */}
           </div>
 
           <div className="flex items-center gap-2 sm:ml-auto justify-end">
@@ -2972,8 +2967,7 @@ export default function App() {
           {[
             { id: 'plan', label: 'Itinerary' },
             { id: 'map', label: 'Route Map' },
-            { id: 'elevation', label: 'Elevation' },
-            { id: 'compare', label: 'Compare' }
+            { id: 'elevation', label: 'Elevation' }
           ].map(tab => (
             <button
               key={tab.id}
