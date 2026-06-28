@@ -1858,8 +1858,8 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
 
     return activeShortcuts.shortcuts.map(shortcut => {
       const startWp = WAYPOINTS[shortcut.fromId];
-      const endWp = WAYPOINTS.find(w => w.name.toLowerCase().includes(shortcut.skipsToWaypoint?.toLowerCase() || '')) ||
-                    WAYPOINTS[shortcut.fromId + 1];
+      const endWp = (shortcut.skipsToWaypoint != null ? WAYPOINTS[shortcut.skipsToWaypoint] : null) ||
+                    WAYPOINTS[shortcut.toId] || WAYPOINTS[shortcut.fromId + 1];
 
       if (!startWp || !endWp) return null;
 
