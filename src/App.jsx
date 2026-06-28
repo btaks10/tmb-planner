@@ -714,7 +714,7 @@ const ElevationMiniProfile = ({ dayIndex, activeScenario, color }) => {
   );
 };
 
-const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, removeDay, selectedShortcuts, onShortcutToggle, useImperial, booking }) => {
+const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, removeDay, selectedShortcuts, onShortcutToggle, useImperial, booking, onBookingClick }) => {
   const [expanded, setExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState('segments');
   const [expandedSightId, setExpandedSightId] = useState(null);
@@ -884,18 +884,23 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
         {/* Mini elevation profile */}
         <ElevationMiniProfile dayIndex={dayIndex} activeScenario={activeScenario} color={color} />
 
-        {/* Refuge/stay tag */}
+        {/* Refuge/stay tag — clickable to open booking modal */}
         {booking && (
-          <div className="flex items-center gap-2 bg-[#f1e7cf] border border-tmb-line rounded-[9px] px-2.5 py-1.5 shrink-0">
+          <button
+            onClick={(e) => { e.stopPropagation(); onBookingClick?.(booking); }}
+            className="flex items-center gap-2 bg-[#f1e7cf] border border-tmb-line rounded-[9px] px-2.5 py-1.5 shrink-0 hover:bg-[#eddfc0] transition-colors cursor-pointer"
+          >
             <div className="w-6 h-6 rounded-md bg-tmb-forest text-[#f3e7c9] flex items-center justify-center text-sm">▲</div>
-            <div>
+            <div className="text-left">
               <div className="font-display uppercase tracking-[.05em] text-[8px] text-tmb-muted">Night</div>
               <div className="font-semibold text-xs text-tmb-pine leading-tight">{booking.place_name}</div>
             </div>
-            {booking.status && (
+            {isBookingIncomplete(booking) ? (
+              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-tmb-amber/15 text-tmb-amber border border-tmb-amber/30 font-display uppercase">In progress</span>
+            ) : booking.status ? (
               <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-tmb-moss/20 text-tmb-moss border border-tmb-moss/30 font-display uppercase">{booking.status}</span>
-            )}
-          </div>
+            ) : null}
+          </button>
         )}
       </div>
 
@@ -2342,6 +2347,187 @@ const BookingCard = ({ booking, getFileUrl }) => {
   );
 };
 
+// Check if a booking is missing key info
+const isBookingIncomplete = (booking) => {
+  if (!booking) return true;
+  const noDocuments = !booking.documents || booking.documents.length === 0;
+  const missingFields = !booking.confirmation_no || !booking.cost;
+  return noDocuments || missingFields;
+};
+
+// Booking detail modal
+const BookingDetailModal = ({ booking, isOpen, onClose, getFileUrl, jwt, tripId }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [fileUrls, setFileUrls] = useState({});
+  const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      requestAnimationFrame(() => setIsVisible(true));
+      // Load file URLs
+      if (booking?.documents?.length) {
+        booking.documents.forEach(async (doc) => {
+          const url = await getFileUrl(doc.storage_path);
+          if (url) setFileUrls(prev => ({ ...prev, [doc.storage_path]: url }));
+        });
+      }
+    } else {
+      requestAnimationFrame(() => setIsVisible(false));
+      setFileUrls({});
+    }
+  }, [isOpen, booking, getFileUrl]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleEsc = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
+  }, [isOpen, onClose]);
+
+  if (!isOpen || !booking) return null;
+
+  const incomplete = isBookingIncomplete(booking);
+
+  return createPortal(
+    <div
+      className={`fixed inset-0 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4 transition-opacity duration-200 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+      onClick={onClose}
+    >
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+      <div
+        className={`relative w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl bg-tmb-paper border border-tmb-line shadow-2xl transition-all duration-200 max-h-[90vh] overflow-y-auto ${isVisible ? 'opacity-100 translate-y-0 sm:scale-100' : 'opacity-0 translate-y-8 sm:scale-95'}`}
+        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="sticky top-0 bg-tmb-paper border-b border-tmb-line2 px-4 sm:px-5 py-3 flex items-start justify-between gap-3 z-10">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="font-display uppercase text-lg text-tmb-ink truncate">{booking.place_name}</h3>
+              {booking.type && <span className="text-[10px] px-2 py-0.5 rounded-full bg-tmb-kraft text-tmb-muted border border-tmb-line font-display uppercase">{booking.type}</span>}
+              {incomplete ? (
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-tmb-amber/15 text-tmb-amber border border-tmb-amber/30 font-display uppercase">In progress</span>
+              ) : booking.status ? (
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-tmb-moss/15 text-tmb-moss border border-tmb-moss/30 font-display uppercase">{booking.status}</span>
+              ) : null}
+            </div>
+            {booking.location && <p className="text-xs text-tmb-muted mt-0.5">{booking.location}</p>}
+          </div>
+          <button onClick={onClose} className="w-10 h-10 min-h-[44px] min-w-[44px] flex items-center justify-center text-tmb-muted hover:text-tmb-ink transition-colors rounded-lg hover:bg-tmb-kraft -mr-1 -mt-1">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="px-4 sm:px-5 py-4 space-y-4">
+          {/* Dates & cost row */}
+          <div className="flex flex-wrap gap-4">
+            {(booking.check_in || booking.check_out) && (
+              <div>
+                <div className="text-[9px] font-display uppercase tracking-[.12em] text-tmb-muted">Dates</div>
+                <div className="text-sm font-semibold text-tmb-ink mt-0.5">{booking.check_in} → {booking.check_out}</div>
+              </div>
+            )}
+            {booking.cost && (
+              <div>
+                <div className="text-[9px] font-display uppercase tracking-[.12em] text-tmb-muted">Cost</div>
+                <div className="text-sm font-semibold text-tmb-moss mt-0.5">{booking.currency === 'CHF' ? 'CHF ' : '€'}{Number(booking.cost).toFixed(2)}</div>
+              </div>
+            )}
+          </div>
+
+          {/* Details grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {booking.confirmation_no && (
+              <div className="p-2.5 rounded-[9px] bg-tmb-cream border border-tmb-line2">
+                <div className="text-[9px] font-display uppercase tracking-[.12em] text-tmb-muted">Confirmation #</div>
+                <div className="text-sm text-tmb-ink font-mono mt-0.5">{booking.confirmation_no}</div>
+              </div>
+            )}
+            {booking.pin && (
+              <div className="p-2.5 rounded-[9px] bg-tmb-cream border border-tmb-line2">
+                <div className="text-[9px] font-display uppercase tracking-[.12em] text-tmb-muted">PIN</div>
+                <div className="text-sm text-tmb-ink font-mono mt-0.5">{booking.pin}</div>
+              </div>
+            )}
+            {booking.phone && (
+              <div className="p-2.5 rounded-[9px] bg-tmb-cream border border-tmb-line2">
+                <div className="text-[9px] font-display uppercase tracking-[.12em] text-tmb-muted">Phone</div>
+                <a href={`tel:${booking.phone}`} className="text-sm text-tmb-forest font-mono mt-0.5 flex items-center gap-1">
+                  <Phone className="w-3 h-3" />{booking.phone}
+                </a>
+              </div>
+            )}
+            {booking.guests && (
+              <div className="p-2.5 rounded-[9px] bg-tmb-cream border border-tmb-line2">
+                <div className="text-[9px] font-display uppercase tracking-[.12em] text-tmb-muted">Guests</div>
+                <div className="text-sm text-tmb-ink mt-0.5">{booking.guests}</div>
+              </div>
+            )}
+          </div>
+
+          {booking.booking_url && (
+            <a href={booking.booking_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-tmb-forest hover:text-tmb-pine transition-colors">
+              <ExternalLink className="w-3.5 h-3.5" /> View booking
+            </a>
+          )}
+
+          {booking.notes && (
+            <div className="p-3 rounded-[9px] bg-tmb-cream border border-tmb-line2">
+              <div className="text-[9px] font-display uppercase tracking-[.12em] text-tmb-muted mb-1">Notes</div>
+              <p className="text-xs text-tmb-ink whitespace-pre-wrap">{booking.notes}</p>
+            </div>
+          )}
+
+          {/* Documents */}
+          <div>
+            <div className="text-[9px] font-display uppercase tracking-[.12em] text-tmb-muted mb-2">Documents</div>
+            {booking.documents?.length > 0 ? (
+              <div className="space-y-1.5">
+                {booking.documents.map((doc) => (
+                  <div key={doc.id} className="flex items-center gap-2 p-2 rounded-lg bg-tmb-cream border border-tmb-line2">
+                    <FileText className="w-4 h-4 text-tmb-muted shrink-0" />
+                    <span className="text-xs text-tmb-ink flex-1 truncate">{doc.title || doc.kind || 'Document'}</span>
+                    {fileUrls[doc.storage_path] ? (
+                      <a href={fileUrls[doc.storage_path]} target="_blank" rel="noopener noreferrer" className="text-xs text-tmb-forest flex items-center gap-1 hover:text-tmb-pine">
+                        <ExternalLink className="w-3 h-3" /> View
+                      </a>
+                    ) : (
+                      <span className="text-xs text-tmb-muted">Loading...</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-4 rounded-[9px] border border-dashed border-tmb-line text-center">
+                <p className="text-xs text-tmb-muted">No documents attached yet.</p>
+                <p className="text-[10px] text-tmb-amber mt-1">Upload receipts via the ingest script.</p>
+              </div>
+            )}
+          </div>
+
+          {/* In-progress prompt */}
+          {incomplete && (
+            <div className="p-3 rounded-[9px] bg-tmb-amber/10 border border-tmb-amber/20">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 text-tmb-amber shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-xs font-semibold text-tmb-amber">Needs info</p>
+                  <p className="text-xs text-tmb-muted mt-0.5">
+                    {!booking.documents?.length && 'No receipt/confirmation uploaded. '}
+                    {!booking.confirmation_no && 'Missing confirmation number. '}
+                    {!booking.cost && 'Missing cost. '}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+};
+
 const BookingsPanel = ({ bookings, arrivalBooking, totals, gaps, getFileUrl, loading }) => {
   const [costOpen, setCostOpen] = useState(false);
 
@@ -2478,6 +2664,7 @@ export default function App() {
   const [hoveredElevationDay, setHoveredElevationDay] = useState(null);
   const [hoveredShortcut, setHoveredShortcut] = useState(null);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
   const [shareUrl, setShareUrl] = useState('');
   const [toast, setToast] = useState({ message: '', type: 'info', isVisible: false });
   const [showMigration, setShowMigration] = useState(false);
@@ -3224,13 +3411,14 @@ export default function App() {
                       </div>
                       <div className="flex items-center gap-4 px-3 sm:px-4 py-2.5">
                         <p className="flex-1 text-[12.5px] text-tmb-muted">Fly BCN → Geneva, transfer to Chamonix. <strong className="font-semibold text-tmb-rust">The trip begins here.</strong></p>
-                        <div className="flex items-center gap-2 bg-[#f1e7cf] border border-tmb-line rounded-[9px] px-2.5 py-1.5 shrink-0">
+                        <button onClick={() => setSelectedBooking(arrivalBooking)} className="flex items-center gap-2 bg-[#f1e7cf] border border-tmb-line rounded-[9px] px-2.5 py-1.5 shrink-0 hover:bg-[#eddfc0] transition-colors cursor-pointer">
                           <div className="w-6 h-6 rounded-md bg-tmb-forest text-[#f3e7c9] flex items-center justify-center text-sm">⌂</div>
-                          <div>
+                          <div className="text-left">
                             <div className="font-display uppercase tracking-[.05em] text-[8px] text-tmb-muted">Night</div>
                             <div className="font-semibold text-xs text-tmb-pine leading-tight">{arrivalBooking.place_name}</div>
                           </div>
-                        </div>
+                          {isBookingIncomplete(arrivalBooking) && <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-tmb-amber/15 text-tmb-amber border border-tmb-amber/30 font-display uppercase">In progress</span>}
+                        </button>
                       </div>
                     </GlassCard>
                   </div>
@@ -3249,13 +3437,13 @@ export default function App() {
                       </div>
                       <div className="flex items-center gap-4 px-3 sm:px-4 py-2.5">
                         <p className="flex-1 text-[12.5px] text-tmb-muted">Gear check, short legs-loosener, fuel up before the climb.</p>
-                        <div className="flex items-center gap-2 bg-[#f1e7cf] border border-tmb-line rounded-[9px] px-2.5 py-1.5 shrink-0">
+                        <button onClick={() => setSelectedBooking(arrivalBooking)} className="flex items-center gap-2 bg-[#f1e7cf] border border-tmb-line rounded-[9px] px-2.5 py-1.5 shrink-0 hover:bg-[#eddfc0] transition-colors cursor-pointer">
                           <div className="w-6 h-6 rounded-md bg-tmb-forest text-[#f3e7c9] flex items-center justify-center text-sm">⌂</div>
-                          <div>
+                          <div className="text-left">
                             <div className="font-display uppercase tracking-[.05em] text-[8px] text-tmb-muted">Night</div>
                             <div className="font-semibold text-xs text-tmb-pine leading-tight">{arrivalBooking.place_name}</div>
                           </div>
-                        </div>
+                        </button>
                       </div>
                     </GlassCard>
                   </div>
@@ -3292,6 +3480,7 @@ export default function App() {
                         onShortcutToggle={handleShortcutToggle}
                         useImperial={useImperial}
                         booking={bookingsByDayIndex?.get(idx + 1)}
+                        onBookingClick={setSelectedBooking}
                       />
                     </div>
                   </div>
@@ -3795,6 +3984,16 @@ export default function App() {
             setDeleteConfirmDay(null);
           }
         }}
+      />
+
+      {/* Booking detail modal */}
+      <BookingDetailModal
+        booking={selectedBooking}
+        isOpen={selectedBooking !== null}
+        onClose={() => setSelectedBooking(null)}
+        getFileUrl={getFileUrl}
+        jwt={jwt}
+        tripId={trip?.id}
       />
 
       {/* Share modal */}
