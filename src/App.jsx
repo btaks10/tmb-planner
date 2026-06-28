@@ -103,6 +103,15 @@ const DAY_COLORS = [
 
 const formatDate = (date) => date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
+// Single source of truth for DayMap POI marker styles + legend labels
+const DAY_MAP_POI_TYPES = {
+  sight:    { color: '#cf7d2c', fillColor: '#e3a93c', radius: 5, label: 'Sight',          icon: '📷' },
+  food:     { color: '#bf6334', fillColor: '#e07c4a', radius: 5, label: 'Food / Refuge',   icon: '🍽️' },
+  shortcut: { color: '#6b8c54', fillColor: '#8ab06a', radius: 4, label: 'Shortcut',        icon: '⚡' },
+  water:    { color: '#3b82f6', fillColor: '#60a5fa', radius: 4, label: 'Water',           icon: '💧' },
+  _default: { color: '#888',    fillColor: '#aaa',    radius: 4, label: '',                icon: '' },
+};
+
 const GlassCard = ({ children, className = "", hover = false }) => (
   <div className={`bg-tmb-paper border border-tmb-line rounded-[13px] shadow-lg font-body ${hover ? 'hover:shadow-xl hover:border-tmb-gold/40 transition-all duration-300' : ''} ${className}`}>
     {children}
@@ -882,26 +891,9 @@ const DayMap = ({ dayIndex, subSegments, dayData, color, day, useImperial, activ
     ];
   }, [routePositions, pois]);
 
-  // POI marker colors and sizes
-  const getPoiStyle = (poiType) => {
-    switch (poiType) {
-      case 'sight': return { color: '#cf7d2c', fillColor: '#e3a93c', radius: 5 };
-      case 'food': return { color: '#bf6334', fillColor: '#e07c4a', radius: 5 };
-      case 'shortcut': return { color: '#6b8c54', fillColor: '#8ab06a', radius: 4 };
-      case 'water': return { color: '#3b82f6', fillColor: '#60a5fa', radius: 4 };
-      default: return { color: '#888', fillColor: '#aaa', radius: 4 };
-    }
-  };
-
-  const getPoiLabel = (poiType) => {
-    switch (poiType) {
-      case 'sight': return 'Sight';
-      case 'food': return 'Food / Refuge';
-      case 'shortcut': return 'Shortcut';
-      case 'water': return 'Water';
-      default: return '';
-    }
-  };
+  // Derive marker style + label from the shared map
+  const getPoiStyle = (poiType) => DAY_MAP_POI_TYPES[poiType] || DAY_MAP_POI_TYPES._default;
+  const getPoiLabel = (poiType) => (DAY_MAP_POI_TYPES[poiType] || DAY_MAP_POI_TYPES._default).label;
 
   // Format from-start info for popup
   const formatFromStart = (poi) => {
@@ -1018,6 +1010,42 @@ const DayMap = ({ dayIndex, subSegments, dayData, color, day, useImperial, activ
           );
         })}
       </MapContainer>
+
+      {/* Legend overlay — only shows POI types present on this day */}
+      {(() => {
+        const presentTypes = [...new Set(pois.map(p => p.type))];
+        if (presentTypes.length === 0) return null;
+        return (
+          <div className="absolute bottom-3 left-3 z-[1000]">
+            <div
+              className="px-2.5 py-2 rounded-lg border border-tmb-line2 shadow-lg"
+              style={{ backgroundColor: 'rgba(42, 39, 32, 0.88)', backdropFilter: 'blur(8px)' }}
+            >
+              <div className="space-y-1">
+                {/* Route endpoints */}
+                <div className="flex items-center gap-2 text-[10px]">
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#4ade80] border border-[#1c3a2a]" />
+                  <span className="text-[#f4ead2]">Start</span>
+                  <span className="text-[#bcd0ad] mx-0.5">·</span>
+                  <div className="w-2.5 h-2.5 rounded-full border border-[#1c3a2a]" style={{ backgroundColor: dayColor }} />
+                  <span className="text-[#f4ead2]">End</span>
+                </div>
+                {/* Dynamic POI types */}
+                {presentTypes.map(t => {
+                  const meta = DAY_MAP_POI_TYPES[t];
+                  if (!meta) return null;
+                  return (
+                    <div key={t} className="flex items-center gap-2 text-[10px]">
+                      <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: meta.fillColor, border: `1px solid ${meta.color}` }} />
+                      <span className="text-[#f4ead2]">{meta.icon} {meta.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 };
