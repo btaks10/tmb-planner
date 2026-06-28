@@ -3665,6 +3665,7 @@ export default function App() {
       <div className="hidden sm:flex bg-tmb-kraft border-b-2 border-[#c8ad77]">
         {[
           { id: 'trail', label: 'The Trail' },
+          { id: 'map', label: 'Route Map' },
           { id: 'logistics', label: 'Logistics & Packing' }
         ].map(s => (
           <button
@@ -3728,7 +3729,6 @@ export default function App() {
         <div className="flex gap-1 mb-4 sm:mb-6 bg-tmb-kraft border border-tmb-line rounded-[13px] p-1 sm:inline-flex w-full sm:w-auto">
           {[
             { id: 'plan', label: 'Itinerary' },
-            { id: 'map', label: 'Route Map' },
             { id: 'elevation', label: 'Elevation' }
           ].map(tab => (
             <button
@@ -4287,7 +4287,9 @@ export default function App() {
           </div>
         )}
 
-        {view === 'map' && (
+        </>)}
+
+        {section === 'map' && (
           <MapErrorBoundary>
           <GlassCard className="p-4">
             <TrailMap
@@ -4305,7 +4307,6 @@ export default function App() {
           </GlassCard>
           </MapErrorBoundary>
         )}
-        </>)}
 
         {section === 'logistics' && (
           <>
@@ -4495,15 +4496,10 @@ export default function App() {
       <nav className="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-tmb-kraft border-t border-tmb-line flex" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
         {[
           { id: 'trail', section: 'trail', label: 'Trail', icon: '▲' },
-          { id: 'map', section: 'trail', label: 'Map', icon: '◔', view: 'map' },
-          { id: 'gear', section: 'logistics', label: 'Gear', icon: '▣', logView: 'packing' },
-          { id: 'logi', section: 'logistics', label: 'Logi', icon: '≡', logView: 'bookings' },
+          { id: 'map', section: 'map', label: 'Map', icon: '◔' },
+          { id: 'logi', section: 'logistics', label: 'Logistics', icon: '≡' },
         ].map(tab => {
-          const isActive = tab.view
-            ? section === tab.section && view === tab.view
-            : tab.logView
-              ? section === tab.section && logisticsView === tab.logView
-              : section === tab.section && !tab.view && !tab.logView && (tab.id === 'trail' ? view === 'plan' : true);
+          const isActive = section === tab.section;
           return (
             <button
               key={tab.id}
@@ -4511,9 +4507,7 @@ export default function App() {
                 const tk = urlToken || tripShareToken;
                 const path = tk ? `/t/${tk}/${tab.section}` : `/${tab.section}`;
                 navigate(path, { replace: false });
-                if (tab.view) setView(tab.view);
-                else if (tab.section === 'trail') setView('plan');
-                if (tab.logView) setLogisticsView(tab.logView);
+                if (tab.section === 'trail') setView('plan');
               }}
               className={`flex-1 text-center py-2 pt-2.5 ${isActive ? 'text-tmb-rust' : 'text-[#7d6b43]'}`}
             >
