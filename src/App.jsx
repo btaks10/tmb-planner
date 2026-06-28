@@ -983,6 +983,7 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
               { id: 'segments', label: 'Segments', labelFull: 'By Segment' },
               { id: 'sights', label: 'Sights', labelFull: 'All Sights', count: dayData.allSights.length },
               { id: 'food', label: 'Food', labelFull: 'Food & Refuges', count: dayData.allFood.length },
+              { id: 'water', label: 'Water', labelFull: 'Water Sources', count: dayData.allWater.length },
               { id: 'shortcuts', label: 'Shortcuts', labelFull: 'Shortcuts', count: dayData.allShortcuts.length }
             ].map(tab => (
               <button
@@ -1104,6 +1105,33 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                         <div className="text-xs text-tmb-clay/70 mt-1">★ {food.specialty}</div>
                       )}
                       <FromStartLine distFromStart={food.distFromStart} timeFromStart={food.timeFromStart} startName={day.startWp.name} useImperial={useImperial} />
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+
+          {activeTab === 'water' && (
+            <div className="space-y-2">
+              {dayData.allWater.length === 0 ? (
+                <div className="text-sm text-tmb-muted text-center py-4">No water sources on this day</div>
+              ) : (
+                dayData.allWater.map((ws, idx) => (
+                  <div key={idx} className="flex items-start gap-3 p-3 rounded-xl bg-tmb-cream/60">
+                    <Droplets className={`w-4 h-4 mt-0.5 shrink-0 ${ws.potable ? 'text-tmb-forest' : 'text-tmb-rust'}`} />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-medium text-tmb-ink">{ws.name}</span>
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-display uppercase ${
+                          ws.potable
+                            ? 'bg-tmb-forest/15 text-tmb-forest'
+                            : 'bg-tmb-rust/15 text-tmb-rust border border-tmb-rust/30'
+                        }`}>
+                          {ws.potable ? ws.type : `${ws.type} · not potable`}
+                        </span>
+                      </div>
+                      <FromStartLine distFromStart={ws.distFromStart} timeFromStart={ws.timeFromStart} startName={day.startWp.name} useImperial={useImperial} />
                     </div>
                   </div>
                 ))
