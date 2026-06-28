@@ -1537,7 +1537,7 @@ const SegmentDetailModal = ({ isOpen, dayIndex, dayData, scenario, formatTime, f
       >
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 w-10 h-10 min-h-[44px] min-w-[44px] flex items-center justify-center text-tmb-muted hover:text-tmb-ink transition-colors rounded-lg hover:bg-tmb-kraft"
+          className="absolute top-3 right-3 w-10 h-10 min-h-[44px] min-w-[44px] flex items-center justify-center text-[#bcd0ad] hover:text-white transition-colors rounded-lg hover:bg-white/10"
         >
           <X className="w-5 h-5" />
         </button>
@@ -1545,14 +1545,14 @@ const SegmentDetailModal = ({ isOpen, dayIndex, dayData, scenario, formatTime, f
         {/* Header */}
         <div className="flex items-center gap-3 mb-4 pr-8">
           <div
-            className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-tmb-ink text-lg sm:text-xl font-bold shrink-0"
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-white text-lg sm:text-xl font-bold shrink-0"
             style={{ backgroundColor: color }}
           >
             {d.day}
           </div>
           <div>
-            <h3 className="text-base sm:text-lg font-semibold text-tmb-ink">Day {d.day}</h3>
-            <div className="flex items-center gap-2 text-xs sm:text-sm text-tmb-muted">
+            <h3 className="text-base sm:text-lg font-semibold text-white">Day {d.day}</h3>
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-[#bcd0ad]">
               <span>{formatDate(d.date)}</span>
               <span>·</span>
               <span>{countries.join(' ')}</span>
@@ -2063,7 +2063,7 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
           className="p-3 rounded-xl border border-tmb-line2 shadow-xl"
           style={{ backgroundColor: 'rgba(42, 39, 32, 0.92)', backdropFilter: 'blur(12px)' }}
         >
-          <div className="text-xs text-tmb-muted uppercase tracking-wider mb-2">Legend</div>
+          <div className="text-xs text-[#bcd0ad] uppercase tracking-wider mb-2">Legend</div>
           <div className="space-y-1.5">
             {dayData.slice(0, Math.min(dayData.length, 8)).map((d, i) => (
               <div
@@ -2074,7 +2074,7 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
                   className="w-4 h-1 rounded-full"
                   style={{ backgroundColor: DAY_COLORS[i % DAY_COLORS.length].main }}
                 />
-                <span className="text-tmb-ink">Day {d.day}</span>
+                <span className="text-[#f4ead2]">Day {d.day}</span>
               </div>
             ))}
             {dayData.length > 8 && (
@@ -2106,11 +2106,11 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
           className="px-3 py-2 rounded-xl text-xs font-medium"
           style={{ backgroundColor: 'rgba(42, 39, 32, 0.85)', backdropFilter: 'blur(8px)' }}
         >
-          <span className="text-tmb-ink">🇫🇷 France</span>
-          <span className="text-tmb-muted mx-2">·</span>
-          <span className="text-tmb-ink">🇮🇹 Italy</span>
-          <span className="text-tmb-muted mx-2">·</span>
-          <span className="text-tmb-ink">🇨🇭 Switzerland</span>
+          <span className="text-[#f4ead2]">🇫🇷 France</span>
+          <span className="text-[#7a6e52] mx-2">·</span>
+          <span className="text-[#f4ead2]">🇮🇹 Italy</span>
+          <span className="text-[#7a6e52] mx-2">·</span>
+          <span className="text-[#f4ead2]">🇨🇭 Switzerland</span>
         </div>
       </div>
 
@@ -2120,8 +2120,8 @@ const TrailMap = ({ dayData, activeShortcuts, formatTime, formatDate, scenario, 
           className="px-3 py-2 rounded-xl"
           style={{ backgroundColor: 'rgba(42, 39, 32, 0.85)', backdropFilter: 'blur(8px)' }}
         >
-          <div className="text-xs text-tmb-muted">Tour du Mont Blanc</div>
-          <div className="text-sm font-semibold text-tmb-ink">
+          <div className="text-xs text-[#bcd0ad]">Tour du Mont Blanc</div>
+          <div className="text-sm font-semibold text-white">
             {WAYPOINTS[WAYPOINTS.length - 1].cumDist.toFixed(0)} km Circuit
           </div>
         </div>
@@ -2200,7 +2200,7 @@ const BookingCard = ({ booking, getFileUrl }) => {
         onClick={() => setExpanded(!expanded)}
         className="w-full p-4 flex items-start gap-3 text-left hover:bg-tmb-cream/60 transition-colors"
       >
-        <div className="w-9 h-9 rounded-lg bg-tmb-forest flex items-center justify-center shrink-0 text-sm font-bold text-tmb-ink">
+        <div className="w-9 h-9 rounded-lg bg-tmb-forest flex items-center justify-center shrink-0 text-sm font-bold text-white">
           {booking.day_index || '—'}
         </div>
         <div className="flex-1 min-w-0">
@@ -2843,8 +2843,8 @@ export default function App() {
           { value: dayData.length, label: 'trail days' },
           { value: bookings?.filter(b => b.phase === 'stage')?.length || dayData.length, label: 'refuges' },
         ].map((m, i) => (
-          <div key={i} className={`py-3 px-2 text-center ${i < 3 ? 'border-r border-tmb-line2' : ''}`}>
-            <span className="font-poster text-xl sm:text-2xl text-tmb-ink block leading-none">{m.value}</span>
+          <div key={i} className={`py-3 px-2 text-center ${i < 3 ? 'border-r border-white/10' : ''}`}>
+            <span className="font-poster text-xl sm:text-2xl text-white block leading-none">{m.value}</span>
             <span className="font-display uppercase tracking-[.16em] text-[9px] sm:text-[10px] text-[#bcd0ad]">{m.label}</span>
           </div>
         ))}
@@ -3470,24 +3470,24 @@ export default function App() {
                       >
                         <div className="flex items-center gap-2 mb-2">
                           <div className="w-3 h-3 rounded-full" style={{ backgroundColor: DAY_COLORS[i % DAY_COLORS.length].main }} />
-                          <span className="font-semibold text-tmb-ink">Day {d.day}</span>
-                          <span className="text-tmb-muted">·</span>
-                          <span className="text-tmb-muted text-xs">{formatDate(d.date)}</span>
+                          <span className="font-semibold text-white">Day {d.day}</span>
+                          <span className="text-[#bcd0ad]">·</span>
+                          <span className="text-[#bcd0ad] text-xs">{formatDate(d.date)}</span>
                         </div>
-                        <div className="text-tmb-ink text-xs mb-2">
+                        <div className="text-[#f4ead2] text-xs mb-2">
                           {d.startWp.name} → {d.endWp.name}
                         </div>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-                          <div className="text-tmb-muted">Distance</div>
-                          <div className="text-right text-tmb-ink">{d.distance} km</div>
-                          <div className="text-tmb-muted">Ascent</div>
-                          <div className="text-right text-tmb-moss">↑{d.ascent}m</div>
-                          <div className="text-tmb-muted">Descent</div>
-                          <div className="text-right text-tmb-rust">↓{d.descent}m</div>
-                          <div className="text-tmb-muted">Time</div>
-                          <div className="text-right text-tmb-ink">{formatTime(d.time)}</div>
-                          <div className="text-tmb-muted">End altitude</div>
-                          <div className="text-right text-tmb-ink">{d.endWp.altitude}m</div>
+                          <div className="text-[#bcd0ad]">Distance</div>
+                          <div className="text-right text-[#f4ead2]">{d.distance} km</div>
+                          <div className="text-[#bcd0ad]">Ascent</div>
+                          <div className="text-right text-[#a8d88e]">↑{d.ascent}m</div>
+                          <div className="text-[#bcd0ad]">Descent</div>
+                          <div className="text-right text-[#e89b7b]">↓{d.descent}m</div>
+                          <div className="text-[#bcd0ad]">Time</div>
+                          <div className="text-right text-[#f4ead2]">{formatTime(d.time)}</div>
+                          <div className="text-[#bcd0ad]">End altitude</div>
+                          <div className="text-right text-[#f4ead2]">{d.endWp.altitude}m</div>
                         </div>
                       </div>
                     </div>
@@ -3522,39 +3522,39 @@ export default function App() {
                       >
                         <div className="flex items-center gap-2 mb-2">
                           <span className="text-lg">{isCableCar ? '🚡' : isBus ? '🚌' : '↗️'}</span>
-                          <span className="font-semibold text-tmb-ink">{shortcut.name}</span>
+                          <span className="font-semibold text-white">{shortcut.name}</span>
                         </div>
-                        <div className="text-xs text-tmb-muted mb-2">{shortcut.description}</div>
+                        <div className="text-xs text-[#bcd0ad] mb-2">{shortcut.description}</div>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-                          <div className="text-tmb-muted">Type</div>
+                          <div className="text-[#bcd0ad]">Type</div>
                           <div className="text-right" style={{ color }}>{shortcut.type.replace('_', ' ')}</div>
                           {shortcut.timeSaved > 0 && (
                             <>
-                              <div className="text-tmb-muted">Time saved</div>
+                              <div className="text-[#bcd0ad]">Time saved</div>
                               <div className="text-right text-tmb-gold">{formatTime(shortcut.timeSaved)}</div>
                             </>
                           )}
                           {shortcut.distanceSaved > 0 && (
                             <>
-                              <div className="text-tmb-muted">Distance saved</div>
+                              <div className="text-[#bcd0ad]">Distance saved</div>
                               <div className="text-right text-tmb-gold">{shortcut.distanceSaved}km</div>
                             </>
                           )}
                           {shortcut.ascentSaved > 0 && (
                             <>
-                              <div className="text-tmb-muted">Ascent saved</div>
+                              <div className="text-[#bcd0ad]">Ascent saved</div>
                               <div className="text-right text-tmb-gold">↑{shortcut.ascentSaved}m</div>
                             </>
                           )}
                           {shortcut.descentSaved > 0 && (
                             <>
-                              <div className="text-tmb-muted">Descent saved</div>
+                              <div className="text-[#bcd0ad]">Descent saved</div>
                               <div className="text-right text-tmb-gold">↓{shortcut.descentSaved}m</div>
                             </>
                           )}
                           {shortcut.cost > 0 && (
                             <>
-                              <div className="text-tmb-muted">Cost</div>
+                              <div className="text-[#bcd0ad]">Cost</div>
                               <div className="text-right text-tmb-amber">€{shortcut.cost}</div>
                             </>
                           )}
