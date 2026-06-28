@@ -3280,8 +3280,19 @@ export default function App() {
 
   // On mount without a share token: check for localStorage to migrate, or check for old ?trip= param
   useEffect(() => {
-    if (urlToken) return; // Already loading from share token
+    if (urlToken) {
+      // Remember the token for bare-URL recovery
+      try { localStorage.setItem('tmb-last-token', urlToken); } catch {}
+      return;
+    }
     if (tripLoading) return;
+
+    // Bare URL — redirect to last-used trip if we have a saved token
+    const lastToken = localStorage.getItem('tmb-last-token');
+    if (lastToken) {
+      navigate(`/t/${lastToken}/${section}`, { replace: true });
+      return;
+    }
 
     // Handle legacy ?trip= snapshot links
     const urlParams = new URLSearchParams(window.location.search);
@@ -3665,7 +3676,7 @@ export default function App() {
         ].map(s => (
           <button
             key={s.id}
-            onClick={() => navigate(urlToken ? `/t/${urlToken}/${s.id}` : `/${s.id}`, { replace: false })}
+            onClick={() => { const tk = urlToken || tripShareToken; navigate(tk ? `/t/${tk}/${s.id}` : `/${s.id}`, { replace: false }); }}
             className={`font-display uppercase tracking-[.13em] text-sm font-semibold px-5 sm:px-7 py-3.5 border-b-4 transition-colors min-h-[48px] ${
               section === s.id
                 ? 'text-tmb-pine border-tmb-rust bg-tmb-cream'
@@ -4665,7 +4676,8 @@ export default function App() {
             <button
               key={tab.id}
               onClick={() => {
-                const path = urlToken ? `/t/${urlToken}/${tab.section}` : `/${tab.section}`;
+                const tk = urlToken || tripShareToken;
+                const path = tk ? `/t/${tk}/${tab.section}` : `/${tab.section}`;
                 navigate(path, { replace: false });
                 if (tab.view) setView(tab.view);
                 else if (tab.section === 'trail') setView('plan');
