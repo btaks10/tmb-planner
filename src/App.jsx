@@ -714,6 +714,23 @@ const ElevationMiniProfile = ({ dayIndex, activeScenario, color }) => {
   );
 };
 
+// "≈2.3 km · ~1h 15m from Les Houches" line
+const FromStartLine = ({ distFromStart, timeFromStart, startName, useImperial }) => {
+  if (distFromStart == null || distFromStart <= 0) return null;
+  const dist = useImperial
+    ? `${(distFromStart * 0.621371).toFixed(1)} mi`
+    : `${distFromStart.toFixed(1)} km`;
+  const roundedMin = Math.round(timeFromStart / 15) * 15;
+  const h = Math.floor(roundedMin / 60);
+  const m = roundedMin % 60;
+  const time = h > 0 ? (m > 0 ? `${h}h ${m}m` : `${h}h`) : `${roundedMin}m`;
+  return (
+    <div className="text-[10px] text-tmb-muted/70 mt-0.5">
+      ≈{dist} · ~{time} from {startName}
+    </div>
+  );
+};
+
 const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, removeDay, selectedShortcuts, onShortcutToggle, useImperial, booking, onBookingClick }) => {
   const [expanded, setExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState('segments');
@@ -735,18 +752,31 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
     return segments;
   }, [prevEnd, activeScenario.days, dayIndex]);
 
+  // The day's starting waypoint (for computing "from start" distances)
+  const dayStartWp = WAYPOINTS[prevEnd];
+
+  // Enrich an item with distance/time from the day's start
+  const enrichWithFromStart = (item, seg) => {
+    const cumDist = seg.fromWp.cumDist + item.position * (seg.toWp.cumDist - seg.fromWp.cumDist);
+    const cumTime = seg.fromWp.cumTime + item.position * (seg.toWp.cumTime - seg.fromWp.cumTime);
+    return {
+      distFromStart: cumDist - dayStartWp.cumDist,
+      timeFromStart: cumTime - dayStartWp.cumTime,
+    };
+  };
+
   // Aggregate all data for the day
   const dayData = useMemo(() => {
     const totalSegments = subSegments.length;
     let allSights = [];
     let allFood = [];
     let allShortcuts = [];
+    let allWater = [];
 
     subSegments.forEach((seg, segIndex) => {
       const segment = segmentData[seg.segmentKey];
       if (!segment) return;
 
-      // Calculate day-wide position for each item
       const segmentStartPosition = segIndex / totalSegments;
       const segmentEndPosition = (segIndex + 1) / totalSegments;
 
@@ -756,6 +786,7 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
           allSights.push({
             ...sight,
             dayPosition,
+            ...enrichWithFromStart(sight, seg),
             segmentKey: seg.segmentKey,
             segmentLabel: `${seg.fromWp.name} → ${seg.toWp.name}`
           });
@@ -768,6 +799,7 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
           allFood.push({
             ...food,
             dayPosition,
+            ...enrichWithFromStart(food, seg),
             segmentKey: seg.segmentKey,
             segmentLabel: `${seg.fromWp.name} → ${seg.toWp.name}`
           });
@@ -780,20 +812,35 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
           allShortcuts.push({
             ...shortcut,
             shortcutId,
+            dayPosition: segmentStartPosition + (shortcut.position * (segmentEndPosition - segmentStartPosition)),
+            ...enrichWithFromStart(shortcut, seg),
             segmentKey: seg.segmentKey,
             segmentLabel: `${seg.fromWp.name} → ${seg.toWp.name}`,
             isSelected: !!selectedShortcuts[shortcutId]
           });
         });
       }
+
+      if (segment.waterSources) {
+        segment.waterSources.forEach(ws => {
+          const dayPosition = segmentStartPosition + (ws.position * (segmentEndPosition - segmentStartPosition));
+          allWater.push({
+            ...ws,
+            dayPosition,
+            ...enrichWithFromStart(ws, seg),
+            segmentKey: seg.segmentKey,
+            segmentLabel: `${seg.fromWp.name} → ${seg.toWp.name}`
+          });
+        });
+      }
     });
 
-    // Sort by day position
     allSights.sort((a, b) => a.dayPosition - b.dayPosition);
     allFood.sort((a, b) => a.dayPosition - b.dayPosition);
+    allWater.sort((a, b) => a.dayPosition - b.dayPosition);
 
-    return { allSights, allFood, allShortcuts };
-  }, [subSegments, selectedShortcuts]);
+    return { allSights, allFood, allShortcuts, allWater };
+  }, [subSegments, selectedShortcuts, dayStartWp]);
 
   // Calculate stats saved from shortcuts for this day's segments
   const daySavings = useMemo(() => {
@@ -1000,7 +1047,7 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                                     )}
                                   </div>
                                   <div className="text-xs text-tmb-muted mt-0.5">{sight.description}</div>
-                                  <div className="text-[10px] text-tmb-muted/70 mt-1">{sight.segmentLabel}</div>
+                                  <FromStartLine distFromStart={sight.distFromStart} timeFromStart={sight.timeFromStart} startName={day.startWp.name} useImperial={useImperial} />
                                 </div>
                                 <ChevronDown className={`w-4 h-4 text-tmb-muted shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                               </button>
@@ -1056,7 +1103,7 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                       {food.specialty && (
                         <div className="text-xs text-tmb-clay/70 mt-1">★ {food.specialty}</div>
                       )}
-                      <div className="text-[10px] text-tmb-muted/70 mt-1">{food.segmentLabel}</div>
+                      <FromStartLine distFromStart={food.distFromStart} timeFromStart={food.timeFromStart} startName={day.startWp.name} useImperial={useImperial} />
                     </div>
                   </div>
                 ))
@@ -1123,7 +1170,7 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                               <span>Skips to {WAYPOINTS[shortcut.skipsToWaypoint]?.name}</span>
                             </div>
                           )}
-                          <div className="text-[10px] text-tmb-muted/70 mt-1">{shortcut.segmentLabel}</div>
+                          <FromStartLine distFromStart={shortcut.distFromStart} timeFromStart={shortcut.timeFromStart} startName={day.startWp.name} useImperial={useImperial} />
                         </div>
                       </div>
                     </div>
