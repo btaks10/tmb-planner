@@ -102,7 +102,7 @@ describe('TransportTab', () => {
   it('has Add button per day', () => {
     renderTab()
     const addButtons = screen.getAllByText('Add')
-    expect(addButtons).toHaveLength(7) // One per day
+    expect(addButtons).toHaveLength(9) // Travel + 7 hike days + Return
   })
 
   it('calls onCreateLeg when Add is clicked', async () => {
@@ -115,7 +115,7 @@ describe('TransportTab', () => {
     expect(props.onCreateLeg).toHaveBeenCalledWith(
       expect.objectContaining({
         trip_id: 'trip-1',
-        day_index: 0,
+        day_index: -1,
         name: 'New transport',
         type: 'bus',
       })

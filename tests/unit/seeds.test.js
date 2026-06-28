@@ -63,21 +63,24 @@ describe('gearSeed.json', () => {
 })
 
 describe('transportSeed.json', () => {
-  it('has 5 transport legs', () => {
-    expect(transportSeed.legs).toHaveLength(5)
-    expect(transportSeed.meta.count).toBe(5)
+  it('has 11 transport legs', () => {
+    expect(transportSeed.legs).toHaveLength(11)
+    expect(transportSeed.meta.count).toBe(11)
   })
 
   it('every leg has required fields', () => {
     for (const leg of transportSeed.legs) {
       expect(leg.name).toBeTruthy()
       expect(typeof leg.day_index).toBe('number')
-      expect(leg.day_index).toBeGreaterThanOrEqual(0)
-      expect(leg.day_index).toBeLessThanOrEqual(6)
+      expect(leg.day_index).toBeGreaterThanOrEqual(-1)
+      expect(leg.day_index).toBeLessThanOrEqual(7)
       expect(leg.type).toBeTruthy()
       expect(leg.from_place).toBeTruthy()
       expect(leg.to_place).toBeTruthy()
-      expect(typeof leg.cost).toBe('number')
+      // Some legs (flights, transfers) have null cost until booked
+      if (leg.cost !== null) {
+        expect(typeof leg.cost).toBe('number')
+      }
       expect(leg.currency).toMatch(/^(EUR|CHF)$/)
     }
   })
