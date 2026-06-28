@@ -1,10 +1,34 @@
 {
   "meta": {
-    "source": "TRAIL_DATA_AUDIT.md + TMB research",
-    "created": "2026-06-27",
-    "count": 5
+    "source": "TRAIL_DATA_AUDIT.md + TMB research + bookings",
+    "created": "2026-06-28",
+    "count": 11
   },
   "legs": [
+    {
+      "day_index": -1,
+      "name": "Flight BCN → GVA",
+      "type": "bus",
+      "from_place": "Barcelona (BCN)",
+      "to_place": "Geneva (GVA)",
+      "depart_time": null,
+      "cost": null,
+      "currency": "EUR",
+      "info": "Outbound flight — to add. Check Vueling / easyJet.",
+      "url": null
+    },
+    {
+      "day_index": -1,
+      "name": "Geneva → Chamonix transfer",
+      "type": "shuttle",
+      "from_place": "Geneva Airport (GVA)",
+      "to_place": "Chamonix",
+      "depart_time": null,
+      "cost": null,
+      "currency": "EUR",
+      "info": "~1h15 by shared shuttle or private transfer. Book Alpybus or Mountain Drop-offs.",
+      "url": "https://www.alpybus.com"
+    },
     {
       "day_index": 0,
       "name": "Téléphérique du Prarion",
@@ -14,7 +38,7 @@
       "depart_time": null,
       "cost": 18.90,
       "currency": "EUR",
-      "info": "Optional shortcut — saves ~2h ascent to Col de Voza. Runs continuously in summer.",
+      "info": "Selected shortcut — saves ~2h ascent to Col de Voza. Runs continuously in summer.",
       "url": null
     },
     {
@@ -26,8 +50,20 @@
       "depart_time": "17:20",
       "cost": 8.00,
       "currency": "EUR",
-      "info": "Evening shuttles: 17:20 / 17:50 / 18:20. Morning: 06:45 / 08:20. Book ahead in peak season.",
+      "info": "Evening shuttles: 17:20 / 17:50 / 18:20. Morning: 06:45 / 08:20. Book ahead in peak season. €8 per person.",
       "url": null
+    },
+    {
+      "day_index": 3,
+      "name": "Bus from Ferret",
+      "type": "bus",
+      "from_place": "Ferret",
+      "to_place": "La Fouly",
+      "depart_time": null,
+      "cost": 5.00,
+      "currency": "CHF",
+      "info": "Selected shortcut — PostBus from Swiss Ferret to La Fouly. Saves descent walk.",
+      "url": "https://www.postauto.ch"
     },
     {
       "day_index": 4,
@@ -38,7 +74,7 @@
       "depart_time": null,
       "cost": 8.40,
       "currency": "CHF",
-      "info": "Swiss PostBus — pay on board with CHF or card. Check SBB.ch for current timetable.",
+      "info": "Selected shortcut — Swiss PostBus. Pay on board with CHF or card. Check SBB.ch for timetable.",
       "url": "https://www.postauto.ch"
     },
     {
@@ -62,8 +98,44 @@
       "depart_time": null,
       "cost": 50.00,
       "currency": "EUR",
-      "info": "La Flégère gondola (€19) + Brévent cable car (€31). Combined ticket may be available. Check Compagnie du Mont-Blanc.",
+      "info": "Selected shortcut — La Flégère gondola (€19) + Brévent cable car (€31). Check Compagnie du Mont-Blanc.",
       "url": "https://www.montblancnaturalresort.com"
+    },
+    {
+      "day_index": 6,
+      "name": "Train to Chamonix / Les Houches",
+      "type": "train",
+      "from_place": "Le Brévent / Planpraz",
+      "to_place": "Chamonix / Les Houches",
+      "depart_time": null,
+      "cost": 5.00,
+      "currency": "EUR",
+      "info": "Selected shortcut — SNCF TER or Mont Blanc Express from Chamonix to Les Houches. ~10 min.",
+      "url": null
+    },
+    {
+      "day_index": 7,
+      "name": "Chamonix → Geneva transfer",
+      "type": "shuttle",
+      "from_place": "Chamonix",
+      "to_place": "Geneva Airport (GVA)",
+      "depart_time": null,
+      "cost": null,
+      "currency": "EUR",
+      "info": "Return transfer — to add. ~1h15. Book Alpybus or Mountain Drop-offs.",
+      "url": "https://www.alpybus.com"
+    },
+    {
+      "day_index": 7,
+      "name": "Flight GVA → BCN",
+      "type": "bus",
+      "from_place": "Geneva (GVA)",
+      "to_place": "Barcelona (BCN)",
+      "depart_time": null,
+      "cost": null,
+      "currency": "EUR",
+      "info": "Return flight — to add. Check Vueling / easyJet.",
+      "url": null
     }
   ]
 }

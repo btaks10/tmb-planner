@@ -133,15 +133,24 @@ function LegCard({ leg, onUpdate, onDelete }) {
 }
 
 // Day header labels matching WAYPOINTS structure
-const DAY_ROUTES = [
-  'Les Houches → Les Contamines',
-  'Les Contamines → Les Chapieux',
-  'Les Chapieux → Courmayeur',
-  'Courmayeur → Rifugio Bonatti',
-  'Rifugio Bonatti → Champex-Lac',
-  'Champex-Lac → Trient',
-  'Trient → Les Houches',
-];
+const DAY_ROUTES = {
+  [-1]: 'Barcelona → Chamonix',
+  0: 'Les Houches → Les Contamines',
+  1: 'Les Contamines → Les Chapieux',
+  2: 'Les Chapieux → Courmayeur',
+  3: 'Courmayeur → Rifugio Bonatti',
+  4: 'Rifugio Bonatti → Champex-Lac',
+  5: 'Champex-Lac → Trient',
+  6: 'Trient → Les Houches',
+  7: 'Chamonix → Barcelona',
+};
+
+const DAY_LABELS = {
+  [-1]: 'Travel',
+  0: 'Day 1', 1: 'Day 2', 2: 'Day 3', 3: 'Day 4',
+  4: 'Day 5', 5: 'Day 6', 6: 'Day 7',
+  7: 'Return',
+};
 
 export default function TransportTab({ legs, legsByDay, loading, error, tripId, onCreateLeg, onUpdateLeg, onDeleteLeg }) {
   const [seeding, setSeeding] = useState(false);
@@ -171,8 +180,10 @@ export default function TransportTab({ legs, legsByDay, loading, error, tripId, 
     for (const leg of legs) {
       if (leg.day_index != null) days.add(leg.day_index);
     }
-    // Always show all 7 days
+    // Always show travel + 7 hike days + return
+    days.add(-1);
     for (let i = 0; i < 7; i++) days.add(i);
+    days.add(7);
     return [...days].sort((a, b) => a - b);
   }, [legs]);
 
@@ -203,7 +214,7 @@ export default function TransportTab({ legs, legsByDay, loading, error, tripId, 
             <div className="px-4 py-3 border-b border-tmb-line2">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-sm font-semibold text-tmb-ink">Day {dayIndex + 1}</span>
+                  <span className="text-sm font-semibold text-tmb-ink">{DAY_LABELS[dayIndex] || `Day ${dayIndex + 1}`}</span>
                   {DAY_ROUTES[dayIndex] && (
                     <span className="text-xs text-tmb-muted ml-2">{DAY_ROUTES[dayIndex]}</span>
                   )}
