@@ -2343,6 +2343,8 @@ const BookingCard = ({ booking, getFileUrl }) => {
 };
 
 const BookingsPanel = ({ bookings, arrivalBooking, totals, gaps, getFileUrl, loading }) => {
+  const [costOpen, setCostOpen] = useState(false);
+
   if (loading) {
     return (
       <GlassCard className="p-8 text-center">
@@ -2363,13 +2365,15 @@ const BookingsPanel = ({ bookings, arrivalBooking, totals, gaps, getFileUrl, loa
   }
 
   const stageBookings = bookings.filter(b => b.phase === 'stage');
+  const lodgingEur = bookings.filter(b => b.currency !== 'CHF' && b.cost).reduce((s, b) => s + Number(b.cost), 0);
+  const lodgingChf = bookings.filter(b => b.currency === 'CHF' && b.cost).reduce((s, b) => s + Number(b.cost), 0);
 
   return (
     <div className="space-y-4">
       {/* Needs Attention */}
       {gaps.length > 0 && (
-        <GlassCard className="p-4 border-l-4 border-l-amber-500/60">
-          <h4 className="text-sm font-semibold text-amber-300 flex items-center gap-2 mb-3">
+        <GlassCard className="p-4 border-l-4 border-l-tmb-amber/60">
+          <h4 className="text-sm font-semibold text-tmb-amber flex items-center gap-2 mb-3">
             <AlertTriangle className="w-4 h-4" /> Needs Attention
           </h4>
           <div className="space-y-2">
@@ -2385,25 +2389,6 @@ const BookingsPanel = ({ bookings, arrivalBooking, totals, gaps, getFileUrl, loa
           </div>
         </GlassCard>
       )}
-
-      {/* Cost Summary */}
-      <GlassCard className="p-4">
-        <h4 className="text-sm font-semibold text-tmb-ink mb-3 flex items-center gap-2">
-          <span className="text-lg">💰</span> Cost Summary
-        </h4>
-        <div className="flex gap-6">
-          <div>
-            <div className="text-2xl font-bold text-tmb-moss">€{totals.eur.toFixed(2)}</div>
-            <div className="text-[10px] text-tmb-muted font-display uppercase tracking-[.12em]">EUR</div>
-          </div>
-          {totals.chf > 0 && (
-            <div>
-              <div className="text-2xl font-bold text-tmb-gold">CHF {totals.chf.toFixed(2)}</div>
-              <div className="text-[10px] text-tmb-muted font-display uppercase tracking-[.12em]">CHF</div>
-            </div>
-          )}
-        </div>
-      </GlassCard>
 
       {/* Arrival Booking */}
       {arrivalBooking && (
@@ -2424,6 +2409,49 @@ const BookingsPanel = ({ bookings, arrivalBooking, totals, gaps, getFileUrl, loa
           </div>
         </div>
       )}
+
+      {/* Cost Summary — bottom, collapsible */}
+      <GlassCard className="overflow-hidden">
+        <button onClick={() => setCostOpen(!costOpen)} className="w-full flex items-center justify-between p-4 hover:bg-tmb-kraft/30 transition-colors">
+          <div className="flex items-center gap-2">
+            {costOpen ? <ChevronDown className="w-4 h-4 text-tmb-muted" /> : <ChevronRight className="w-4 h-4 text-tmb-muted" />}
+            <span className="text-sm font-display uppercase tracking-[.12em] text-tmb-ink">Cost Summary</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="font-display font-semibold text-tmb-moss">€{totals.eur.toFixed(2)}</span>
+            {totals.chf > 0 && <span className="font-display font-semibold text-tmb-gold">CHF {totals.chf.toFixed(2)}</span>}
+          </div>
+        </button>
+        {costOpen && (
+          <div className="border-t border-tmb-line2 p-4 space-y-3">
+            {/* Lodging line items */}
+            <div>
+              <div className="text-[10px] font-display uppercase tracking-[.12em] text-tmb-muted mb-2">Lodging</div>
+              <div className="space-y-1">
+                {bookings.filter(b => b.cost).map((b, i) => (
+                  <div key={i} className="flex items-center justify-between text-xs">
+                    <span className="text-tmb-ink truncate flex-1 mr-2">{b.place_name}{b.day_index ? ` (Day ${b.day_index})` : ''}</span>
+                    <span className="text-tmb-muted font-mono whitespace-nowrap">{b.currency === 'CHF' ? 'CHF ' : '€'}{Number(b.cost).toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Subtotals */}
+            <div className="border-t border-tmb-line2 pt-3">
+              <div className="flex items-center justify-between text-sm">
+                <span className="font-display uppercase tracking-[.08em] text-tmb-muted">Total EUR</span>
+                <span className="font-display font-bold text-tmb-moss">€{totals.eur.toFixed(2)}</span>
+              </div>
+              {totals.chf > 0 && (
+                <div className="flex items-center justify-between text-sm mt-1">
+                  <span className="font-display uppercase tracking-[.08em] text-tmb-muted">Total CHF</span>
+                  <span className="font-display font-bold text-tmb-gold">CHF {totals.chf.toFixed(2)}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </GlassCard>
     </div>
   );
 };
