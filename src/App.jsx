@@ -3271,21 +3271,14 @@ export default function App() {
     setUseImperial(trip.use_imperial ?? true);
   }, [trip?.updated_at]); // eslint-disable-line react-hooks/exhaustive-deps -- intentionally react only to updated_at, not every trip re-render
 
-  // On mount without a share token: check for localStorage to migrate, or check for old ?trip= param
+  // Persist share token for bare-URL recovery; handle legacy/migration on bare URLs
   useEffect(() => {
     if (urlToken) {
-      // Remember the token for bare-URL recovery
+      // Remember the token for bare-URL recovery (TokenRedirect in main.jsx reads this)
       try { localStorage.setItem('tmb-last-token', urlToken); } catch {}
       return;
     }
     if (tripLoading) return;
-
-    // Bare URL — redirect to last-used trip if we have a saved token
-    const lastToken = localStorage.getItem('tmb-last-token');
-    if (lastToken) {
-      navigate(`/t/${lastToken}/${section}`, { replace: true });
-      return;
-    }
 
     // Handle legacy ?trip= snapshot links
     const urlParams = new URLSearchParams(window.location.search);
@@ -3591,6 +3584,23 @@ export default function App() {
     setScenarios(scenarios.map(s => s.id === id ? { ...s, name: newName } : s));
     setIsDirty(true);
   };
+
+  // No share token and no trip — show empty state instead of DEFAULT_DATA
+  if (!urlToken && !trip && !tripLoading && !showMigration) {
+    return (
+      <div className="min-h-screen bg-tmb-cream text-tmb-ink font-body flex items-center justify-center p-6">
+        <div className="max-w-sm w-full text-center">
+          <div className="font-poster uppercase text-4xl text-tmb-pine mb-2">TMB</div>
+          <div className="font-display uppercase tracking-[.16em] text-xs text-tmb-muted mb-6">Tour du Mont Blanc Planner</div>
+          <div className="bg-tmb-paper border border-tmb-line rounded-[13px] p-6 shadow-lg">
+            <h2 className="font-display uppercase tracking-wider text-sm text-tmb-ink mb-2">No Trip Loaded</h2>
+            <p className="text-sm text-tmb-muted leading-relaxed">Open a share link to view your trip. Links look like:</p>
+            <p className="text-xs text-tmb-muted mt-2 font-mono bg-tmb-kraft rounded-lg px-3 py-2 break-all">tmb-planner.vercel.app/t/your-token</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-tmb-cream text-tmb-ink font-body relative">
