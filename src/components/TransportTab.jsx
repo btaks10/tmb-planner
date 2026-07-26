@@ -142,7 +142,7 @@ const DAY_ROUTES = {
   4: 'Rifugio Bonatti → Champex-Lac',
   5: 'Champex-Lac → Trient',
   6: 'Trient → Les Houches',
-  7: 'Chamonix → Barcelona',
+  7: 'Chamonix → Palma',
 };
 
 const DAY_LABELS = {
