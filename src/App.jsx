@@ -18,6 +18,9 @@ import {
 import { decodeScenarioFromUrl } from './lib/share';
 import { getDayData as computeDayData, getTotals, getShortcutSavings } from './lib/itinerary';
 import { migrateLocalStorageToTrip } from './lib/migrate';
+import { getDaySegments } from './lib/timing';
+import { useWeather } from './lib/useWeather';
+import WeatherTimingCard from './components/WeatherTimingCard';
 import {
   Eye, Waves, Mountain, Landmark, Church, Bird, Camera,
   ChevronDown, ChevronRight, Utensils, Home, MapPin,
@@ -65,6 +68,14 @@ const DAY_COLORS = [
   { main: '#a83f24', gradient: 'bg-tmb-rust' },     // rust
   { main: '#e3a93c', gradient: 'bg-tmb-gold' },     // gold
 ];
+
+// Storm-exposure colors for DayMap route segments (timing.js exposure levels)
+const EXPOSURE_COLORS = {
+  none:     { color: '#2e5039', label: 'Sheltered' },
+  moderate: { color: '#e3a93c', label: 'Moderate' },
+  exposed:  { color: '#cf7d2c', label: 'Exposed' },
+  severe:   { color: '#a83f24', label: 'Severe' },
+};
 
 const formatDate = (date) => date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
@@ -745,7 +756,7 @@ const FitDayBounds = ({ bounds }) => {
 };
 
 // Per-day map component showing route + POIs for a single hiking day
-const DayMap = ({ dayIndex, subSegments, dayData, color, day, useImperial, activeScenario }) => {
+const DayMap = ({ dayIndex, subSegments, dayData, color, day, useImperial, activeScenario, selectedShortcuts }) => {
   const prevEnd = dayIndex === 0 ? 0 : activeScenario.days[dayIndex - 1];
   const currentEnd = activeScenario.days[dayIndex];
   const dayStartWp = WAYPOINTS[prevEnd];
@@ -763,6 +774,16 @@ const DayMap = ({ dayIndex, subSegments, dayData, color, day, useImperial, activ
     }
     return positions;
   }, [prevEnd, currentEnd]);
+
+  // Per-segment exposure levels (respects avoidsExposure shortcuts, e.g. lifts)
+  const timedSegments = useMemo(
+    () => getDaySegments(dayIndex, activeScenario, WAYPOINTS, segmentData, { selectedShortcuts }),
+    [dayIndex, activeScenario, selectedShortcuts]
+  );
+  const exposuresOnDay = useMemo(
+    () => [...new Set(timedSegments.map((s) => s.exposure ?? 'none'))],
+    [timedSegments]
+  );
 
   // Enrich item with from-start distance/time (same logic as ExpandableDayCard)
   const enrichWithFromStart = (item, seg) => {
@@ -916,17 +937,33 @@ const DayMap = ({ dayIndex, subSegments, dayData, color, day, useImperial, activ
           maxZoom={19}
         />
 
-        {/* Day route polyline */}
-        <Polyline
-          positions={routePositions}
-          pathOptions={{
-            color: dayColor,
-            weight: 4,
-            opacity: 0.85,
-            lineCap: 'round',
-            lineJoin: 'round',
-          }}
-        />
+        {/* Day route — one polyline per segment, colored by storm exposure */}
+        {timedSegments.map((seg) => {
+          const { fromWp, toWp } = seg;
+          if (!fromWp?.lat || !toWp?.lat) return null;
+          const level = seg.exposure ?? 'none';
+          return (
+            <Polyline
+              key={seg.key}
+              positions={[[fromWp.lat, fromWp.lng], [toWp.lat, toWp.lng]]}
+              pathOptions={{
+                color: EXPOSURE_COLORS[level]?.color ?? dayColor,
+                weight: 4,
+                opacity: 0.85,
+                lineCap: 'round',
+                lineJoin: 'round',
+              }}
+            >
+              <Tooltip sticky className="leaflet-tooltip-custom">
+                <div className="font-display text-xs font-semibold">{fromWp.name} → {toWp.name}</div>
+                <div className="text-[10px] text-gray-500">
+                  Storm exposure: {EXPOSURE_COLORS[level]?.label ?? 'Sheltered'}
+                  {seg.appliedShortcuts.length > 0 && ` · via ${seg.appliedShortcuts.join(', ')}`}
+                </div>
+              </Tooltip>
+            </Polyline>
+          );
+        })}
 
         {/* Start marker (green) */}
         {dayStartWp && (
@@ -1001,13 +1038,22 @@ const DayMap = ({ dayIndex, subSegments, dayData, color, day, useImperial, activ
             <div className="w-2.5 h-2.5 rounded-full border border-[#1c3a2a]" style={{ backgroundColor: dayColor }} />
             <span className="text-[#f4ead2]">End</span>
           </div>
+          {/* Exposure legend — only the levels present on this day */}
+          <div className="flex items-center gap-2 text-[10px] mt-1">
+            {exposuresOnDay.map((level) => (
+              <span key={level} className="flex items-center gap-1">
+                <span className="inline-block w-3 h-[3px] rounded-full" style={{ backgroundColor: EXPOSURE_COLORS[level]?.color }} />
+                <span className="text-[#f4ead2]">{EXPOSURE_COLORS[level]?.label}</span>
+              </span>
+            ))}
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, removeDay, selectedShortcuts, onShortcutToggle, useImperial, booking, onBookingClick }) => {
+const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, removeDay, selectedShortcuts, onShortcutToggle, useImperial, booking, onBookingClick, weather }) => {
   const [expanded, setExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState('segments');
   const [expandedSightId, setExpandedSightId] = useState(null);
@@ -1229,6 +1275,16 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
         )}
       </div>
 
+      {/* Departure-time strip — tap to open the Timing tab */}
+      <WeatherTimingCard
+        compact
+        dayIndex={dayIndex}
+        scenario={activeScenario}
+        selectedShortcuts={selectedShortcuts}
+        weather={weather}
+        onOpen={() => { setExpanded(true); setActiveTab('timing'); }}
+      />
+
       {/* Important booking notes */}
 
       {/* Booking notes alerts */}
@@ -1258,6 +1314,7 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
           {/* Tab bar - scrollable on mobile */}
           <div className="flex gap-1 mb-3 sm:mb-4 pb-3 border-b border-tmb-line2 overflow-x-auto">
             {[
+              { id: 'timing', label: 'Timing', labelFull: 'Timing & Weather' },
               { id: 'segments', label: 'Segments', labelFull: 'By Segment' },
               { id: 'sights', label: 'Sights', labelFull: 'All Sights', count: dayData.allSights.length },
               { id: 'food', label: 'Food', labelFull: 'Food & Refuges', count: dayData.allFood.length },
@@ -1284,6 +1341,15 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
           </div>
 
           {/* Tab content */}
+          {activeTab === 'timing' && (
+            <WeatherTimingCard
+              dayIndex={dayIndex}
+              scenario={activeScenario}
+              selectedShortcuts={selectedShortcuts}
+              weather={weather}
+            />
+          )}
+
           {activeTab === 'segments' && (
             <div className="space-y-1">
               {subSegments.map((seg, idx) => (
@@ -1497,6 +1563,7 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
                 day={day}
                 useImperial={useImperial}
                 activeScenario={activeScenario}
+                selectedShortcuts={selectedShortcuts}
               />
             </MapErrorBoundary>
           )}
@@ -3378,6 +3445,9 @@ export default function App() {
 
   const activeScenario = scenarios.find(s => s.id === activeScenarioId);
 
+  // Forecasts for the 8 decision points (cache-first, offline-safe)
+  const weather = useWeather(activeScenario, WAYPOINTS, segmentData);
+
   const handleShortcutToggle = (shortcutId) => {
     setSelectedShortcuts(prev => ({
       ...prev,
@@ -3869,6 +3939,7 @@ export default function App() {
                         useImperial={useImperial}
                         booking={bookingsByDayIndex?.get(idx + 1)}
                         onBookingClick={setSelectedBooking}
+                        weather={weather}
                       />
                     </div>
                   </div>
