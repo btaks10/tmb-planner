@@ -22,6 +22,7 @@ export default defineConfig({
         ],
       },
       workbox: {
+        globPatterns: ['**/*.{js,css,html,png,svg,jpg}'],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/tile\.thunderforest\.com\/.*/i,

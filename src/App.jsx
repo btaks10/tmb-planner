@@ -36,7 +36,7 @@ import gearSeed from './data/gearSeed.json';
 const STORAGE_KEY = 'tmb-planner-data';
 
 const DEFAULT_DATA = {
-  scenarios: [{ id: 1, name: "7-Day Classic", startDate: "2026-08-01", days: [6, 8, 12, 15, 21, 28, 33] }],
+  scenarios: [{ id: 1, name: "7-Day Classic", startDate: "2026-08-04", days: [6, 8, 12, 15, 21, 26, 33] }],
   activeScenarioId: 1,
   selectedShortcuts: {}
 };
@@ -2848,12 +2848,10 @@ const DocumentViewer = ({ url, filename, kind, isOpen, onClose }) => {
   );
 };
 
-// Check if a booking is missing key info
+// Check if a booking is missing key info (no receipt/confirmation doc uploaded)
 const isBookingIncomplete = (booking) => {
   if (!booking) return true;
-  const noDocuments = !booking.documents || booking.documents.length === 0;
-  const missingFields = !booking.confirmation_no || !booking.cost;
-  return noDocuments || missingFields;
+  return !booking.documents || booking.documents.length === 0;
 };
 
 // Booking detail modal
@@ -2862,7 +2860,10 @@ const BookingDetailModal = ({ booking, isOpen, onClose, getFileUrl, uploadDocume
   const [fileUrls, setFileUrls] = useState({});
   const [uploading, setUploading] = useState(false);
   const [removing, setRemoving] = useState(null);
+  const [photoFailed, setPhotoFailed] = useState(false);
   const fileInputRef = useRef(null);
+
+  useEffect(() => { setPhotoFailed(false); }, [booking?.slug]);
 
   useEffect(() => {
     if (isOpen) {
@@ -2922,6 +2923,16 @@ const BookingDetailModal = ({ booking, isOpen, onClose, getFileUrl, uploadDocume
         </div>
 
         <div className="px-4 sm:px-5 py-4 space-y-4">
+          {/* Lodging photo */}
+          {booking.slug && !photoFailed && (
+            <img
+              src={`/lodging/${booking.slug}.jpg`}
+              alt={booking.place_name}
+              className="w-full h-40 sm:h-48 object-cover rounded-[9px] border border-tmb-line2"
+              onError={() => setPhotoFailed(true)}
+            />
+          )}
+
           {/* Dates & cost row */}
           <div className="flex flex-wrap gap-4">
             {(booking.check_in || booking.check_out) && (
