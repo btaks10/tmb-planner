@@ -142,6 +142,79 @@ describe('computeDayPlan — options', () => {
   });
 });
 
+describe('computeDayPlan — shortcuts', () => {
+  it('checked shortcuts reduce distance, elevation, and walking time', () => {
+    const p = plan(0, { selectedShortcuts: { '0-1-Téléphérique du Prarion': true } });
+    const seg = p.segments[0];
+    expect(seg.walkMin).toBe(50); // 140 − 90
+    expect(seg.dist).toBe(1.0); // 6.0 − 5.0
+    expect(seg.ascent).toBe(80); // 680 − 600
+    expect(seg.appliedShortcuts).toEqual(['Téléphérique du Prarion']);
+    expect(p.walkMin).toBe(420); // 510 − 90
+    // shorter day → later start allowed: 18:00 − (420 + 60) = 10:00
+    expect(p.latestDeparture).toBe(600);
+    expect(p.recommendedDeparture).toBe(480);
+    expect(p.sleepIn).toBe(true);
+  });
+
+  it('unchecked shortcuts change nothing', () => {
+    const base = plan(0);
+    const p = plan(0, { selectedShortcuts: { '0-1-Téléphérique du Prarion': false } });
+    expect(p.walkMin).toBe(base.walkMin);
+    expect(p.latestDeparture).toBe(base.latestDeparture);
+  });
+
+  it('Flégère lift makes day 7 feasible and drops the ladders constraint', () => {
+    const p = plan(6, { selectedShortcuts: { '28-29-Télécabine de la Flégère': true } });
+    expect(p.feasible).toBe(true);
+    expect(p.walkMin).toBe(555); // 675 − 120
+    // Tête aux Vents severe constraint is gone — the lift bypasses it
+    expect(p.constraints.find(c => c.segmentKey === '28-29')).toBeUndefined();
+    expect(p.critical.segmentKey).toBe('31-32'); // Bellachat traverse now binds
+    expect(p.latestDeparture).toBe(405); // 06:45
+    expect(p.recommendedDeparture).toBe(375); // 06:15
+  });
+
+  it('Flégère + Brévent lifts relax day 7 further', () => {
+    const p = plan(6, {
+      selectedShortcuts: {
+        '28-29-Télécabine de la Flégère': true,
+        '30-31-Téléphérique du Brévent': true,
+      },
+    });
+    expect(p.walkMin).toBe(495); // 675 − 120 − 60
+    expect(p.constraints.find(c => c.segmentKey === '30-31')).toBeUndefined();
+    expect(p.latestDeparture).toBe(465); // 07:45, bound by Bellachat traverse
+    expect(p.recommendedDeparture).toBe(435); // 07:15
+    expect(p.feasible).toBe(true);
+  });
+
+  it('Val Ferret low route removes the balcony constraint on day 4 — sleep in', () => {
+    const p = plan(3, { selectedShortcuts: { '14-15-Low route via Val Ferret': true } });
+    expect(p.constraints.find(c => c.kind === 'storm' && c.segmentKey === '14-15')).toBeUndefined();
+    expect(p.critical.segmentKey).toBe('13-14'); // Bertone→Bonatti now binds
+    expect(p.latestDeparture).toBe(615); // 10:15
+    expect(p.sleepIn).toBe(true);
+    expect(p.recommendedDeparture).toBe(480);
+  });
+
+  it('partial lifts do NOT clear exposure (Charamillon gondola only goes partway up)', () => {
+    const p = plan(5, { selectedShortcuts: { '25-26-Télécabine Les Tseppes': true } });
+    const c = p.constraints.find(x => x.segmentKey === '25-26');
+    expect(c).toBeDefined(); // still must clear Col de Balme by 15:00
+    expect(p.walkMin).toBe(425); // 470 − 45: time still counts
+    expect(p.latestDeparture).toBe(415); // 06:55 — later than 06:10, still early
+  });
+
+  it('savings larger than the segment clamp at zero', () => {
+    const p = plan(6, { selectedShortcuts: { '31-32-Téléphérique du Brévent (descent)': true } });
+    const seg = p.segments.find(s => s.key === '31-32');
+    expect(seg.walkMin).toBe(0); // 50 − 120 → clamped
+    expect(seg.descent).toBe(0); // 403 − 1500 → clamped
+    expect(p.constraints.find(c => c.segmentKey === '31-32')).toBeUndefined();
+  });
+});
+
 describe('computeTripPlans', () => {
   it('returns a plan per day', () => {
     const plans = computeTripPlans(SCENARIO, WAYPOINTS, segmentData);

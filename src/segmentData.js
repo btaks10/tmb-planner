@@ -7,6 +7,8 @@
 // - exposure: { level: "moderate"|"exposed"|"severe", exitMin, shelter, note? }
 //     exitMin = minutes from the most committed point to the named shelter
 // - heat: { level, aspect, shade, water } — sun exposure risk on hot afternoons
+// - shortcuts[].avoidsExposure: true — taking this shortcut bypasses the
+//     segment's exposed terrain (timing engine drops its storm constraint)
 
 export const segmentData = {
   "0-1": {
@@ -875,6 +877,7 @@ export const segmentData = {
     shortcuts: [
       {
         name: "Low route via Val Ferret",
+        avoidsExposure: true, // valley floor — off the exposed balcony traverse
         type: "alternate_route",
         description: "Valley floor route instead of high traverse",
         timeSaved: 30,
@@ -1629,6 +1632,7 @@ export const segmentData = {
     shortcuts: [
       {
         name: "Télécabine de la Flégère",
+        avoidsExposure: true, // bypasses the Aiguillette ladders and Tête aux Vents
         type: "cable_car",
         description: "Cable car from Les Praz to La Flégère",
         timeSaved: 120,
@@ -1696,6 +1700,7 @@ export const segmentData = {
     shortcuts: [
       {
         name: "Télécabine de la Flégère (descent)",
+        avoidsExposure: true, // bail-out to the valley — off the exposed balcony
         type: "cable_car",
         description: "Descend from La Flégère to Les Praz / Chamonix",
         timeSaved: 90,
@@ -1710,6 +1715,7 @@ export const segmentData = {
       },
       {
         name: "Cable car Planpraz to Chamonix",
+        avoidsExposure: true, // bail-out to the valley — off the exposed balcony
         type: "cable_car",
         description: "Descend to Chamonix by cable car (Brévent system)",
         timeSaved: 90,
@@ -1762,6 +1768,7 @@ export const segmentData = {
     shortcuts: [
       {
         name: "Téléphérique du Brévent",
+        avoidsExposure: true, // rides over the exposed summit climb
         type: "cable_car",
         description: "Cable car Planpraz to Brévent summit",
         timeSaved: 60,
@@ -1817,6 +1824,7 @@ export const segmentData = {
     shortcuts: [
       {
         name: "Téléphérique du Brévent (descent)",
+        avoidsExposure: true, // skips the exposed Bellachat traverse entirely
         type: "cable_car",
         description: "Cable car from Brévent summit to Chamonix",
         timeSaved: 120,

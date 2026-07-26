@@ -40,7 +40,16 @@ export function breakTimeFor(walkMin, opts = {}) {
   return breaks + lunch;
 }
 
-/** Segments (with exposure/heat/highPoint metadata) covered by a scenario day. */
+/**
+ * Segments (with exposure/heat/highPoint metadata) covered by a scenario day.
+ *
+ * `opts.selectedShortcuts` is the app's selection map keyed
+ * `"fromId-toId-Shortcut Name": true`. Checked shortcuts subtract their
+ * time/distance/ascent/descent savings from the segment (pace multiplier is
+ * applied to walking first — a lift takes the same time regardless of pace).
+ * A shortcut flagged `avoidsExposure` also clears the segment's exposure,
+ * removing its storm constraint (e.g. the Flégère lift bypasses the ladders).
+ */
 export function getDaySegments(dayIndex, scenario, waypoints, segmentData, opts = {}) {
   if (!scenario?.days || !waypoints?.length) return [];
   const o = { ...TIMING_DEFAULTS, ...opts };
@@ -54,17 +63,30 @@ export function getDaySegments(dayIndex, scenario, waypoints, segmentData, opts 
     const toWp = waypoints[id + 1];
     const key = `${id}-${id + 1}`;
     const meta = segmentData?.[key] ?? {};
+
+    const applied = (meta.shortcuts ?? []).filter(
+      (sc) => o.selectedShortcuts?.[`${key}-${sc.name}`]);
+    const saved = applied.reduce((acc, sc) => ({
+      time: acc.time + (sc.timeSaved || 0),
+      dist: acc.dist + (sc.distanceSaved || 0),
+      ascent: acc.ascent + (sc.ascentSaved || 0),
+      descent: acc.descent + (sc.descentSaved || 0),
+    }), { time: 0, dist: 0, ascent: 0, descent: 0 });
+    const bypassed = applied.some((sc) => sc.avoidsExposure);
+
     segs.push({
       key,
       fromWp,
       toWp,
-      dist: +(toWp.cumDist - fromWp.cumDist).toFixed(1),
-      ascent: toWp.ascent - fromWp.ascent,
-      descent: toWp.descent - fromWp.descent,
-      walkMin: Math.round((toWp.cumTime - fromWp.cumTime) * o.paceMultiplier),
-      exposure: meta.exposure ?? null,
+      dist: Math.max(0, +(toWp.cumDist - fromWp.cumDist - saved.dist).toFixed(1)),
+      ascent: Math.max(0, toWp.ascent - fromWp.ascent - saved.ascent),
+      descent: Math.max(0, toWp.descent - fromWp.descent - saved.descent),
+      walkMin: Math.max(0,
+        Math.round((toWp.cumTime - fromWp.cumTime) * o.paceMultiplier) - saved.time),
+      exposure: bypassed ? null : (meta.exposure ?? null),
       heat: meta.heat ?? null,
-      highPoint: meta.highPoint ?? null,
+      highPoint: bypassed ? null : (meta.highPoint ?? null),
+      appliedShortcuts: applied.map((sc) => sc.name),
     });
   }
   return segs;
