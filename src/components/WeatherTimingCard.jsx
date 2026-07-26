@@ -33,35 +33,81 @@ function parseClock(str) {
   return Number(m[1]) * 60 + Number(m[2]);
 }
 
-/** Horizontal convection-clock bar: go / watch / storm bands, 05:00–21:00. */
+/** Day timeline: your hiking hours laid over the go / caution / storm bands, 05:00–21:00. */
 function StormClockBar({ stormWindowStart, departure, arrival, clearBy }) {
   const START = 5 * 60;
   const END = 21 * 60;
   const SPAN = END - START;
-  const pct = (min) => `${Math.max(0, Math.min(100, ((min - START) / SPAN) * 100))}%`;
+  const clampPct = (min) => Math.max(0, Math.min(100, ((min - START) / SPAN) * 100));
+  const pct = (min) => `${clampPct(min)}%`;
   const watchStart = stormWindowStart - 120;
+  const hasHike = departure != null && arrival != null;
 
   return (
     <div className="mt-3">
+      <div className="flex items-baseline justify-between mb-1.5">
+        <span className="font-display uppercase tracking-[.1em] text-[9px] text-tmb-muted">Storm clock</span>
+        <span className="text-[10px] text-tmb-muted">Thunderstorms build from {fmtClock(stormWindowStart)}</span>
+      </div>
+
+      {/* Lane 1 — the storm bands, always fully visible */}
       <div className="relative h-3 rounded-full overflow-hidden flex border border-tmb-line2">
         <div className="h-full bg-tmb-moss/50" style={{ width: pct(watchStart) }} />
-        <div className="h-full bg-tmb-gold/60" style={{ width: `${((Math.min(stormWindowStart, END) - Math.max(watchStart, START)) / SPAN) * 100}%` }} />
-        <div className="h-full bg-tmb-rust/55 flex-1" />
-        {departure != null && (
-          <div className="absolute top-0 h-full w-[2px] bg-tmb-ink" style={{ left: pct(departure) }} title={`Depart ${fmtClock(departure)}`} />
-        )}
-        {arrival != null && (
-          <div className="absolute top-0 h-full w-[2px] bg-tmb-pine" style={{ left: pct(arrival) }} title={`Arrive ${fmtClock(arrival)}`} />
-        )}
+        <div className="h-full bg-tmb-gold/60" style={{ width: `${clampPct(stormWindowStart) - clampPct(watchStart)}%` }} />
+        <div className="h-full bg-tmb-rust/50 flex-1" />
         {clearBy != null && (
-          <div className="absolute top-0 h-full w-[2px] bg-white/90" style={{ left: pct(clearBy) }} title={`Clear by ${fmtClock(clearBy)}`} />
+          <div
+            className="absolute top-0 h-full w-[2px] bg-tmb-rust"
+            style={{ left: pct(clearBy) }}
+            title={`Off high ground by ${fmtClock(clearBy)}`}
+          />
         )}
       </div>
-      <div className="flex justify-between mt-1 font-display uppercase tracking-[.08em] text-[9px] text-tmb-muted">
-        <span>05:00</span>
-        <span>Go until {fmtClock(watchStart)}</span>
-        <span>Storms {fmtClock(stormWindowStart)}+</span>
-        <span>21:00</span>
+
+      {/* Lane 2 — your hike, on its own line below the bands */}
+      {hasHike && (
+        <div className="relative h-[7px] mt-1">
+          <div
+            className="absolute top-0 h-full rounded-full bg-tmb-ink"
+            style={{ left: pct(departure), width: `${Math.max(1.5, clampPct(arrival) - clampPct(departure))}%` }}
+            title={`Walking ${fmtClock(departure)}–${fmtClock(arrival)}`}
+          />
+        </div>
+      )}
+
+      {/* Time axis: band boundaries labeled at their positions */}
+      <div className="relative h-3.5 mt-0.5 font-display text-[9px] text-tmb-muted">
+        <span className="absolute left-0">05:00</span>
+        <span className="absolute -translate-x-1/2" style={{ left: pct(watchStart) }}>{fmtClock(watchStart)}</span>
+        <span className="absolute -translate-x-1/2" style={{ left: pct(stormWindowStart) }}>{fmtClock(stormWindowStart)}</span>
+        <span className="absolute right-0">21:00</span>
+      </div>
+
+      {/* Legend with the actual times */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-0.5 text-[10px] text-tmb-muted">
+        {hasHike && (
+          <span className="flex items-center gap-1.5">
+            <span className="inline-block w-4 h-[5px] rounded-full bg-tmb-ink" />
+            Your hike {fmtClock(departure)}–{fmtClock(arrival)}
+          </span>
+        )}
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block w-3 h-[8px] rounded-sm bg-tmb-moss/50 border border-tmb-line2" />
+          Go until {fmtClock(watchStart)}
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block w-3 h-[8px] rounded-sm bg-tmb-gold/60 border border-tmb-line2" />
+          Caution {fmtClock(watchStart)}–{fmtClock(stormWindowStart)}
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block w-3 h-[8px] rounded-sm bg-tmb-rust/50 border border-tmb-line2" />
+          Storm risk {fmtClock(stormWindowStart)}+
+        </span>
+        {clearBy != null && (
+          <span className="flex items-center gap-1.5">
+            <span className="inline-block w-[2px] h-3 bg-tmb-rust" />Off high ground by {fmtClock(clearBy)}
+          </span>
+        )}
       </div>
     </div>
   );
@@ -149,7 +195,7 @@ export default function WeatherTimingCard({
     : [];
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 px-3 sm:px-4 pb-2">
       {/* Headline: the three moments */}
       <div className="flex gap-0 flex-wrap">
         {plan.feasible ? (
@@ -195,7 +241,10 @@ export default function WeatherTimingCard({
             {' '}— south-facing, no shade once the sun is on it.
           </>
         ) : (
-          <>Bound by dinner: <span className="font-semibold text-tmb-ink">{critical.label.toLowerCase()}</span> ({fmtClock(critical.clearBy)}).</>
+          <>
+            <span className="font-semibold text-tmb-ink">Arrive by {fmtClock(critical.clearBy)}</span>
+            {' '}— a long day bound by dinner service, not storms.
+          </>
         )}
       </div>
 
