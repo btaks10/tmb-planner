@@ -1255,23 +1255,25 @@ const ExpandableDayCard = ({ day, dayIndex, color, activeScenario, updateDay, re
         {/* Mini elevation profile */}
         <ElevationMiniProfile dayIndex={dayIndex} activeScenario={activeScenario} color={color} />
 
-        {/* Refuge/stay tag — clickable to open booking modal */}
-        {booking && (
+        {/* Refuge/stay tag — fixed-width column so elevation profiles align across cards */}
+        {booking ? (
           <button
             onClick={(e) => { e.stopPropagation(); onBookingClick?.(booking); }}
-            className="flex items-center gap-2 bg-[#f1e7cf] border border-tmb-line rounded-[9px] px-2.5 py-1.5 shrink-0 hover:bg-[#eddfc0] transition-colors cursor-pointer"
+            className="flex items-center gap-2 bg-[#f1e7cf] border border-tmb-line rounded-[9px] px-2.5 py-1.5 shrink-0 sm:w-56 hover:bg-[#eddfc0] transition-colors cursor-pointer"
           >
-            <div className="w-6 h-6 rounded-md bg-tmb-forest text-[#f3e7c9] flex items-center justify-center text-sm">▲</div>
-            <div className="text-left">
+            <div className="w-6 h-6 rounded-md bg-tmb-forest text-[#f3e7c9] flex items-center justify-center text-sm shrink-0">▲</div>
+            <div className="text-left min-w-0 flex-1">
               <div className="font-display uppercase tracking-[.05em] text-[8px] text-tmb-muted">Night</div>
-              <div className="font-semibold text-xs text-tmb-pine leading-tight">{booking.place_name}</div>
+              <div className="font-semibold text-xs text-tmb-pine leading-tight truncate">{booking.place_name.split(',')[0]}</div>
             </div>
             {isBookingIncomplete(booking) ? (
-              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-tmb-amber/15 text-tmb-amber border border-tmb-amber/30 font-display uppercase">In progress</span>
+              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-tmb-amber/15 text-tmb-amber border border-tmb-amber/30 font-display uppercase shrink-0">In progress</span>
             ) : booking.status ? (
-              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-tmb-moss/20 text-tmb-moss border border-tmb-moss/30 font-display uppercase">{booking.status}</span>
+              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-tmb-moss/20 text-tmb-moss border border-tmb-moss/30 font-display uppercase shrink-0">{booking.status}</span>
             ) : null}
           </button>
+        ) : (
+          <div className="hidden sm:block sm:w-56 shrink-0" />
         )}
       </div>
 
