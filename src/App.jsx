@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useRef, useCallback, Component } from 're
 import { createPortal } from 'react-dom';
 import { useParams, useNavigate } from 'react-router-dom';
 import { segmentData } from './segmentData';
+import { WAYPOINTS } from './waypoints';
 import { useTrip } from './lib/useTrip';
 import { useBookings } from './lib/useBookings';
 import { useGearItems } from './lib/useGearItems';
@@ -40,43 +41,6 @@ const DEFAULT_DATA = {
   activeScenarioId: 1,
   selectedShortcuts: {}
 };
-
-const WAYPOINTS = [
-  { id: 0, name: "Les Houches", altitude: 1007, cumDist: 0, cumTime: 0, ascent: 0, descent: 0, stage: 1, lat: 45.8906, lng: 6.7986 },
-  { id: 1, name: "Col de Voza", altitude: 1657, cumDist: 6.0, cumTime: 150, ascent: 660, descent: 20, stage: 1, lat: 45.8667, lng: 6.7667 },
-  { id: 2, name: "Hôtel du Prarion", altitude: 1860, cumDist: 6.8, cumTime: 165, ascent: 660, descent: 20, stage: 1, lat: 45.8580, lng: 6.7550 },
-  { id: 3, name: "Les Contamines", altitude: 1161, cumDist: 17.5, cumTime: 355, ascent: 1000, descent: 530, stage: 2, lat: 45.8206, lng: 6.7267 },
-  { id: 4, name: "Notre-Dame de la Gorge", altitude: 1210, cumDist: 18.5, cumTime: 395, ascent: 1060, descent: 540, stage: 2, lat: 45.7950, lng: 6.7150 },
-  { id: 5, name: "Nant Borrant", altitude: 1459, cumDist: 22.3, cumTime: 440, ascent: 1310, descent: 540, stage: 2, lat: 45.7750, lng: 6.7050 },
-  { id: 6, name: "Refuge de la Balme", altitude: 1706, cumDist: 27.3, cumTime: 525, ascent: 1560, descent: 610, stage: 2, lat: 45.7600, lng: 6.6833 },
-  { id: 7, name: "Refuge de la Croix du Bonhomme", altitude: 2433, cumDist: 32.3, cumTime: 615, ascent: 2350, descent: 680, stage: 3, lat: 45.7350, lng: 6.7100 },
-  { id: 8, name: "Les Chapieux", altitude: 1554, cumDist: 37.3, cumTime: 705, ascent: 2660, descent: 1560, stage: 3, lat: 45.7167, lng: 6.7333 },
-  { id: 9, name: "Refuge des Mottets", altitude: 1868, cumDist: 42.3, cumTime: 795, ascent: 2970, descent: 1570, stage: 4, lat: 45.7350, lng: 6.8050 },
-  { id: 10, name: "Rifugio Elisabetta", altitude: 2195, cumDist: 46.0, cumTime: 885, ascent: 3340, descent: 1790, stage: 4, lat: 45.7667, lng: 6.8500 },
-  { id: 11, name: "Lac Combal", altitude: 1968, cumDist: 49.6, cumTime: 935, ascent: 3340, descent: 2010, stage: 4, lat: 45.7750, lng: 6.8800 },
-  { id: 12, name: "Courmayeur", altitude: 1226, cumDist: 56.0, cumTime: 1050, ascent: 3380, descent: 2760, stage: 4, lat: 45.7967, lng: 6.9694 },
-  { id: 13, name: "Rifugio Bertone", altitude: 1989, cumDist: 60.3, cumTime: 1170, ascent: 4140, descent: 2780, stage: 5, lat: 45.8167, lng: 6.9667 },
-  { id: 14, name: "Rifugio Bonatti", altitude: 2025, cumDist: 68.0, cumTime: 1320, ascent: 4470, descent: 3070, stage: 5, lat: 45.8833, lng: 7.0167 },
-  { id: 15, name: "Rifugio Elena", altitude: 2062, cumDist: 75.9, cumTime: 1470, ascent: 4960, descent: 3460, stage: 6, lat: 45.8917, lng: 7.0500 },
-  { id: 16, name: "La Peule", altitude: 1705, cumDist: 79.8, cumTime: 1530, ascent: 4980, descent: 3840, stage: 6, lat: 45.9100, lng: 7.0700 },
-  { id: 17, name: "Ferret", altitude: 1700, cumDist: 82.6, cumTime: 1570, ascent: 5000, descent: 3860, stage: 6, lat: 45.9250, lng: 7.1050 },
-  { id: 18, name: "La Fouly", altitude: 1610, cumDist: 89.6, cumTime: 1680, ascent: 5020, descent: 4390, stage: 7, lat: 45.9433, lng: 7.0967 },
-  { id: 19, name: "Praz-de-Fort", altitude: 1151, cumDist: 97.9, cumTime: 1815, ascent: 5090, descent: 4920, stage: 7, lat: 45.9817, lng: 7.1100 },
-  { id: 20, name: "Issert", altitude: 1055, cumDist: 100.4, cumTime: 1845, ascent: 5090, descent: 5020, stage: 7, lat: 46.0017, lng: 7.1150 },
-  { id: 21, name: "Champex-Lac", altitude: 1467, cumDist: 105.6, cumTime: 1935, ascent: 5540, descent: 5060, stage: 7, lat: 46.0290, lng: 7.1210 },
-  { id: 22, name: "Plan de l'Au", altitude: 1330, cumDist: 110.3, cumTime: 2015, ascent: 5570, descent: 5200, stage: 8, lat: 46.0450, lng: 7.0800 },
-  { id: 23, name: "Bovine", altitude: 1987, cumDist: 114.5, cumTime: 2135, ascent: 5870, descent: 5340, stage: 8, lat: 46.0600, lng: 7.0500 },
-  { id: 24, name: "Col de la Forclaz", altitude: 1526, cumDist: 119.0, cumTime: 2235, ascent: 5920, descent: 5950, stage: 8, lat: 46.0600, lng: 7.0100 },
-  { id: 25, name: "Trient", altitude: 1279, cumDist: 121.1, cumTime: 2275, ascent: 5920, descent: 6200, stage: 8, lat: 46.0567, lng: 7.0233 },
-  { id: 26, name: "Col de Balme", altitude: 2191, cumDist: 127.1, cumTime: 2415, ascent: 6730, descent: 6200, stage: 9, lat: 46.0280, lng: 6.9710 },
-  { id: 27, name: "Le Tour", altitude: 1460, cumDist: 133.1, cumTime: 2515, ascent: 6730, descent: 6950, stage: 9, lat: 45.9983, lng: 6.9433 },
-  { id: 28, name: "Tré-le-Champ", altitude: 1417, cumDist: 141.1, cumTime: 2645, ascent: 6970, descent: 7960, stage: 9, lat: 45.9750, lng: 6.9200 },
-  { id: 29, name: "La Flégère", altitude: 1875, cumDist: 148.9, cumTime: 2855, ascent: 7770, descent: 8300, stage: 10, lat: 45.9583, lng: 6.8883 },
-  { id: 30, name: "Planpraz", altitude: 2000, cumDist: 151.7, cumTime: 2930, ascent: 8110, descent: 8340, stage: 10, lat: 45.9400, lng: 6.8650 },
-  { id: 31, name: "Brévent", altitude: 2525, cumDist: 154.5, cumTime: 3020, ascent: 8600, descent: 8380, stage: 11, lat: 45.9333, lng: 6.8375 },
-  { id: 32, name: "Bellachat", altitude: 2152, cumDist: 157.1, cumTime: 3065, ascent: 8620, descent: 8770, stage: 11, lat: 45.9150, lng: 6.8200 },
-  { id: 33, name: "Les Houches (End)", altitude: 1007, cumDist: 164.6, cumTime: 3205, ascent: 8660, descent: 9960, stage: 11, lat: 45.8906, lng: 6.7986 },
-];
 
 // Interpolate lat/lng for a POI from its position between two bounding waypoints
 const poiLatLng = (position, fromWp, toWp) => {

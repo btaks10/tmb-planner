@@ -6,48 +6,13 @@ import {
   getDaySavings,
 } from '../../src/lib/itinerary';
 
-// Inline WAYPOINTS for test isolation (same data as App.jsx)
-const WAYPOINTS = [
-  { id: 0, name: 'Les Houches', altitude: 1007, cumDist: 0, cumTime: 0, ascent: 0, descent: 0 },
-  { id: 1, name: 'Col de Voza', altitude: 1657, cumDist: 6.0, cumTime: 150, ascent: 660, descent: 20 },
-  { id: 2, name: 'Hôtel du Prarion', altitude: 1860, cumDist: 6.8, cumTime: 165, ascent: 660, descent: 20 },
-  { id: 3, name: 'Les Contamines', altitude: 1161, cumDist: 17.5, cumTime: 355, ascent: 1000, descent: 530 },
-  { id: 4, name: 'Notre-Dame de la Gorge', altitude: 1210, cumDist: 18.5, cumTime: 395, ascent: 1060, descent: 540 },
-  { id: 5, name: 'Nant Borrant', altitude: 1459, cumDist: 22.3, cumTime: 440, ascent: 1310, descent: 540 },
-  { id: 6, name: 'Refuge de la Balme', altitude: 1706, cumDist: 27.3, cumTime: 525, ascent: 1560, descent: 610 },
-  { id: 7, name: 'Refuge de la Croix du Bonhomme', altitude: 2433, cumDist: 32.3, cumTime: 615, ascent: 2350, descent: 680 },
-  { id: 8, name: 'Les Chapieux', altitude: 1554, cumDist: 37.3, cumTime: 705, ascent: 2660, descent: 1560 },
-  { id: 9, name: 'Refuge des Mottets', altitude: 1868, cumDist: 42.3, cumTime: 795, ascent: 2970, descent: 1570 },
-  { id: 10, name: 'Rifugio Elisabetta', altitude: 2195, cumDist: 46.0, cumTime: 885, ascent: 3340, descent: 1790 },
-  { id: 11, name: 'Lac Combal', altitude: 1968, cumDist: 49.6, cumTime: 935, ascent: 3340, descent: 2010 },
-  { id: 12, name: 'Courmayeur', altitude: 1226, cumDist: 56.0, cumTime: 1050, ascent: 3380, descent: 2760 },
-  { id: 13, name: 'Rifugio Bertone', altitude: 1989, cumDist: 60.3, cumTime: 1170, ascent: 4140, descent: 2780 },
-  { id: 14, name: 'Rifugio Bonatti', altitude: 2025, cumDist: 68.0, cumTime: 1320, ascent: 4470, descent: 3070 },
-  { id: 15, name: 'Rifugio Elena', altitude: 2062, cumDist: 75.9, cumTime: 1470, ascent: 4960, descent: 3460 },
-  { id: 16, name: 'La Peule', altitude: 1705, cumDist: 79.8, cumTime: 1530, ascent: 4980, descent: 3840 },
-  { id: 17, name: 'Ferret', altitude: 1700, cumDist: 82.6, cumTime: 1570, ascent: 5000, descent: 3860 },
-  { id: 18, name: 'La Fouly', altitude: 1610, cumDist: 89.6, cumTime: 1680, ascent: 5020, descent: 4390 },
-  { id: 19, name: 'Praz-de-Fort', altitude: 1151, cumDist: 97.9, cumTime: 1815, ascent: 5090, descent: 4920 },
-  { id: 20, name: 'Issert', altitude: 1055, cumDist: 100.4, cumTime: 1845, ascent: 5090, descent: 5020 },
-  { id: 21, name: 'Champex-Lac', altitude: 1467, cumDist: 105.6, cumTime: 1935, ascent: 5540, descent: 5060 },
-  { id: 22, name: 'Plan de l\'Au', altitude: 1330, cumDist: 110.3, cumTime: 2015, ascent: 5570, descent: 5200 },
-  { id: 23, name: 'Bovine', altitude: 1987, cumDist: 114.5, cumTime: 2135, ascent: 5870, descent: 5340 },
-  { id: 24, name: 'Col de la Forclaz', altitude: 1526, cumDist: 119.0, cumTime: 2235, ascent: 5920, descent: 5950 },
-  { id: 25, name: 'Trient', altitude: 1279, cumDist: 121.1, cumTime: 2275, ascent: 5920, descent: 6200 },
-  { id: 26, name: 'Col de Balme', altitude: 2191, cumDist: 127.1, cumTime: 2415, ascent: 6730, descent: 6200 },
-  { id: 27, name: 'Le Tour', altitude: 1460, cumDist: 133.1, cumTime: 2515, ascent: 6730, descent: 6950 },
-  { id: 28, name: 'Tré-le-Champ', altitude: 1417, cumDist: 141.1, cumTime: 2645, ascent: 6970, descent: 7960 },
-  { id: 29, name: 'La Flégère', altitude: 1875, cumDist: 148.9, cumTime: 2855, ascent: 7770, descent: 8300 },
-  { id: 30, name: 'Planpraz', altitude: 2000, cumDist: 151.7, cumTime: 2930, ascent: 8110, descent: 8340 },
-  { id: 31, name: 'Brévent', altitude: 2525, cumDist: 154.5, cumTime: 3020, ascent: 8600, descent: 8380 },
-  { id: 32, name: 'Bellachat', altitude: 2152, cumDist: 157.1, cumTime: 3065, ascent: 8620, descent: 8770 },
-  { id: 33, name: 'Les Houches (End)', altitude: 1007, cumDist: 164.6, cumTime: 3205, ascent: 8660, descent: 9960 },
-];
+// Real route data — single source of truth (no drifting test mirror)
+import { WAYPOINTS } from '../../src/waypoints';
 
 const DEFAULT_SPLITS = [6, 8, 12, 15, 21, 26, 33];
 const DEFAULT_SCENARIO = {
   name: '7-Day Classic',
-  startDate: '2026-08-05',
+  startDate: '2026-08-04',
   days: DEFAULT_SPLITS,
 };
 
@@ -62,17 +27,17 @@ describe('getDayData', () => {
     const day1 = days[0];
     expect(day1.startWp.name).toBe('Les Houches');
     expect(day1.endWp.name).toBe('Refuge de la Balme');
-    expect(parseFloat(day1.distance)).toBeCloseTo(27.3, 1);
-    expect(day1.time).toBe(525);
-    expect(day1.ascent).toBe(1560);
-    expect(day1.descent).toBe(610);
+    expect(parseFloat(day1.distance)).toBeCloseTo(25.8, 1);
+    expect(day1.time).toBe(510);
+    expect(day1.ascent).toBe(1615);
+    expect(day1.descent).toBe(916);
   });
 
   it('computes correct dates from startDate', () => {
     const days = getDayData(DEFAULT_SCENARIO, WAYPOINTS);
-    expect(days[0].date.toISOString().slice(0, 10)).toBe('2026-08-05');
-    expect(days[1].date.toISOString().slice(0, 10)).toBe('2026-08-06');
-    expect(days[6].date.toISOString().slice(0, 10)).toBe('2026-08-11');
+    expect(days[0].date.toISOString().slice(0, 10)).toBe('2026-08-04');
+    expect(days[1].date.toISOString().slice(0, 10)).toBe('2026-08-05');
+    expect(days[6].date.toISOString().slice(0, 10)).toBe('2026-08-10');
   });
 
   it('returns empty array for null scenario', () => {
@@ -103,16 +68,16 @@ describe('getTotals', () => {
     const days = getDayData(DEFAULT_SCENARIO, WAYPOINTS);
     const totals = getTotals(days);
 
-    // Sanity bounds from TESTING.md: ~165 km, ~8600 m ascent, ~9960 m descent
-    expect(totals.distance).toBeCloseTo(164.6, 0);
-    expect(totals.ascent).toBe(8660);
-    expect(totals.descent).toBe(9960);
+    // Corrected route data (2026-07): 170.2 km, ±9508 m (loop closes)
+    expect(totals.distance).toBeCloseTo(170.2, 0);
+    expect(totals.ascent).toBe(9508);
+    expect(totals.descent).toBe(9508);
   });
 
   it('total time equals cumulative time of last waypoint', () => {
     const days = getDayData(DEFAULT_SCENARIO, WAYPOINTS);
     const totals = getTotals(days);
-    expect(totals.time).toBe(3205);
+    expect(totals.time).toBe(3375);
   });
 
   it('returns zeros for empty array', () => {

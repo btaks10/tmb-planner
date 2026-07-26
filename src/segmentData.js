@@ -1,9 +1,18 @@
-// TMB Segment Data - Clockwise from Les Houches
-// Each key is "fromId-toId" matching waypoint IDs in App.jsx
+// TMB Segment Data - Anticlockwise from Les Houches
+// Each key is "fromId-toId" matching waypoint IDs in src/waypoints.js
+//
+// Weather & Timing fields (optional per segment; absent = sheltered / no heat concern):
+// - highPoint: { name, altitude, position (0–1 fraction of segment), lat, lng }
+//     intermediate col/high point not represented as its own waypoint
+// - exposure: { level: "moderate"|"exposed"|"severe", exitMin, shelter, note? }
+//     exitMin = minutes from the most committed point to the named shelter
+// - heat: { level, aspect, shade, water } — sun exposure risk on hot afternoons
 
 export const segmentData = {
   "0-1": {
-    // Les Houches (1007m) → Col de Voza (1657m) | 6.0km | +660m | 2h30
+    // Les Houches (1007m) → Col de Voza (1657m) | 6.0km | +680m -30m | 2h20
+    exposure: { level: "moderate", exitMin: 25, shelter: "Col de Voza buildings (ahead)" },
+    heat: { level: "moderate", aspect: "S", shade: "partial", water: "scarce" },
     sights: [
       {
         name: "Les Houches Village",
@@ -149,7 +158,7 @@ export const segmentData = {
   },
 
   "2-3": {
-    // Hôtel du Prarion (1860m) → Les Contamines (1161m) | 10.7km | +340m -1040m | 4h
+    // Hôtel du Prarion (1860m) → Les Contamines (1161m) | 9.5km | +150m -849m | 2h45
     sights: [
       {
         name: "Bionnassay Glacier View",
@@ -245,7 +254,7 @@ export const segmentData = {
   },
 
   "3-4": {
-    // Les Contamines (1161m) → Notre-Dame de la Gorge (1210m) | 1.0km | +50m | 20min
+    // Les Contamines (1161m) → Notre-Dame de la Gorge (1210m) | 3.2km | +60m -11m | 45min
     sights: [
       {
         name: "Les Contamines Village",
@@ -293,7 +302,7 @@ export const segmentData = {
   },
 
   "4-5": {
-    // Notre-Dame de la Gorge (1210m) → Nant Borrant (1459m) | 3.8km | +250m | 1h15
+    // Notre-Dame de la Gorge (1210m) → Nant Borrant (1459m) | 1.9km | +255m -6m | 50min
     sights: [
       {
         name: "Roman Road",
@@ -341,7 +350,8 @@ export const segmentData = {
   },
 
   "5-6": {
-    // Nant Borrant (1459m) → Refuge de la Balme (1706m) | 5.0km | +250m | 1h45
+    // Nant Borrant (1459m) → Refuge de la Balme (1706m) | 4.4km | +260m -13m | 1h20
+    exposure: { level: "moderate", exitMin: 25, shelter: "Refuge de la Balme (ahead)" },
     sights: [
       {
         name: "La Balme Valley",
@@ -378,7 +388,9 @@ export const segmentData = {
   },
 
   "6-7": {
-    // Refuge de la Balme (1706m) → Refuge de la Croix du Bonhomme (2433m) | 5.0km | +790m | 2h30
+    // Refuge de la Balme (1706m) → Refuge de la Croix du Bonhomme (2433m) | 6.8km | +830m -103m | 2h50
+    highPoint: { name: "Col du Bonhomme", altitude: 2329, position: 0.59, lat: 45.7350, lng: 6.7066 },
+    exposure: { level: "severe", exitMin: 60, shelter: "Refuge de la Croix du Bonhomme (ahead)", note: "Above treeline from Plan des Dames; no shelter between La Balme and Croix du Bonhomme" },
     sights: [
       {
         name: "Col du Bonhomme",
@@ -428,7 +440,8 @@ export const segmentData = {
   },
 
   "7-8": {
-    // Refuge de la Croix du Bonhomme (2433m) → Les Chapieux (1554m) | 5.0km | -880m | 2h
+    // Refuge de la Croix du Bonhomme (2433m) → Les Chapieux (1554m) | 5.3km | +20m -899m | 1h40
+    exposure: { level: "moderate", exitMin: 30, shelter: "Les Chapieux (ahead)" },
     sights: [
       {
         name: "Vallée des Glaciers View",
@@ -501,7 +514,7 @@ export const segmentData = {
   },
 
   "8-9": {
-    // Les Chapieux (1554m) → Refuge des Mottets (1868m) | 5.0km | +310m | 1h45
+    // Les Chapieux (1554m) → Refuge des Mottets (1868m) | 6.4km | +320m -6m | 1h50
     sights: [
       {
         name: "Vallée des Glaciers",
@@ -538,7 +551,9 @@ export const segmentData = {
   },
 
   "9-10": {
-    // Refuge des Mottets (1868m) → Rifugio Elisabetta (2195m) | 3.7km | +370m | 1h30
+    // Refuge des Mottets (1868m) → Rifugio Elisabetta (2195m) | 8.1km | +655m -328m | 2h55
+    highPoint: { name: "Col de la Seigne", altitude: 2516, position: 0.57, lat: 45.7514, lng: 6.8072 },
+    exposure: { level: "severe", exitMin: 50, shelter: "Rifugio Elisabetta (ahead)", note: "Col de la Seigne open on both sides; Les Mottets behind" },
     sights: [
       {
         name: "Col de la Seigne",
@@ -589,7 +604,8 @@ export const segmentData = {
   },
 
   "10-11": {
-    // Rifugio Elisabetta (2195m) → Lac Combal (1968m) | 3.6km | -220m | 1h15
+    // Rifugio Elisabetta (2195m) → Lac Combal (1968m) | 3.5km | +10m -237m | 55min
+    exposure: { level: "moderate", exitMin: 25, shelter: "Cabane du Combal (ahead)" },
     sights: [
       {
         name: "Lago di Combal",
@@ -628,7 +644,7 @@ export const segmentData = {
   },
 
   "11-12": {
-    // Lac Combal (1968m) → Courmayeur (1226m) | 6.4km | +40m -750m | 2h30
+    // Lac Combal (1968m) → Courmayeur (1226m) | 12.1km | +80m -822m | 3h05
     sights: [
       {
         name: "Val Veny",
@@ -691,7 +707,9 @@ export const segmentData = {
   },
 
   "12-13": {
-    // Courmayeur (1226m) → Rifugio Bertone (1989m) | 4.3km | +760m | 2h30
+    // Courmayeur (1226m) → Rifugio Bertone (1989m) | 4.3km | +770m -7m | 2h10
+    exposure: { level: "moderate", exitMin: 30, shelter: "Rifugio Bertone (ahead)" },
+    heat: { level: "severe", aspect: "S", shade: "none", water: "none" },
     sights: [
       {
         name: "Courmayeur Old Town",
@@ -756,7 +774,8 @@ export const segmentData = {
   },
 
   "13-14": {
-    // Rifugio Bertone (1989m) → Rifugio Bonatti (2025m) | 7.7km | +330m -290m | 3h
+    // Rifugio Bertone (1989m) → Rifugio Bonatti (2025m) | 7.7km | +330m -294m | 2h15
+    exposure: { level: "exposed", exitMin: 45, shelter: "Rifugio Bonatti (ahead)", note: "Balcony trail above treeline most of the way" },
     sights: [
       {
         name: "Mont de la Saxe Ridge",
@@ -817,7 +836,8 @@ export const segmentData = {
   },
 
   "14-15": {
-    // Rifugio Bonatti (2025m) → Rifugio Elena (2062m) | 7.9km | +490m -450m | 3h30
+    // Rifugio Bonatti (2025m) → Rifugio Elena (2062m) | 5.7km | +300m -263m | 1h50
+    exposure: { level: "exposed", exitMin: 45, shelter: "Rifugio Elena (ahead)" },
     sights: [
       {
         name: "Val Ferret Views",
@@ -882,7 +902,9 @@ export const segmentData = {
   },
 
   "15-16": {
-    // Rifugio Elena (2062m) → La Peule (1705m) | 3.9km | +20m -380m | 1h30
+    // Rifugio Elena (2062m) → La Peule (2071m) | 7.5km | +480m -471m | 2h35
+    highPoint: { name: "Grand Col Ferret", altitude: 2537, position: 0.51, lat: 45.8890, lng: 7.0779 },
+    exposure: { level: "severe", exitMin: 60, shelter: "La Peule (ahead)", note: "Grand Col Ferret open on both approaches; Elena behind" },
     sights: [
       {
         name: "Grand Col Ferret",
@@ -922,7 +944,8 @@ export const segmentData = {
   },
 
   "16-17": {
-    // La Peule (1705m) → Ferret (1700m) | 2.8km | -5m | 45min
+    // La Peule (2071m) → Ferret (1700m) | 4.0km | +10m -381m | 1h05
+    exposure: { level: "moderate", exitMin: 25, shelter: "Ferret village (ahead)" },
     sights: [
       {
         name: "Swiss Val Ferret",
@@ -973,7 +996,7 @@ export const segmentData = {
   },
 
   "17-18": {
-    // Ferret (1700m) → La Fouly (1610m) | 7.0km | +20m -110m | 2h
+    // Ferret (1700m) → La Fouly (1610m) | 4.3km | +40m -130m | 1h
     sights: [
       {
         name: "Swiss Val Ferret meadows",
@@ -1184,7 +1207,8 @@ export const segmentData = {
   },
 
   "22-23": {
-    // Plan de l'Au (1330m) → Bovine (1987m) | 4.2km | +300m -140m | 2h
+    // Plan de l'Au (1330m) → Bovine (1987m) | 4.2km | +690m -33m | 2h
+    exposure: { level: "exposed", exitMin: 40, shelter: "Bovine alpage (ahead)" },
     sights: [
       {
         name: "Bovine Alpage",
@@ -1231,7 +1255,8 @@ export const segmentData = {
   },
 
   "23-24": {
-    // Bovine (1987m) → Col de la Forclaz (1526m) | 4.5km | +50m -510m | 1h45
+    // Bovine (1987m) → Col de la Forclaz (1526m) | 4.5km | +130m -591m | 1h30
+    exposure: { level: "moderate", exitMin: 30, shelter: "Col de la Forclaz (ahead)" },
     sights: [
       {
         name: "Rhône Valley Views",
@@ -1333,7 +1358,8 @@ export const segmentData = {
   },
 
   "25-26": {
-    // Trient (1279m) → Col de Balme (2191m) | 6.0km | +910m | 3h
+    // Trient (1279m) → Col de Balme (2191m) | 5.7km | +920m -8m | 2h40
+    exposure: { level: "exposed", exitMin: 45, shelter: "Col de Balme / Charamillon lift (ahead)" },
     sights: [
       {
         name: "Les Grands viewpoint",
@@ -1398,7 +1424,8 @@ export const segmentData = {
   },
 
   "26-27": {
-    // Col de Balme (2191m) → Le Tour (1460m) | 6.0km | -730m | 2h15
+    // Col de Balme (2191m) → Le Tour (1460m) | 3.9km | +5m -736m | 1h15
+    exposure: { level: "moderate", exitMin: 30, shelter: "Charamillon lift / Le Tour (ahead)" },
     sights: [
       {
         name: "Chamonix Valley Vista",
@@ -1477,7 +1504,7 @@ export const segmentData = {
   },
 
   "27-28": {
-    // Le Tour (1460m) → Tré-le-Champ (1417m) | 8.0km | +240m -280m | 2h45
+    // Le Tour (1460m) → Tré-le-Champ (1417m) | 3.4km | +60m -103m | 50min
     sights: [
       {
         name: "Chamonix Aiguilles",
@@ -1562,7 +1589,9 @@ export const segmentData = {
   },
 
   "28-29": {
-    // Tré-le-Champ (1417m) → La Flégère (1875m) | 7.8km | +800m -340m | 3h30
+    // Tré-le-Champ (1417m) → La Flégère (1875m) | 7.5km | +783m -325m | 3h
+    highPoint: { name: "Tête aux Vents", altitude: 2132, position: 0.6, lat: 45.963, lng: 6.906 },
+    exposure: { level: "severe", exitMin: 60, shelter: "La Flégère (ahead)", note: "Aiguillette d'Argentière ladders + Tête aux Vents; retreat back down ladders is slow" },
     sights: [
       {
         name: "Lac Blanc optional detour",
@@ -1628,7 +1657,8 @@ export const segmentData = {
   },
 
   "29-30": {
-    // La Flégère (1875m) → Planpraz (2000m) | 2.8km | +340m -220m | 1h30
+    // La Flégère (1875m) → Planpraz (2000m) | 5.5km | +340m -215m | 1h50
+    exposure: { level: "exposed", exitMin: 40, shelter: "Planpraz lift station (ahead)" },
     sights: [
       {
         name: "Grand Balcon Sud",
@@ -1704,7 +1734,8 @@ export const segmentData = {
   },
 
   "30-31": {
-    // Planpraz (2000m) → Brévent (2525m) | 2.8km | +525m | 1h30
+    // Planpraz (2000m) → Brévent (2525m) | 2.8km | +540m -15m | 1h30
+    exposure: { level: "exposed", exitMin: 45, shelter: "Planpraz lift station (behind)" },
     sights: [
       {
         name: "Brévent Summit",
@@ -1758,7 +1789,8 @@ export const segmentData = {
   },
 
   "31-32": {
-    // Brévent (2525m) → Bellachat (2152m) | 2.6km | +20m -390m | 1h15
+    // Brévent (2525m) → Bellachat (2152m) | 2.4km | +30m -403m | 50min
+    exposure: { level: "exposed", exitMin: 35, shelter: "Refuge de Bellachat (ahead)" },
     sights: [
       {
         name: "Final Mont Blanc Views",
@@ -1809,7 +1841,7 @@ export const segmentData = {
   },
 
   "32-33": {
-    // Bellachat (2152m) → Les Houches End (1007m) | 7.5km | +40m -1190m | 3h
+    // Bellachat (2152m) → Les Houches End (1007m) | 6.0km | +15m -1160m | 2h
     sights: [
       {
         name: "Final descent views",
